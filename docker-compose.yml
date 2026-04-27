@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  # FastAPI Backend Service
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: bustatv-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./bustaTv.db
+      - SECRET_API_KEY=bustatv-dev-secret-key-changeme
+    volumes:
+      - ./backend:/app
+      - ./data:/app/data
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - bustatv-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    labels:
+      - "com.bustatv.description=bustaTv Backend API"
+
+  # React Frontend Service
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: bustatv-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev -- --host 0.0.0.0
+    networks:
+      - bustatv-network
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5173/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "com.bustatv.description=bustaTv Frontend"
+
+  # Optional: PostgreSQL for future use
+  # database:
+  #   image: postgres:15-alpine
+  #   container_name: bustatv-db
+  #   environment:
+  #     POSTGRES_DB: bustatv
+  #     POSTGRES_USER: bustatv
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - bustatv-network
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U bustatv"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+networks:
+  bustatv-network:
+    driver: bridge
+
+volumes:
+  # postgres_data:
+  #   driver: local

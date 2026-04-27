@@ -58,3 +58,13 @@ Thumbs.db
 # Database
 *.db
 bustaTv.db
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Environment files (keep examples)
+.env
+.env.local
+.env.*.local
+!.env.example
