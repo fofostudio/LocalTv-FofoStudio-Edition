@@ -1,3 +1,4 @@
+/* ===== LOGIN ===== */
 .loginContainer {
   display: flex;
   align-items: center;
@@ -30,11 +31,24 @@
   border-radius: 6px;
   color: var(--text-primary);
   font-size: 0.95rem;
+  font-family: inherit;
 }
 
 .input:focus {
   outline: none;
   border-color: var(--accent);
+}
+
+.input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #ff4444;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  text-align: center;
 }
 
 .button {
@@ -48,35 +62,322 @@
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
+  font-family: inherit;
 }
 
-.button:hover {
+.button:hover:not(:disabled) {
   background: var(--accent-hover);
 }
 
-.dashboardContainer {
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ===== DASHBOARD ===== */
+.dashboardWrapper {
+  min-height: calc(100vh - 60px);
+  background: var(--bg-primary);
+  padding: 2rem;
+}
+
+.dashboardHeader {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  height: calc(100vh - 60px);
+  margin-bottom: 2rem;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.dashboardHeader h1 {
+  color: var(--text-primary);
+  font-size: 2rem;
+  margin: 0;
+}
+
+.logoutBtn {
+  background: #ff4444;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+  font-family: inherit;
+}
+
+.logoutBtn:hover {
+  background: #dd2222;
+}
+
+.dashboardContainer {
+  max-width: 1400px;
+  margin: 0 auto;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  padding: 2rem;
+}
+
+.tableToolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.tableToolbar h2 {
+  color: var(--text-primary);
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--text-primary);
+}
+
+.table th {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid var(--border);
+}
+
+.table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.table tbody tr:hover {
   background: var(--bg-primary);
 }
 
-.dashboardContent {
-  background: var(--bg-secondary);
-  padding: 2rem;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  max-width: 500px;
+.noDataCell {
   text-align: center;
-}
-
-.dashboardContent h1 {
-  color: var(--text-primary);
-  margin-bottom: 1rem;
-}
-
-.dashboardContent p {
   color: var(--text-secondary);
+  padding: 2rem !important;
+}
+
+.loadingText {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 2rem;
+}
+
+.badgeActive {
+  background: #4CAF50;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.badgeInactive {
+  background: #999;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.actionBtn,
+.actionBtnEdit,
+.actionBtnDelete {
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.actionBtn {
+  background: #2196F3;
+  color: white;
+}
+
+.actionBtn:hover {
+  background: #1976D2;
+}
+
+.actionBtnEdit {
+  background: #4CAF50;
+  color: white;
+}
+
+.actionBtnEdit:hover {
+  background: #388E3C;
+}
+
+.actionBtnDelete {
+  background: #f44336;
+  color: white;
+}
+
+.actionBtnDelete:hover {
+  background: #d32f2f;
+}
+
+/* ===== FORM ===== */
+.formOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.formContainer {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.formHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.formHeader h2 {
+  color: var(--text-primary);
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.closeBtn:hover:not(:disabled) {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.closeBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.formContainer form {
+  padding: 1.5rem;
+}
+
+.formGroup {
   margin-bottom: 1.5rem;
+}
+
+.formGroup label {
+  display: block;
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.formGroup input[type="checkbox"] {
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
+.formGroup input[type="checkbox"] + * {
+  cursor: pointer;
+}
+
+.formGroup select,
+.formGroup input {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.formGroup select:focus,
+.formGroup input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.formGroup select:disabled,
+.formGroup input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.formActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.buttonSecondary {
+  padding: 0.75rem 1.5rem;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.buttonSecondary:hover:not(:disabled) {
+  background: var(--border);
+}
+
+.buttonSecondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

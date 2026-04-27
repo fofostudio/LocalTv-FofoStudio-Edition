@@ -22,6 +22,17 @@ export const api = {
   },
 
   // Admin (requiere API key)
+  validateApiKey: async (apiKey) => {
+    const res = await fetch(`${BASE_URL}/api/channels`, {
+      headers: { 'X-API-Key': apiKey },
+    });
+    if (res.status === 401) {
+      throw new Error('API Key inválida');
+    }
+    if (!res.ok) throw new Error('Error validating API Key');
+    return res.json();
+  },
+
   createChannel: async (data, apiKey) => {
     const res = await fetch(`${BASE_URL}/api/channels`, {
       method: 'POST',
