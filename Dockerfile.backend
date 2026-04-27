@@ -1,33 +1,26 @@
-# bustaTv Backend Dockerfile
-# Multi-stage build for FastAPI application
-
 FROM python:3.11-slim
 
-WORKDIR /app
+WORKDIR /app/backend
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first for better caching
+# Copiar requirements e instalar dependencias Python
 COPY backend/requirements.txt .
-
-# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
-COPY backend/ .
-
-# Create database directory
-RUN mkdir -p /app/data
-
-# Expose port
-EXPOSE 8000
+# Copiar código del backend
+COPY backend/app ./app
+COPY backend/main.py .
+COPY backend/scripts ./scripts
+COPY backend/.env .
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8000/health')"
+    CMD python -c "import requests; requests.get('http://localhost:8000/health')" || exit 1
 
-# Run application
+EXPOSE 8000
+
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -1,15 +1,6 @@
 # Git
 .git
 .gitignore
-.gitattributes
-
-# Node
-node_modules
-npm-debug.log
-yarn-debug.log
-yarn-error.log
-pnpm-debug.log
-dist
 
 # Python
 __pycache__
@@ -22,6 +13,7 @@ venv/
 ENV/
 build/
 develop-eggs/
+dist/
 downloads/
 eggs/
 .eggs/
@@ -35,39 +27,30 @@ wheels/
 .installed.cfg
 *.egg
 
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+dist/
+.env
+
 # IDE
-.vscode
-.idea
+.vscode/
+.idea/
 *.swp
 *.swo
 *~
+
+# OS
 .DS_Store
-.env
-.env.local
-.env.*.local
+Thumbs.db
 
 # Database
 *.db
-bustaTv.db
+*.sqlite3
 
-# Cache
-.cache
-.pytest_cache
-.next
-.turbo
-
-# Docker
-.dockerignore
-Dockerfile*
-docker-compose*.yml
-.docker
-
-# Tests
-coverage
-.nyc_output
-jest.config.js
-
-# Documentation
-docs
-README.md
-CLAUDE.md
+# Misc
+.env.local
+.env.*.local
+.cache/
+.pytest_cache/
