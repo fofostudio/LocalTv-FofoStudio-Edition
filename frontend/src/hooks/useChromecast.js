@@ -10,56 +10,11 @@ export const useChromecast = () => {
 
   useEffect(() => {
     mountedRef.current = true;
-
-    const initCast = () => {
-      if (!window.chrome?.cast) {
-        console.debug('Cast SDK aún no está disponible');
-        return;
-      }
-
-      const sessionRequest = new window.chrome.cast.SessionRequest(RECEIVER_APP_ID);
-
-      const onCastApiAvailable = (available) => {
-        if (mountedRef.current && available) {
-          console.log('✅ Cast SDK disponible y listo');
-          setIsAvailable(true);
-        }
-      };
-
-      const onCastApiUnavailable = () => {
-        if (mountedRef.current) {
-          console.warn('❌ Cast API no disponible en este navegador');
-          setIsAvailable(false);
-        }
-      };
-
-      const onReceiverAvailable = () => {
-        console.log('📺 Dispositivos de recepción detectados');
-      };
-
-      const onSessionJoined = (session) => {
-        if (mountedRef.current) {
-          console.log('🔗 Sesión Cast establecida automáticamente');
-          setupSession(session);
-        }
-      };
-
-      const apiConfig = new window.chrome.cast.ApiConfig(
-        sessionRequest,
-        onSessionJoined,
-        onReceiverAvailable,
-        window.chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
-      );
-
-      try {
-        window.chrome.cast.initialize(apiConfig, onCastApiAvailable, onCastApiUnavailable);
-      } catch (e) {
-        console.error('Error inicializando Cast:', e);
-      }
-    };
+    let cleanupFns = [];
 
     const setupSession = (session) => {
       if (mountedRef.current) {
+        console.log('🔗 Sesión Cast establecida');
         setCurrentSession(session);
         setIsCasting(true);
 
@@ -73,43 +28,95 @@ export const useChromecast = () => {
       }
     };
 
-    // Esperar a que el SDK esté disponible
-    if (window.chrome?.cast) {
-      initCast();
-    } else {
+    const initCast = () => {
+      if (!window.chrome?.cast) {
+        console.debug('Cast SDK aún no está disponible');
+        return false;
+      }
+
+      console.log('🔧 Inicializando Cast Framework...');
+
+      const sessionRequest = new window.chrome.cast.SessionRequest(RECEIVER_APP_ID);
+
+      const onCastApiAvailable = (available) => {
+        console.log('onCastApiAvailable called with:', available);
+        if (mountedRef.current) {
+          if (available) {
+            console.log('✅ Cast SDK disponible y listo');
+            setIsAvailable(true);
+          } else {
+            console.warn('❌ Cast API no disponible');
+            setIsAvailable(false);
+          }
+        }
+      };
+
+      const onReceiverAvailable = () => {
+        console.log('📺 Dispositivos Chromecast detectados');
+        if (mountedRef.current) {
+          setIsAvailable(true); // Asegurar que isAvailable esté true
+        }
+      };
+
+      const onSessionJoined = (session) => {
+        console.log('onSessionJoined called');
+        if (mountedRef.current) {
+          setupSession(session);
+        }
+      };
+
+      const apiConfig = new window.chrome.cast.ApiConfig(
+        sessionRequest,
+        onSessionJoined,
+        onReceiverAvailable,
+        window.chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+      );
+
+      try {
+        window.chrome.cast.initialize(apiConfig, onCastApiAvailable, onReceiverAvailable);
+        console.log('✅ initialize() llamado exitosamente');
+        return true;
+      } catch (e) {
+        console.error('Error en initialize():', e);
+        return false;
+      }
+    };
+
+    // Intentar inicializar inmediatamente
+    const initialized = initCast();
+
+    if (!initialized) {
+      // Si no se inicializó, esperar al SDK
+      console.log('⏳ Esperando SDK...');
+
+      // Callback global para cuando el SDK cargue
       const globalCallback = (available) => {
-        console.log('🎬 Callback global Cast API: disponible =', available);
-        if (mountedRef.current && available) {
+        console.log('🎬 window.__onGCastApiAvailable llamado con:', available);
+        if (mountedRef.current) {
           initCast();
         }
       };
 
-      window.__onGCastApiAvailable = globalCallback;
+      if (!window.__onGCastApiAvailable) {
+        window.__onGCastApiAvailable = globalCallback;
+      }
 
-      // Fallback: polling
+      // Polling como fallback
       const checkInterval = setInterval(() => {
-        if (window.chrome?.cast) {
-          console.log('🎬 SDK detectado por polling');
+        if (window.chrome?.cast && mountedRef.current) {
+          console.log('✓ SDK detectado por polling, inicializando...');
           clearInterval(checkInterval);
           initCast();
         }
-      }, 500);
+      }, 300);
 
-      const timeout = setTimeout(() => {
-        clearInterval(checkInterval);
-      }, 10000);
-
-      return () => {
-        clearInterval(checkInterval);
-        clearTimeout(timeout);
-        window.__onGCastApiAvailable = undefined;
-        mountedRef.current = false;
-      };
+      cleanupFns.push(() => clearInterval(checkInterval));
     }
 
     return () => {
       mountedRef.current = false;
       window.__onGCastApiAvailable = undefined;
+      cleanupFns.forEach(fn => fn());
     };
   }, []);
 
