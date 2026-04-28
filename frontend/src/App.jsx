@@ -4,6 +4,7 @@ import { FavoritesProvider } from './context/FavoritesContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
 import ChannelPage from './pages/ChannelPage';
+import Events from './pages/Events';
 import AdminLogin from './pages/Admin/AdminLogin';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 
@@ -15,6 +16,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/channel/:channelId" element={<ChannelPage />} />
+            <Route path="/events" element={<Events />} />
             <Route path="/admin" element={<AdminLogin />} />
             <Route
               path="/admin/dashboard"

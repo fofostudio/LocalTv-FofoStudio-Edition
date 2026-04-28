@@ -78,4 +78,10 @@ export const api = {
     });
     if (!res.ok) throw new Error('Error deleting channel');
   },
+
+  getDiaryEvents: async () => {
+    const res = await fetch('https://pltvhd.com/diaries.json');
+    if (!res.ok) throw new Error('Failed to fetch diary events');
+    return res.json();
+  },
 };

@@ -12,6 +12,7 @@ export default function Navbar() {
         <div className={styles.menu}>
           <Link to="/" className={styles.link}>Inicio</Link>
           <Link to="/" className={styles.link}>Canales</Link>
+          <Link to="/events" className={styles.link}>Eventos</Link>
           <Link to="/admin" className={styles.link}>Admin</Link>
         </div>
       </div>
