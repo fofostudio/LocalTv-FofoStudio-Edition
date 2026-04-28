@@ -1,14 +1,10 @@
 #!/bin/bash
 
-echo "════════════════════════════════════════════════════════════"
-echo "  bustaTv - Setup Automático"
-echo "════════════════════════════════════════════════════════════"
-echo ""
-
 # Colors for output
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
+RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 # Function to print status
@@ -24,92 +20,159 @@ print_warning() {
     echo -e "${YELLOW}!${NC} $1"
 }
 
-# Check if Python is installed
-print_status "Verificando Python..."
-if ! command -v python3 &> /dev/null; then
-    print_warning "Python no está instalado"
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        print_status "Instalando Python con Homebrew..."
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        brew install python3
-    else
-        echo "Por favor instala Python desde: https://www.python.org/downloads/"
-        exit 1
-    fi
+print_error() {
+    echo -e "${RED}✗${NC} $1"
+}
+
+# First, check and display what's already installed
+echo "════════════════════════════════════════════════════════════"
+echo "  bustaTv - Verificando dependencias"
+echo "════════════════════════════════════════════════════════════"
+echo ""
+
+NEEDS_INSTALL=0
+
+# Check Python
+if command -v python3 &> /dev/null; then
+    PYTHON_VERSION=$(python3 --version 2>&1 | awk '{print $2}')
+    print_success "Python $PYTHON_VERSION"
 else
-    print_success "Python está instalado"
+    print_error "Python no instalado"
+    NEEDS_INSTALL=1
 fi
 
-# Check if Node.js is installed
-print_status "Verificando Node.js..."
-if ! command -v node &> /dev/null; then
-    print_warning "Node.js no está instalado"
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        print_status "Instalando Node.js con Homebrew..."
-        brew install node
-    else
-        echo "Por favor instala Node.js desde: https://nodejs.org/"
-        exit 1
-    fi
+# Check Node.js
+if command -v node &> /dev/null; then
+    NODE_VERSION=$(node -v)
+    print_success "Node.js $NODE_VERSION"
 else
-    print_success "Node.js está instalado ($(node -v))"
+    print_error "Node.js no instalado"
+    NEEDS_INSTALL=1
+fi
+
+# Check Python venv
+if [ -d "backend/venv" ]; then
+    print_success "Entorno virtual Python creado"
+else
+    print_warning "Entorno virtual Python no creado"
+    NEEDS_INSTALL=1
+fi
+
+# Check Node modules
+if [ -d "frontend/node_modules" ]; then
+    print_success "Dependencias de Node.js instaladas"
+else
+    print_warning "Dependencias de Node.js no instaladas"
+    NEEDS_INSTALL=1
+fi
+
+# Check backend .env
+if [ -f "backend/.env" ]; then
+    print_success "Configuración backend (.env) existe"
+else
+    print_warning "Configuración backend (.env) no existe"
+    NEEDS_INSTALL=1
+fi
+
+# Check frontend .env
+if [ -f "frontend/.env" ]; then
+    print_success "Configuración frontend (.env) existe"
+else
+    print_warning "Configuración frontend (.env) no existe"
+    NEEDS_INSTALL=1
 fi
 
 echo ""
-print_status "Configurando backend..."
 
-# Create backend venv if it doesn't exist
-if [ ! -d "backend/venv" ]; then
-    print_status "Creando entorno virtual de Python..."
-    cd backend
-    python3 -m venv venv
-    cd ..
+# If everything is installed, skip to startup
+if [ $NEEDS_INSTALL -eq 0 ]; then
+    echo "════════════════════════════════════════════════════════════"
+    echo -e "  ${GREEN}Todas las dependencias están instaladas${NC}"
+    echo "════════════════════════════════════════════════════════════"
+    echo ""
 else
-    print_success "Entorno virtual ya existe"
-fi
+    echo "════════════════════════════════════════════════════════════"
+    echo "  Instalando dependencias faltantes..."
+    echo "════════════════════════════════════════════════════════════"
+    echo ""
 
-# Activate venv and install requirements
-print_status "Instalando dependencias de Python..."
-source backend/venv/bin/activate
-pip install --upgrade pip > /dev/null 2>&1
-pip install -r backend/requirements.txt > /dev/null 2>&1
-print_success "Dependencias de backend instaladas"
+    # Check if Python is installed
+    if ! command -v python3 &> /dev/null; then
+        print_status "Instalando Python..."
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            print_status "Instalando Homebrew (si no existe)..."
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" 2>/dev/null
+            brew install python3 > /dev/null 2>&1
+            print_success "Python instalado"
+        else
+            print_error "Python no está instalado. Descárgalo desde: https://www.python.org/downloads/"
+            exit 1
+        fi
+    fi
 
-# Create .env file for backend if it doesn't exist
-if [ ! -f "backend/.env" ]; then
-    print_status "Creando archivo .env del backend..."
-    cat > backend/.env << EOF
+    # Check if Node.js is installed
+    if ! command -v node &> /dev/null; then
+        print_status "Instalando Node.js..."
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            brew install node > /dev/null 2>&1
+            print_success "Node.js instalado"
+        else
+            print_error "Node.js no está instalado. Descárgalo desde: https://nodejs.org/"
+            exit 1
+        fi
+    fi
+
+    echo ""
+    print_status "Configurando backend..."
+
+    # Create backend venv if it doesn't exist
+    if [ ! -d "backend/venv" ]; then
+        print_status "Creando entorno virtual de Python..."
+        cd backend
+        python3 -m venv venv > /dev/null 2>&1
+        cd ..
+        print_success "Entorno virtual creado"
+    fi
+
+    # Activate venv and install requirements
+    print_status "Instalando dependencias de Python (esto puede tardar)..."
+    source backend/venv/bin/activate
+    pip install --upgrade pip > /dev/null 2>&1
+    pip install -r backend/requirements.txt > /dev/null 2>&1
+    print_success "Dependencias de backend instaladas"
+
+    # Create .env file for backend if it doesn't exist
+    if [ ! -f "backend/.env" ]; then
+        print_status "Creando archivo .env del backend..."
+        cat > backend/.env << EOF
 DATABASE_URL=sqlite:///./bustaTv.db
 SECRET_API_KEY=bustatv-dev-secret-key-changeme
 EOF
-    print_success "Archivo .env creado en backend/"
-else
-    print_success "Archivo .env ya existe en backend/"
-fi
+        print_success "Archivo .env creado en backend/"
+    fi
 
-echo ""
-print_status "Configurando frontend..."
+    echo ""
+    print_status "Configurando frontend..."
 
-# Install frontend dependencies
-if [ ! -d "frontend/node_modules" ]; then
-    print_status "Instalando dependencias de Node.js (esto puede tardar)..."
-    cd frontend
-    npm install > /dev/null 2>&1
-    cd ..
-    print_success "Dependencias de frontend instaladas"
-else
-    print_success "Dependencias de frontend ya instaladas"
-fi
+    # Install frontend dependencies
+    if [ ! -d "frontend/node_modules" ]; then
+        print_status "Instalando dependencias de Node.js (esto puede tardar)..."
+        cd frontend
+        npm install > /dev/null 2>&1
+        cd ..
+        print_success "Dependencias de frontend instaladas"
+    fi
 
-# Create .env file for frontend if it doesn't exist
-if [ ! -f "frontend/.env" ]; then
-    print_status "Creando archivo .env del frontend..."
-    cat > frontend/.env << EOF
+    # Create .env file for frontend if it doesn't exist
+    if [ ! -f "frontend/.env" ]; then
+        print_status "Creando archivo .env del frontend..."
+        cat > frontend/.env << EOF
 VITE_API_URL=http://localhost:8000
 EOF
-    print_success "Archivo .env creado en frontend/"
-else
-    print_success "Archivo .env ya existe en frontend/"
+        print_success "Archivo .env creado en frontend/"
+    fi
+
+    echo ""
 fi
 
 echo ""

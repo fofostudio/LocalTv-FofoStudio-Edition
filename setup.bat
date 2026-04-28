@@ -1,58 +1,123 @@
 @echo off
 setlocal enabledelayedexpansion
 
-echo.
-echo ================================================================
-echo   bustaTv - Setup Automatico
-echo ================================================================
-echo.
-
 REM Colors (limited in CMD)
 color 0A
 
+echo.
+echo ================================================================
+echo   bustaTv - Verificando dependencias
+echo ================================================================
+echo.
+
 REM Check Python
-echo [*] Verificando Python...
+set PYTHON_OK=0
 python --version >nul 2>&1
-if %errorlevel% neq 0 (
-    echo [!] Python no esta instalado
-    echo     Descargalo desde: https://www.python.org/downloads/
-    echo     IMPORTANTE: Marca la opcion "Add Python to PATH"
-    pause
-    exit /b 1
-) else (
-    for /f "tokens=*" %%i in ('python --version') do set PYTHON_VERSION=%%i
+if %errorlevel% equ 0 (
+    for /f "tokens=*" %%i in ('python --version 2^>^&1') do set PYTHON_VERSION=%%i
     echo [OK] !PYTHON_VERSION! esta instalado
+    set PYTHON_OK=1
+) else (
+    echo [X] Python no esta instalado
 )
 
 REM Check Node.js
-echo [*] Verificando Node.js...
+set NODE_OK=0
 node --version >nul 2>&1
-if %errorlevel% neq 0 (
-    echo [!] Node.js no esta instalado
-    echo     Descargalo desde: https://nodejs.org/
-    pause
-    exit /b 1
-) else (
+if %errorlevel% equ 0 (
     for /f "tokens=*" %%i in ('node --version') do set NODE_VERSION=%%i
     echo [OK] Node.js !NODE_VERSION! esta instalado
+    set NODE_OK=1
+) else (
+    echo [X] Node.js no esta instalado
+)
+
+REM Check Python venv
+if exist "backend\venv" (
+    echo [OK] Entorno virtual Python creado
+    set VENV_OK=1
+) else (
+    echo [X] Entorno virtual Python no creado
+    set VENV_OK=0
+)
+
+REM Check Node modules
+if exist "frontend\node_modules" (
+    echo [OK] Dependencias de Node.js instaladas
+    set MODULES_OK=1
+) else (
+    echo [X] Dependencias de Node.js no instaladas
+    set MODULES_OK=0
+)
+
+REM Check backend .env
+if exist "backend\.env" (
+    echo [OK] Configuracion backend (.env) existe
+    set ENV_BACK_OK=1
+) else (
+    echo [X] Configuracion backend (.env) no existe
+    set ENV_BACK_OK=0
+)
+
+REM Check frontend .env
+if exist "frontend\.env" (
+    echo [OK] Configuracion frontend (.env) existe
+    set ENV_FRONT_OK=1
+) else (
+    echo [X] Configuracion frontend (.env) no existe
+    set ENV_FRONT_OK=0
 )
 
 echo.
+
+REM Check if everything is OK
+if %PYTHON_OK% equ 1 if %NODE_OK% equ 1 if %VENV_OK% equ 1 if %MODULES_OK% equ 1 if %ENV_BACK_OK% equ 1 if %ENV_FRONT_OK% equ 1 (
+    echo ================================================================
+    echo   [OK] Todas las dependencias estan instaladas
+    echo ================================================================
+    echo.
+    goto START_APP
+)
+
+REM Install missing dependencies
+echo ================================================================
+echo   Instalando dependencias faltantes...
+echo ================================================================
+echo.
+
+REM Check if Python needs to be installed
+if %PYTHON_OK% equ 0 (
+    echo [*] Python no esta instalado
+    echo     Descargalo desde: https://www.python.org/downloads/
+    echo     IMPORTANTE: Marca la opcion "Add Python to PATH" durante la instalacion
+    echo.
+    pause
+    exit /b 1
+)
+
+REM Check if Node.js needs to be installed
+if %NODE_OK% equ 0 (
+    echo [*] Node.js no esta instalado
+    echo     Descargalo desde: https://nodejs.org/
+    echo.
+    pause
+    exit /b 1
+)
+
 echo [*] Configurando backend...
 
 REM Create venv if it doesn't exist
 if not exist "backend\venv" (
     echo [*] Creando entorno virtual de Python...
     cd backend
-    python -m venv venv
+    python -m venv venv >nul 2>&1
     cd ..
-) else (
-    echo [OK] Entorno virtual ya existe
+    echo [OK] Entorno virtual creado
 )
 
 REM Activate venv and install requirements
 echo [*] Instalando dependencias de Python (esto puede tardar)...
-call backend\venv\Scripts\activate.bat
+call backend\venv\Scripts\activate.bat >nul 2>&1
 pip install --upgrade pip >nul 2>&1
 pip install -r backend\requirements.txt >nul 2>&1
 echo [OK] Dependencias de backend instaladas
@@ -65,8 +130,6 @@ if not exist "backend\.env" (
         echo SECRET_API_KEY=bustatv-dev-secret-key-changeme
     ) > backend\.env
     echo [OK] Archivo .env creado en backend\
-) else (
-    echo [OK] Archivo .env ya existe
 )
 
 echo.
@@ -76,11 +139,9 @@ REM Install frontend dependencies
 if not exist "frontend\node_modules" (
     echo [*] Instalando dependencias de Node.js (esto puede tardar)...
     cd frontend
-    call npm install
+    call npm install >nul 2>&1
     cd ..
     echo [OK] Dependencias de frontend instaladas
-) else (
-    echo [OK] Dependencias de frontend ya instaladas
 )
 
 REM Create .env file for frontend
@@ -90,9 +151,9 @@ if not exist "frontend\.env" (
         echo VITE_API_URL=http://localhost:8000
     ) > frontend\.env
     echo [OK] Archivo .env creado en frontend\
-) else (
-    echo [OK] Archivo .env ya existe
 )
+
+:START_APP
 
 echo.
 echo ================================================================
