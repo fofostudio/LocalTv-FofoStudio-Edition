@@ -23,9 +23,6 @@ export default function Home() {
         <div className={styles.playerSection}>
           {currentChannel && (
             <div className={styles.channelBanner}>
-              {currentChannel.logo_url && (
-                <img src={currentChannel.logo_url} alt={currentChannel.name} className={styles.logo} />
-              )}
               <h2 className={styles.channelName}>{currentChannel.name}</h2>
             </div>
           )}

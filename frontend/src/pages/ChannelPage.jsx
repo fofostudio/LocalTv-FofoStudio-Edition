@@ -44,9 +44,6 @@ export default function ChannelPage() {
         <div className={styles.playerSection}>
           {channel && (
             <div className={styles.channelBanner}>
-              {channel.logo_url && (
-                <img src={channel.logo_url} alt={channel.name} className={styles.logo} />
-              )}
               <h2 className={styles.channelName}>{channel.name}</h2>
             </div>
           )}
