@@ -16,11 +16,28 @@
   align-items: center;
 }
 
+.logoLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  transition: opacity 0.3s;
+}
+
+.logoLink:hover {
+  opacity: 0.8;
+}
+
 .logo {
-  font-size: 1.5rem;
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+}
+
+.brandName {
+  font-size: 1.3rem;
   font-weight: bold;
   color: #FFFFFF;
-  text-decoration: none;
   letter-spacing: 1px;
 }
 
