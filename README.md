@@ -54,8 +54,13 @@ localTv/
 │   └── .env                   # Variables de entorno
 │
 ├── docker-compose.yml         # Orquestación Docker
+├── setup.ps1                  # Setup unificado (PowerShell)
+├── setup.bat                  # Setup unificado (CMD)
+├── setup.sh                   # Setup unificado (Linux/macOS/Git Bash)
 ├── scripts/
-│   └── start.sh              # Script de inicio (MEJORADO)
+│   ├── start.ps1             # Solo arrancar (PowerShell)
+│   ├── start.bat             # Solo arrancar (CMD)
+│   └── start.sh              # Solo arrancar (Linux/macOS/Git Bash)
 ├── README.md                 # Este archivo
 ├── CLAUDE.md                 # Notas de desarrollo
 └── LICENSE                   # MIT License
@@ -78,35 +83,67 @@ localTv/
 
 ### DevOps & Acceso Remoto
 - **Docker & Docker Compose** - Containerización
-- **Python 3.9+** - Runtime backend
+- **Python 3.11–3.13** - Runtime backend (3.14 aún no soportado por `pydantic-core`)
 - **Node.js 18+** - Runtime frontend
 
 ## 📦 Instalación
 
 ### Requisitos Previos
-- Python 3.9+ con pip
+- Python **3.11, 3.12 o 3.13** con pip (Python 3.14 todavía no es compatible: `pydantic-core` aún no publica wheels para 3.14)
 - Node.js 18+ con npm
 - Git
 
-### 1. Clonar Repositorio
+### Clonar y arrancar con un solo comando
 
 ```bash
 git clone https://github.com/fofostudio/localTv.git
 cd localTv
 ```
 
-### 2. Instalación Backend
+**Windows (PowerShell — recomendado):**
+```powershell
+.\setup.ps1
+```
 
+**Windows (CMD):**
+```cmd
+setup.bat
+```
+
+**Linux / macOS / Git Bash:**
+```bash
+bash setup.sh
+```
+
+El script unificado:
+1. Detecta Python 3.11/3.12/3.13 (rechaza 3.14)
+2. Detecta Node.js ≥ 18
+3. Crea el venv y lo recrea si está usando una versión incompatible
+4. Instala dependencias backend y frontend
+5. Detecta `node_modules` con binarios de otra plataforma (típico al cambiar entre WSL y PowerShell) y reinstala
+6. Copia los `.env` desde `.env.example`
+7. Arranca backend y frontend
+
+Si solo quieres instalar sin arrancar, usa `--no-start`:
+```powershell
+.\setup.ps1 --no-start
+```
+
+### Instalación manual (si lo prefieres)
+
+**Backend:**
 ```bash
 cd backend
 python -m venv venv
-source venv/bin/activate  # En Windows: venv\Scripts\activate
+# Linux/macOS:
+source venv/bin/activate
+# Windows PowerShell:
+.\venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 cd ..
 ```
 
-### 3. Instalación Frontend
-
+**Frontend:**
 ```bash
 cd frontend
 npm install
@@ -115,11 +152,22 @@ cd ..
 
 ## 🚀 Ejecución
 
-### ⭐ Opción 1: Script de Inicio (RECOMENDADO)
+### ⭐ Opción 1: Comando único (RECOMENDADO)
 
-Inicia backend y frontend automáticamente CON acceso remoto:
+Arranca backend y frontend con acceso remoto automático:
+
+```powershell
+# Windows PowerShell
+.\scripts\start.ps1
+```
+
+```cmd
+:: Windows CMD
+scripts\start.bat
+```
 
 ```bash
+# Linux/macOS/Git Bash
 bash scripts/start.sh
 ```
 

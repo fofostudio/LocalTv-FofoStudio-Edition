@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { ChannelProvider } from './context/ChannelContext';
 import { FavoritesProvider } from './context/FavoritesContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -14,6 +14,13 @@ export default function App() {
       <ChannelProvider>
         <BrowserRouter>
           <div className={styles.appContainer}>
+            <header className={styles.brandHeader}>
+              <Link to="/" className={styles.brand}>
+                FofoStudio
+                <span className={styles.brandSuffix}>· LocalTv</span>
+              </Link>
+              <span className={styles.brandTagline}>FofoStudio Edition</span>
+            </header>
             <div className={styles.routesContainer}>
               <Routes>
                 <Route path="/" element={<Home />} />

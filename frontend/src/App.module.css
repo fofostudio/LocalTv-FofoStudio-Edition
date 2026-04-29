@@ -1,11 +1,65 @@
 .appContainer {
   height: 100vh;
   width: 100%;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 }
 
+.brandHeader {
+  flex-shrink: 0;
+  height: 44px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(90deg, #0a0a0a 0%, #1a1a1a 100%);
+  border-bottom: 1px solid #2a2a2a;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.brand {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff3b3b;
+  box-shadow: 0 0 8px rgba(255, 59, 59, 0.7);
+}
+
+.brandSuffix {
+  font-weight: 400;
+  color: #aaa;
+  font-size: 0.85rem;
+}
+
+.brandTagline {
+  color: #888;
+  font-size: 0.78rem;
+  font-weight: 400;
+}
+
 .routesContainer {
-  height: 100%;
+  flex: 1;
   width: 100%;
+  min-height: 0;
   overflow: hidden;
+}
+
+@media (max-width: 600px) {
+  .brandTagline {
+    display: none;
+  }
 }

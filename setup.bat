@@ -1,187 +1,206 @@
 @echo off
+REM localTv - Setup + Start (CMD)
+REM Comando unico de instalacion. Para mejor experiencia usa setup.ps1 desde PowerShell.
+
 setlocal enabledelayedexpansion
-
-REM Colors (limited in CMD)
-color 0A
+cd /d "%~dp0"
 
 echo.
 echo ================================================================
-echo   bustaTv - Verificando dependencias
+echo   localTv - Setup unificado (CMD)
 echo ================================================================
 echo.
 
-REM Check Python
-set PYTHON_OK=0
-python --version >nul 2>&1
-if %errorlevel% equ 0 (
-    for /f "tokens=*" %%i in ('python --version 2^>^&1') do set PYTHON_VERSION=%%i
-    echo [OK] !PYTHON_VERSION! esta instalado
-    set PYTHON_OK=1
-) else (
-    echo [X] Python no esta instalado
+if not exist "backend" goto NOROOT
+if not exist "frontend" goto NOROOT
+goto ROOT_OK
+:NOROOT
+echo [X] No se detectan las carpetas backend\ y frontend\
+echo     Ejecuta este script desde la raiz del proyecto.
+exit /b 1
+:ROOT_OK
+
+REM --- 1. Detectar Python compatible (3.13 / 3.12 / 3.11) ---
+echo ==^> Detectando Python compatible (3.11 / 3.12 / 3.13)
+
+set PYTHON_CMD=
+for %%V in (3.13 3.12 3.11) do (
+    if not defined PYTHON_CMD (
+        py -%%V -c "import sys" >nul 2>&1
+        if !errorlevel! equ 0 (
+            set PYTHON_CMD=py -%%V
+            echo [OK] Encontrado Python %%V via py launcher
+        )
+    )
 )
 
-REM Check Node.js
-set NODE_OK=0
-node --version >nul 2>&1
-if %errorlevel% equ 0 (
-    for /f "tokens=*" %%i in ('node --version') do set NODE_VERSION=%%i
-    echo [OK] Node.js !NODE_VERSION! esta instalado
-    set NODE_OK=1
-) else (
-    echo [X] Node.js no esta instalado
+if not defined PYTHON_CMD (
+    python --version >nul 2>&1
+    if !errorlevel! equ 0 (
+        for /f "tokens=2 delims= " %%a in ('python --version 2^>^&1') do set PYVER=%%a
+        for /f "tokens=1,2 delims=." %%a in ("!PYVER!") do (
+            set PYMAJ=%%a
+            set PYMIN=%%b
+        )
+        if "!PYMAJ!"=="3" (
+            if "!PYMIN!"=="11" set PYTHON_CMD=python
+            if "!PYMIN!"=="12" set PYTHON_CMD=python
+            if "!PYMIN!"=="13" set PYTHON_CMD=python
+        )
+        if defined PYTHON_CMD echo [OK] Usando python del PATH ^(!PYVER!^)
+    )
 )
 
-REM Check Python venv
-if exist "backend\venv" (
-    echo [OK] Entorno virtual Python creado
-    set VENV_OK=1
-) else (
-    echo [X] Entorno virtual Python no creado
-    set VENV_OK=0
-)
-
-REM Check Node modules
-if exist "frontend\node_modules" (
-    echo [OK] Dependencias de Node.js instaladas
-    set MODULES_OK=1
-) else (
-    echo [X] Dependencias de Node.js no instaladas
-    set MODULES_OK=0
-)
-
-REM Check backend .env
-if exist "backend\.env" (
-    echo [OK] Configuracion backend (.env) existe
-    set ENV_BACK_OK=1
-) else (
-    echo [X] Configuracion backend (.env) no existe
-    set ENV_BACK_OK=0
-)
-
-REM Check frontend .env
-if exist "frontend\.env" (
-    echo [OK] Configuracion frontend (.env) existe
-    set ENV_FRONT_OK=1
-) else (
-    echo [X] Configuracion frontend (.env) no existe
-    set ENV_FRONT_OK=0
-)
-
-echo.
-
-REM Check if everything is OK
-if %PYTHON_OK% equ 1 if %NODE_OK% equ 1 if %VENV_OK% equ 1 if %MODULES_OK% equ 1 if %ENV_BACK_OK% equ 1 if %ENV_FRONT_OK% equ 1 (
-    echo ================================================================
-    echo   [OK] Todas las dependencias estan instaladas
-    echo ================================================================
-    echo.
-    goto START_APP
-)
-
-REM Install missing dependencies
-echo ================================================================
-echo   Instalando dependencias faltantes...
-echo ================================================================
-echo.
-
-REM Check if Python needs to be installed
-if %PYTHON_OK% equ 0 (
-    echo [*] Python no esta instalado
-    echo     Descargalo desde: https://www.python.org/downloads/
-    echo     IMPORTANTE: Marca la opcion "Add Python to PATH" durante la instalacion
-    echo.
-    pause
+if not defined PYTHON_CMD (
+    echo [X] No se encontro Python 3.11, 3.12 o 3.13.
+    echo     Instala Python 3.13 desde https://www.python.org/downloads/
+    echo     Si tienes Python 3.14, no funciona aun ^(pydantic-core sin wheels para 3.14^).
     exit /b 1
 )
 
-REM Check if Node.js needs to be installed
-if %NODE_OK% equ 0 (
-    echo [*] Node.js no esta instalado
-    echo     Descargalo desde: https://nodejs.org/
-    echo.
-    pause
+REM --- 2. Detectar Node.js >= 18 ---
+echo ==^> Detectando Node.js
+node -v >nul 2>&1
+if errorlevel 1 (
+    echo [X] Node.js no esta instalado.
+    echo     Instala Node.js LTS desde https://nodejs.org/
     exit /b 1
 )
+for /f "tokens=*" %%i in ('node -v') do set NODE_VER=%%i
+echo [OK] Node.js !NODE_VER!
 
-echo [*] Configurando backend...
+REM --- 3. Backend ---
+echo ==^> Configurando backend
 
-REM Create venv if it doesn't exist
+REM Verificar si venv existe y es compatible
+set VENV_OK=0
+if exist "backend\venv\Scripts\python.exe" (
+    for /f "tokens=*" %%i in ('backend\venv\Scripts\python.exe -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" 2^>nul') do set VENV_VER=%%i
+    if "!VENV_VER!"=="3.11" set VENV_OK=1
+    if "!VENV_VER!"=="3.12" set VENV_OK=1
+    if "!VENV_VER!"=="3.13" set VENV_OK=1
+    if !VENV_OK! equ 0 (
+        echo [!] venv existente usa Python !VENV_VER! ^(incompatible^). Recreando...
+        rmdir /s /q "backend\venv"
+    )
+)
+
 if not exist "backend\venv" (
-    echo [*] Creando entorno virtual de Python...
-    cd backend
-    python -m venv venv >nul 2>&1
-    cd ..
-    echo [OK] Entorno virtual creado
+    echo ==^> Creando venv con %PYTHON_CMD%
+    %PYTHON_CMD% -m venv backend\venv
+    if errorlevel 1 (
+        echo [X] Fallo al crear venv
+        exit /b 1
+    )
+    echo [OK] venv creado
 )
 
-REM Activate venv and install requirements
-echo [*] Instalando dependencias de Python (esto puede tardar)...
-call backend\venv\Scripts\activate.bat >nul 2>&1
-pip install --upgrade pip >nul 2>&1
-pip install -r backend\requirements.txt >nul 2>&1
-echo [OK] Dependencias de backend instaladas
+if not exist "backend\venv\Scripts\uvicorn.exe" (
+    echo ==^> Instalando dependencias del backend ^(puede tardar^)
+    backend\venv\Scripts\python.exe -m pip install --upgrade pip --quiet
+    backend\venv\Scripts\python.exe -m pip install -r backend\requirements.txt
+    if errorlevel 1 (
+        echo [X] Fallo la instalacion de dependencias del backend
+        exit /b 1
+    )
+    echo [OK] Dependencias del backend instaladas
+) else (
+    echo [OK] Dependencias del backend ya instaladas
+)
 
-REM Create .env file for backend
+REM .env del backend
 if not exist "backend\.env" (
-    echo [*] Creando archivo .env del backend...
-    (
-        echo DATABASE_URL=sqlite:///./bustaTv.db
-        echo SECRET_API_KEY=bustatv-dev-secret-key-changeme
-    ) > backend\.env
-    echo [OK] Archivo .env creado en backend\
+    if exist "backend\.env.example" (
+        copy /Y "backend\.env.example" "backend\.env" >nul
+        echo [OK] .env del backend creado desde .env.example
+    ) else (
+        (
+            echo DATABASE_URL=sqlite:///./bustaTv.db
+            echo SECRET_API_KEY=bustatv-dev-secret-key-changeme
+        ) > "backend\.env"
+        echo [OK] .env del backend creado con valores por defecto
+    )
+) else (
+    echo [OK] .env del backend ya existe
 )
 
-echo.
-echo [*] Configurando frontend...
+REM --- 4. Frontend ---
+echo ==^> Configurando frontend
 
-REM Install frontend dependencies
-if not exist "frontend\node_modules" (
-    echo [*] Instalando dependencias de Node.js (esto puede tardar)...
-    cd frontend
-    call npm install >nul 2>&1
-    cd ..
-    echo [OK] Dependencias de frontend instaladas
+set REINSTALL_FRONTEND=0
+if exist "frontend\node_modules\@rolldown\binding-linux-x64-gnu" (
+    echo [!] node_modules tiene binarios de Linux. Reinstalando...
+    rmdir /s /q "frontend\node_modules"
+    if exist "frontend\package-lock.json" del "frontend\package-lock.json"
+    set REINSTALL_FRONTEND=1
+)
+if not exist "frontend\node_modules" set REINSTALL_FRONTEND=1
+
+if !REINSTALL_FRONTEND! equ 1 (
+    echo ==^> Instalando dependencias del frontend ^(puede tardar^)
+    pushd frontend
+    call npm install
+    if errorlevel 1 (
+        popd
+        echo [X] Fallo npm install
+        exit /b 1
+    )
+    popd
+    echo [OK] Dependencias del frontend instaladas
+) else (
+    echo [OK] Dependencias del frontend ya instaladas
 )
 
-REM Create .env file for frontend
+REM .env del frontend
 if not exist "frontend\.env" (
-    echo [*] Creando archivo .env del frontend...
-    (
-        echo VITE_API_URL=http://localhost:8000
-    ) > frontend\.env
-    echo [OK] Archivo .env creado en frontend\
+    if exist "frontend\.env.example" (
+        copy /Y "frontend\.env.example" "frontend\.env" >nul
+        echo [OK] .env del frontend creado desde .env.example
+    ) else (
+        echo VITE_API_URL=http://localhost:8000 > "frontend\.env"
+        echo [OK] .env del frontend creado con valores por defecto
+    )
+) else (
+    echo [OK] .env del frontend ya existe
 )
 
-:START_APP
-
 echo.
 echo ================================================================
-echo   ¡Iniciando aplicacion!
+echo   Instalacion completada
 echo ================================================================
 echo.
 
-REM Start backend
-echo [*] Iniciando backend (FastAPI)...
-call backend\venv\Scripts\activate.bat
-start "bustaTv Backend" cmd /k "cd backend && uvicorn main:app --reload --host 0.0.0.0 --port 8000"
-timeout /t 3 /nobreak
+REM --no-start salta el arranque
+for %%a in (%*) do (
+    if /I "%%a"=="--no-start" (
+        echo Para arrancar mas tarde: scripts\start.bat
+        exit /b 0
+    )
+)
 
-REM Start frontend
-echo [*] Iniciando frontend (Vite)...
-start "bustaTv Frontend" cmd /k "cd frontend && npm run dev"
-timeout /t 5 /nobreak
+echo ==^> Arrancando backend y frontend...
+echo.
+
+REM Lanzar backend en ventana propia
+start "localTv Backend" cmd /k "cd /d %~dp0backend && call venv\Scripts\activate.bat && uvicorn main:app --reload --host 0.0.0.0 --port 8000"
+
+REM Esperar a que el backend este listo
+timeout /t 3 /nobreak >nul
+
+REM Lanzar frontend en ventana propia
+start "localTv Frontend" cmd /k "cd /d %~dp0frontend && npm run dev -- --host"
 
 echo.
 echo ================================================================
-echo   ¡bustaTv esta listo!
+echo   localTv esta corriendo!
 echo ================================================================
 echo.
-echo [OK] Accede aqui:  http://localhost:5173
+echo   Frontend:    http://localhost:5173
+echo   Backend API: http://localhost:8000
+echo   Swagger UI:  http://localhost:8000/docs
 echo.
-echo     API Backend:     http://localhost:8000
-echo     API Docs:        http://localhost:8000/docs
+echo   API Key (Admin): bustatv-dev-secret-key-changeme
 echo.
-echo Para detener la aplicacion, cierra las ventanas de comando.
+echo Cierra las ventanas de Backend y Frontend para detener los servicios.
 echo.
 pause

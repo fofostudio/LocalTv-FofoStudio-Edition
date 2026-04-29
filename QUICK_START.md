@@ -1,141 +1,139 @@
-# 🚀 Inicio Rápido - localTv
+# Inicio Rápido - localTv
 
-## ⚡ 5 minutos para tener localTv corriendo
+## Comando único (instala + arranca)
 
-### 1️⃣ Instalación (Una sola vez)
+### Windows (PowerShell — recomendado)
+
+```powershell
+cd localTv
+.\setup.ps1
+```
+
+Si la política de ejecución te bloquea:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup.ps1
+```
+
+### Windows (CMD)
+
+```cmd
+cd localTv
+setup.bat
+```
+
+### Linux / macOS / Git Bash
 
 ```bash
 cd localTv
-bash scripts/install.sh
+bash setup.sh
 ```
 
-Eso es todo. El script instala:
-- ✅ Entorno virtual de Python
-- ✅ Dependencias backend (FastAPI, SQLAlchemy, etc.)
-- ✅ Dependencias frontend (React, Vite, etc.)
-- ✅ Archivos de configuración (.env)
+Eso es todo. El script:
 
-### 2️⃣ Iniciar la aplicación
+- Detecta Python 3.11/3.12/3.13 (rechaza 3.14 porque `pydantic-core` aún no publica wheels para 3.14)
+- Detecta Node.js ≥ 18
+- Crea el venv, instala dependencias backend
+- Instala dependencias frontend (con detección de binarios cruzados Linux/Windows)
+- Copia los archivos `.env` desde `.env.example`
+- Arranca backend (`uvicorn`) y frontend (`vite`)
+
+## Solo instalar (sin arrancar)
+
+```powershell
+.\setup.ps1 --no-start
+```
+
+```bash
+bash setup.sh --no-start
+```
+
+```cmd
+setup.bat --no-start
+```
+
+## Solo arrancar (ya instalado)
+
+```powershell
+.\scripts\start.ps1
+```
+
+```cmd
+scripts\start.bat
+```
 
 ```bash
 bash scripts/start.sh
 ```
 
-El script te mostrará:
-```
-✅ localTv está corriendo!
+## Acceso
 
-📍 URLs de Acceso Local:
+Cuando los servicios arranquen verás:
+
+```
+URLs de Acceso Local:
    Frontend:    http://localhost:5173
    Backend API: http://localhost:8000
+   Swagger UI:  http://localhost:8000/docs
 
-📍 URLs de Acceso Remoto (TV, otros dispositivos):
-   Frontend:    http://192.168.1.29:5173
-   Backend API: http://192.168.1.29:8000
+URLs de Acceso Remoto:
+   Frontend:    http://<tu-ip-local>:5173
 ```
-
-### 3️⃣ Abre la app
 
 - **Desde tu PC:** http://localhost:5173
-- **Desde tu TV:** Usa la IP que muestra el script (ej: http://192.168.1.29:5173)
+- **Desde tu TV u otro dispositivo en la red:** usa la IP local mostrada
+- **Panel Admin:** http://localhost:5173/admin (API Key: `bustatv-dev-secret-key-changeme`)
 
----
+## Solución de problemas comunes
 
-## 📺 Acceso desde TV
+### "Python no encontrado" o falla la build de `pydantic-core`
 
-1. Ejecuta `bash scripts/start.sh` en tu PC
-2. Anota la IP que aparece (ej: `192.168.1.29`)
-3. En tu TV, abre: `http://192.168.1.29:5173`
-4. **¡Listo!** Ahora tienes toda la app en tu TV
+Tienes Python 3.14 (todavía no soportado) o no tienes Python instalado.
 
----
+- Windows: descarga **Python 3.13** desde https://www.python.org/downloads/ (marca "Add Python to PATH")
+- macOS: `brew install python@3.13`
+- Ubuntu: `sudo apt install python3.13 python3.13-venv`
 
-## 🎯 Funciones principales
+Después borra el venv viejo (si existe) y vuelve a ejecutar el setup:
 
-### Pestaña "Canales" 📺
-- Lista de 100+ canales disponibles
-- Busca por nombre
-- Haz clic para reproducir
-
-### Pestaña "Eventos" 🎥 **(NUEVO)**
-- Eventos deportivos del día
-- Agrupados por competición (NBA, Copa Libertadores, etc.)
-- Busca por equipo, competición o stream
-- Haz clic en los badges para cargar el canal
-
-### Panel Admin 🔧
-- URL: http://localhost:5173/admin
-- API Key: `bustatv-dev-secret-key-changeme`
-- Gestiona canales (crear, editar, eliminar)
-
----
-
-## 🛠️ Solución de problemas
-
-### "Error: fetch failed" desde TV
-```bash
-# Reinicia con el script start.sh
-bash scripts/start.sh
-# Verifica que muestre la IP correcta
+```powershell
+Remove-Item -Recurse -Force backend\venv
+.\setup.ps1
 ```
 
-### Python no encontrado
-```bash
-# Instala Python 3.9+
-# macOS: brew install python3
-# Ubuntu: sudo apt install python3
-# Windows: descarga desde python.org
+### "Cannot find native binding" / `@rolldown/binding-linux-x64-gnu` o `win32-x64-msvc`
+
+`node_modules` se instaló en otra plataforma (típico al cambiar entre WSL y PowerShell). El setup detecta esto y reinstala automáticamente, pero si lo arrancas manualmente:
+
+```powershell
+Remove-Item -Recurse -Force frontend\node_modules
+Remove-Item frontend\package-lock.json -ErrorAction SilentlyContinue
+cd frontend
+npm install
 ```
 
-### Node.js no encontrado
-```bash
-# Instala Node.js 18+
-# macOS: brew install node
-# Ubuntu: sudo apt install nodejs npm
-# Windows: descarga desde nodejs.org
-```
+### `bash setup.sh` falla en Windows con `ifconfig: command not found` o rutas raras
 
-### Puerto ya en uso
-```bash
-# Si el puerto 5173 o 8000 está ocupado:
-# Detén el servicio que lo usa o usa un puerto diferente
+Estás usando WSL en lugar de PowerShell o Git Bash. **Usa `setup.ps1`** desde PowerShell. WSL es un Linux separado y no comparte el venv ni `node_modules` de Windows.
 
-# Para cambiar el puerto del frontend:
+### Puerto 5173 o 8000 en uso
+
+Detén el proceso que los esté ocupando, o cambia el puerto del frontend:
+
+```bash
 cd frontend
 npm run dev -- --port 3000
 ```
 
----
+## Estructura de scripts
 
-## 📖 Documentación completa
+| Script | Plataforma | Función |
+|--------|-----------|---------|
+| `setup.ps1` | Windows PowerShell | Instalar + arrancar (recomendado en Windows) |
+| `setup.bat` | Windows CMD | Instalar + arrancar |
+| `setup.sh` | Linux/macOS/Git Bash | Instalar + arrancar |
+| `scripts/start.ps1` | Windows PowerShell | Solo arrancar |
+| `scripts/start.bat` | Windows CMD | Solo arrancar |
+| `scripts/start.sh` | Linux/macOS/Git Bash | Solo arrancar |
 
-Ver `README.md` para:
-- Instalación manual
-- Configuración detallada
-- Desarrollo y contribuciones
-- Notas de seguridad
-
----
-
-## ⌨️ Comandos útiles
-
-```bash
-# Instalar (una sola vez)
-bash scripts/install.sh
-
-# Iniciar todo (recomendado)
-bash scripts/start.sh
-
-# Backend solo (terminal 1)
-cd backend && source venv/bin/activate && uvicorn main:app --reload --host 0.0.0.0
-
-# Frontend solo (terminal 2)
-cd frontend && npm run dev -- --host
-
-# Ver documentación API
-open http://localhost:8000/docs
-```
-
----
-
-**¿Listo?** Ejecuta `bash scripts/install.sh` y luego `bash scripts/start.sh` 🎉
+Todos los scripts soportan la flag `--no-start` (excepto los `start.*` que solo arrancan).
