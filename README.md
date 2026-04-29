@@ -4,6 +4,8 @@ Plataforma web de streaming de contenido en vivo con eventos deportivos integrad
 
 > **Repositorio:** https://github.com/FofoStudio/LocalTv-FofoStudio-Edition
 
+> 🟢 **¿Es tu primera vez instalando un proyecto?** Lee primero **[EMPEZAR_AQUI.md](./EMPEZAR_AQUI.md)** — guía paso a paso con enlaces de descarga.
+
 ## Características
 
 - Lista de 100+ canales en vivo con búsqueda por nombre
