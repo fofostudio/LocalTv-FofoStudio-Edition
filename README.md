@@ -422,8 +422,7 @@ MIT — ver `LICENSE`.
 
 ## Créditos
 
-- **FofoStudio Edition** mantenida por [@FofoStudio](https://github.com/FofoStudio)
-- Proyecto original: [@fofostudio/localTv](https://github.com/fofostudio/localTv)
+Mantenido por [@FofoStudio](https://github.com/FofoStudio).
 
 ---
 
