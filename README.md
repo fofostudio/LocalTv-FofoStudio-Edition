@@ -1,160 +1,137 @@
-# localTv
+# LocalTv — FofoStudio Edition
 
-Una plataforma web de streaming de contenido en vivo con eventos deportivos integrados, accesible desde cualquier dispositivo en tu red.
+Plataforma web de streaming de contenido en vivo con eventos deportivos integrados, accesible desde cualquier dispositivo de tu red local.
 
-## 📋 Descripción
+> **Repositorio:** https://github.com/FofoStudio/LocalTv-FofoStudio-Edition
 
-localTv es un agregador web de streams de contenido en vivo que permite visualizar múltiples canales de TV, filtrar por categorías, ver eventos del día y acceder a un panel administrativo para gestionar los canales. Diseñado para ser accesible desde Smart TVs, tablets y otros dispositivos en tu red local.
+## Características
 
-## 🎯 Características
+- Lista de 100+ canales en vivo con búsqueda por nombre
+- **Eventos del día** agrupados por competición (NBA, Copa Libertadores, etc.) con búsqueda por equipo/competición/stream
+- **Botones de stream inteligentes** que cargan el canal local correspondiente con normalización tolerante (acentos, "HD"/"SD", espacios, mayúsculas)
+- Indicador EN VIVO / Offline
+- Acceso remoto desde Smart TV, tablet u otra PC en la misma red
+- Panel administrativo (CRUD de canales) protegido por API key
+- API REST documentada con Swagger UI
 
-- ✅ Interfaz web limpia y centrada en el contenido
-- ✅ Lista de canales en vivo (100+ canales disponibles)
-- ✅ Búsqueda de canales por nombre
-- ✅ **Sección de Eventos** con competiciones agrupadas (NBA, Copa Libertadores, etc.)
-- ✅ Búsqueda de eventos por competición, equipo o stream
-- ✅ Integración con API de eventos en vivo (pltvhd.com)
-- ✅ Badges de streams clicables que cargan el canal
-- ✅ Indicadores de estado EN VIVO / Offline
-- ✅ API REST completamente documentada (Swagger UI)
-- ✅ **Acceso remoto desde cualquier dispositivo** (TV, tablet, otra PC)
-- ✅ Panel administrativo para gestionar canales
+## Stack
 
-## 🏗️ Arquitectura
+| Capa | Tecnología |
+|------|------------|
+| Frontend | React 19 · Vite · React Router 7 · CSS Modules |
+| Backend | FastAPI · Uvicorn · SQLAlchemy 2 · SQLite · Pydantic 2 |
+| Runtime | Python **3.11 / 3.12 / 3.13** · Node.js **18+** |
+| DevOps | Docker · Docker Compose |
 
-```
-localTv/
-├── backend/                    # API FastAPI + SQLite
-│   ├── app/
-│   │   ├── models/            # Modelos de datos
-│   │   ├── schemas/           # Schemas Pydantic
-│   │   ├── routers/           # Endpoints
-│   │   ├── crud/              # Operaciones de BD
-│   │   ├── auth.py            # Autenticación
-│   │   ├── config.py          # Configuración
-│   │   └── database.py        # Conexión BD
-│   ├── scripts/               # Scripts de utilidad
-│   ├── main.py                # Aplicación principal
-│   ├── requirements.txt        # Dependencias Python
-│   └── .env                   # Variables de entorno
-│
-├── frontend/                   # Interfaz React + Vite
-│   ├── src/
-│   │   ├── components/        # Componentes React
-│   │   │   ├── SidebarWithTabs/
-│   │   │   ├── DailyEvents/   # NEW: Sección de eventos
-│   │   │   └── ...
-│   │   ├── pages/             # Páginas (Home, ChannelPage)
-│   │   ├── context/           # Context API
-│   │   ├── services/          # Servicios HTTP
-│   │   ├── App.jsx            # Componente raíz
-│   │   └── main.jsx           # Punto de entrada
-│   ├── package.json           # Dependencias Node
-│   ├── vite.config.js         # Config Vite
-│   └── .env                   # Variables de entorno
-│
-├── docker-compose.yml         # Orquestación Docker
-├── setup.ps1                  # Setup unificado (PowerShell)
-├── setup.bat                  # Setup unificado (CMD)
-├── setup.sh                   # Setup unificado (Linux/macOS/Git Bash)
-├── scripts/
-│   ├── start.ps1             # Solo arrancar (PowerShell)
-│   ├── start.bat             # Solo arrancar (CMD)
-│   └── start.sh              # Solo arrancar (Linux/macOS/Git Bash)
-├── README.md                 # Este archivo
-├── CLAUDE.md                 # Notas de desarrollo
-└── LICENSE                   # MIT License
-```
+> **Python 3.14 no es compatible**: `pydantic-core` aún no publica wheels para 3.14 y la build desde fuente falla.
 
-## 🛠️ Stack Tecnológico
+## Inicio rápido (un solo comando)
 
-### Frontend
-- **React 19.2.5** - Librería UI moderna
-- **Vite 8.0.10** - Build tool ultra-rápido
-- **React Router DOM 7.14.2** - Enrutamiento cliente
-- **CSS Modules** - Estilos aislados por componente
+Después de clonar el repo, ejecuta el script de tu plataforma. Detecta dependencias, las instala si faltan, copia los `.env` y arranca el servidor.
 
-### Backend
-- **FastAPI 0.111.0** - Framework web async
-- **Uvicorn 0.30.0** - Servidor ASGI de alto rendimiento
-- **SQLAlchemy 2.0.30** - ORM para bases de datos
-- **SQLite** - Base de datos ligera
-- **Pydantic 2.7.0** - Validación de datos con tipos
+### Windows — PowerShell *(recomendado)*
 
-### DevOps & Acceso Remoto
-- **Docker & Docker Compose** - Containerización
-- **Python 3.11–3.13** - Runtime backend (3.14 aún no soportado por `pydantic-core`)
-- **Node.js 18+** - Runtime frontend
-
-## 📦 Instalación
-
-### Requisitos Previos
-- Python **3.11, 3.12 o 3.13** con pip (Python 3.14 todavía no es compatible: `pydantic-core` aún no publica wheels para 3.14)
-- Node.js 18+ con npm
-- Git
-
-### Clonar y arrancar con un solo comando
-
-```bash
-git clone https://github.com/fofostudio/localTv.git
-cd localTv
-```
-
-**Windows (PowerShell — recomendado):**
 ```powershell
+git clone https://github.com/FofoStudio/LocalTv-FofoStudio-Edition.git
+cd LocalTv-FofoStudio-Edition
 .\setup.ps1
 ```
 
-**Windows (CMD):**
+Si la política de ejecución te bloquea:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup.ps1
+```
+
+### Windows — CMD
+
 ```cmd
+git clone https://github.com/FofoStudio/LocalTv-FofoStudio-Edition.git
+cd LocalTv-FofoStudio-Edition
 setup.bat
 ```
 
-**Linux / macOS / Git Bash:**
+### Linux
+
 ```bash
-bash setup.sh
+git clone https://github.com/FofoStudio/LocalTv-FofoStudio-Edition.git
+cd LocalTv-FofoStudio-Edition
+chmod +x setup.sh
+./setup.sh
 ```
 
-El script unificado:
-1. Detecta Python 3.11/3.12/3.13 (rechaza 3.14)
+### macOS
+
+```bash
+git clone https://github.com/FofoStudio/LocalTv-FofoStudio-Edition.git
+cd LocalTv-FofoStudio-Edition
+chmod +x setup.sh
+./setup.sh
+```
+
+> **Sólo instalar (sin arrancar):** añade `--no-start` al comando (`./setup.sh --no-start`, `.\setup.ps1 --no-start`, `setup.bat --no-start`).
+
+Cada script:
+
+1. Detecta Python 3.11 / 3.12 / 3.13 (rechaza 3.14)
 2. Detecta Node.js ≥ 18
-3. Crea el venv y lo recrea si está usando una versión incompatible
+3. Crea el venv (lo recrea si existe con una versión incompatible)
 4. Instala dependencias backend y frontend
-5. Detecta `node_modules` con binarios de otra plataforma (típico al cambiar entre WSL y PowerShell) y reinstala
-6. Copia los `.env` desde `.env.example`
-7. Arranca backend y frontend
+5. Detecta `node_modules` con binarios de otra plataforma (típico al alternar WSL/Windows) y reinstala
+6. Copia los archivos `.env` desde `.env.example`
+7. Arranca backend (`uvicorn`) y frontend (`vite --host`) en ventanas separadas
 
-Si solo quieres instalar sin arrancar, usa `--no-start`:
+## Prerequisitos por plataforma
+
+### Windows
+
 ```powershell
-.\setup.ps1 --no-start
+# Python 3.13 (winget viene en Windows 11)
+winget install --id Python.Python.3.13
+
+# Node.js LTS
+winget install --id OpenJS.NodeJS.LTS
+
+# Git (si no lo tienes)
+winget install --id Git.Git
 ```
 
-### Instalación manual (si lo prefieres)
+Reinicia tu PowerShell/CMD después de instalar para que el PATH se refresque.
 
-**Backend:**
+### Linux (Debian/Ubuntu)
+
 ```bash
-cd backend
-python -m venv venv
-# Linux/macOS:
-source venv/bin/activate
-# Windows PowerShell:
-.\venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-cd ..
+sudo apt update
+sudo apt install -y python3.13 python3.13-venv python3-pip nodejs npm git
+# Verifica versiones
+python3.13 --version   # debe ser 3.13.x
+node -v                # debe ser >= 18
 ```
 
-**Frontend:**
+Si tu distro no trae Node 18+, usa [NodeSource](https://github.com/nodesource/distributions):
+
 ```bash
-cd frontend
-npm install
-cd ..
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
 ```
 
-## 🚀 Ejecución
+### Linux (Fedora/RHEL)
 
-### ⭐ Opción 1: Comando único (RECOMENDADO)
+```bash
+sudo dnf install -y python3.13 nodejs npm git
+```
 
-Arranca backend y frontend con acceso remoto automático:
+### macOS
+
+```bash
+# Si no tienes Homebrew:
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Dependencias
+brew install python@3.13 node git
+```
+
+## Solo arrancar (ya instalado)
 
 ```powershell
 # Windows PowerShell
@@ -167,255 +144,286 @@ scripts\start.bat
 ```
 
 ```bash
-# Linux/macOS/Git Bash
+# Linux / macOS
 bash scripts/start.sh
 ```
 
-**Salida esperada:**
-```
-✅ localTv está corriendo!
+Salida esperada:
 
-📍 URLs de Acceso Local:
+```
+localTv esta corriendo!
+
+URLs de Acceso Local:
    Frontend:    http://localhost:5173
    Backend API: http://localhost:8000
+   Swagger UI:  http://localhost:8000/docs
 
-📍 URLs de Acceso Remoto (TV, otros dispositivos):
+URLs de Acceso Remoto (TV, otros dispositivos):
    Frontend:    http://192.168.1.29:5173
    Backend API: http://192.168.1.29:8000
 ```
 
-### Opción 2: Manual en Terminales Separadas
+## Instalación manual (opcional)
 
-**Terminal 1 - Backend (escucha en todas las interfaces):**
-```bash
+### Backend
+
+**Windows (PowerShell):**
+```powershell
 cd backend
-source venv/bin/activate  # En Windows: venv\Scripts\activate
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+py -3.13 -m venv venv
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
 ```
 
-**Terminal 2 - Frontend (escucha en todas las interfaces):**
+**Linux / macOS:**
+```bash
+cd backend
+python3.13 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+```
+
+### Variables de entorno
+
+```bash
+# Backend
+cp backend/.env.example backend/.env
+
+# Frontend
+cp frontend/.env.example frontend/.env
+```
+
+### Arrancar manualmente
+
+**Terminal 1 — Backend:**
+
+```powershell
+# Windows
+cd backend; .\venv\Scripts\Activate.ps1; uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+```bash
+# Linux/macOS
+cd backend && source venv/bin/activate && uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+**Terminal 2 — Frontend:**
+
 ```bash
 cd frontend
 npm run dev -- --host
 ```
 
-### Opción 3: Docker Compose
+## Docker (alternativa)
 
 ```bash
-docker-compose up
+docker compose up --build
 ```
 
-## 🌐 URLs de Acceso
+Accede a http://localhost:5173
 
-| Servicio | Local | Remoto | Descripción |
-|----------|-------|--------|-------------|
-| Frontend | http://localhost:5173 | http://`<TU_IP>`:5173 | Interfaz web principal |
-| Backend API | http://localhost:8000 | http://`<TU_IP>`:8000 | API REST |
-| API Docs | http://localhost:8000/docs | http://`<TU_IP>`:8000/docs | Documentación Swagger |
+## URLs
 
-> `<TU_IP>` es tu dirección IP local. El script `start.sh` la calcula automáticamente.
+| Servicio | Local | Remoto |
+|----------|-------|--------|
+| Frontend | http://localhost:5173 | http://`<TU_IP>`:5173 |
+| Backend API | http://localhost:8000 | http://`<TU_IP>`:8000 |
+| API Docs (Swagger) | http://localhost:8000/docs | http://`<TU_IP>`:8000/docs |
 
-## 📖 Cómo Usar
+`<TU_IP>` es la IP local de tu PC; los scripts de arranque la imprimen automáticamente.
 
-### 🏠 Página Principal
+## Acceso desde Smart TV / tablet
 
-1. Abre http://localhost:5173 (o la URL remota desde tu TV)
-2. Verás el reproductor de video en el centro
-3. A la derecha hay un **sidebar con dos tabs**:
+1. Arranca con `.\scripts\start.ps1` (o equivalente). El script imprime la IP.
+2. En la TV/tablet, abre el navegador y entra a `http://<IP>:5173`.
+3. Asegúrate de que el dispositivo esté en la **misma red WiFi** que la PC.
 
-#### Tab "Canales" 📺
-- Lista de todos los canales disponibles (100+)
-- **Barra de búsqueda** para filtrar por nombre
-- Haz clic en un canal para reproducirlo
-- El título del canal se muestra arriba del video
-- El indicador **🔴 EN VIVO** se muestra abajo
+Si ves "fetch failed":
+- Confirma que el backend arrancó con `--host 0.0.0.0` (los scripts lo hacen).
+- Asegúrate de que el firewall de Windows permita los puertos 5173 y 8000 (la primera vez aparecerá un diálogo).
 
-#### Tab "Eventos" 🎥 **(NUEVO)**
-- Eventos deportivos del día agrupados por **competición** (NBA, Copa Libertadores, etc.)
-- Logo de cada competición visible
-- **Barra de búsqueda** para encontrar eventos
-- Busca por:
-  - Nombre de la competición
-  - Descripción del evento (equipos, participantes)
-  - Nombre del stream (ESPN, Fox Sports, etc.)
-- **Haz clic en los badges** de streams para cargar ese canal automáticamente
-- Horarios de los eventos mostrados
+## Panel administrativo
 
-### 🔧 Panel Administrativo
-
-1. Navega a http://localhost:5173/admin
+1. Ve a http://localhost:5173/admin
 2. Ingresa la API Key: `bustatv-dev-secret-key-changeme`
-3. Puedes:
-   - **Ver tabla** de todos los canales
-   - **Crear canal** nuevo
-   - **Editar canal** (nombre, URL, categoría, estado)
-   - **Activar/Desactivar** canal
-   - **Eliminar canal**
+3. Acciones: crear, editar, activar/desactivar y eliminar canales.
 
-### 📡 API REST
+> En producción, **cambia `SECRET_API_KEY` en `backend/.env`** por algo aleatorio.
 
-Algunos endpoints útiles:
+## Estructura del proyecto
+
+```
+LocalTv-FofoStudio-Edition/
+├── backend/                    # API FastAPI + SQLite
+│   ├── app/
+│   │   ├── models/            # Modelos SQLAlchemy
+│   │   ├── schemas/           # Schemas Pydantic
+│   │   ├── routers/           # Endpoints
+│   │   ├── crud/              # Operaciones de BD
+│   │   └── database.py
+│   ├── main.py
+│   ├── requirements.txt
+│   └── .env.example
+│
+├── frontend/                   # React + Vite
+│   ├── src/
+│   │   ├── components/        # SidebarWithTabs, DailyEvents, VideoPlayer, ...
+│   │   ├── pages/             # Home, ChannelPage, Admin
+│   │   ├── context/           # ChannelContext, FavoritesContext, UserContext
+│   │   ├── services/api.js    # Cliente HTTP
+│   │   ├── App.jsx            # Header "FofoStudio · LocalTv" + rutas
+│   │   └── main.jsx
+│   ├── package.json
+│   ├── vite.config.js
+│   └── .env.example
+│
+├── setup.ps1                  # Setup unificado (PowerShell)
+├── setup.bat                  # Setup unificado (CMD)
+├── setup.sh                   # Setup unificado (Linux/macOS/Git Bash)
+├── scripts/
+│   ├── start.ps1              # Solo arrancar (PowerShell)
+│   ├── start.bat              # Solo arrancar (CMD)
+│   └── start.sh               # Solo arrancar (Linux/macOS)
+├── docker-compose.yml
+├── .gitattributes             # Fuerza LF en .sh
+├── README.md
+├── QUICK_START.md
+├── CLAUDE.md
+└── LICENSE
+```
+
+## Solución de problemas
+
+### "Failed to build pydantic-core" / "PyO3 maximum supported version is 3.13"
+
+Tienes Python 3.14. Instala 3.13, borra el venv y vuelve a correr el setup:
+
+```powershell
+# Windows
+winget install --id Python.Python.3.13
+Remove-Item -Recurse -Force backend\venv
+.\setup.ps1
+```
+
+```bash
+# Linux
+sudo apt install python3.13 python3.13-venv
+rm -rf backend/venv
+./setup.sh
+```
+
+```bash
+# macOS
+brew install python@3.13
+rm -rf backend/venv
+./setup.sh
+```
+
+### "Cannot find native binding" / `@rolldown/binding-linux-x64-gnu` o `win32-x64-msvc`
+
+Tu `node_modules` se instaló en otra plataforma (típico al cambiar entre WSL y PowerShell). El setup detecta esto y reinstala. Si lo arrancas manualmente:
+
+```powershell
+Remove-Item -Recurse -Force frontend\node_modules
+Remove-Item frontend\package-lock.json -ErrorAction SilentlyContinue
+cd frontend; npm install
+```
+
+```bash
+rm -rf frontend/node_modules frontend/package-lock.json
+cd frontend && npm install
+```
+
+### `bash scripts/start.sh` falla en Windows con rutas tipo `/mnt/d/...`
+
+Estás usando WSL en lugar de Git Bash o PowerShell. WSL es un Linux separado y no comparte el venv ni `node_modules` con Windows. **Usa `setup.ps1` desde PowerShell.**
+
+### `setup.sh: line N: $'\r': command not found`
+
+El script tiene saltos de línea CRLF de Windows. El repo tiene `.gitattributes` que fuerza LF en `.sh`, pero si lo abriste con un editor que los cambió, ejecuta:
+
+```bash
+# Linux / macOS / Git Bash
+sed -i 's/\r$//' setup.sh scripts/start.sh scripts/install.sh
+```
+
+### Puerto 5173 o 8000 ocupado
+
+```bash
+# Frontend en otro puerto
+cd frontend
+npm run dev -- --host --port 3000
+
+# Backend en otro puerto (luego ajusta frontend/.env)
+uvicorn main:app --reload --host 0.0.0.0 --port 8001
+```
+
+### El frontend no encuentra el backend desde la TV
+
+`frontend/src/services/api.js` detecta automáticamente el host: si abres `http://192.168.1.29:5173` desde la TV, intenta llamar a `http://192.168.1.29:8000`. Si fijaste `VITE_API_URL` en `frontend/.env`, esa URL toma precedencia — **no la fijes** o ajústala a la IP de tu PC.
+
+## API REST
 
 ```bash
 # Health check
 curl http://localhost:8000/health
 
-# Obtener todos los canales
+# Lista de canales
 curl http://localhost:8000/api/channels
 
-# Obtener categorías
-curl http://localhost:8000/api/categories
-
-# Ver documentación interactiva
-open http://localhost:8000/docs  # macOS
-# o en Windows/Linux: abre http://localhost:8000/docs en tu navegador
+# Documentación interactiva
+# Abre en el navegador: http://localhost:8000/docs
 ```
 
-## 🖥️ Acceso Remoto desde TV
+## Variables de entorno
 
-### Paso 1: Ejecutar el servidor
-
-```bash
-bash scripts/start.sh
+### `backend/.env`
 ```
-
-El script te mostrará la IP local automáticamente:
-
-```
-📍 URLs de Acceso Remoto (TV, otros dispositivos):
-   Frontend:    http://192.168.1.29:5173
-```
-
-### Paso 2: Acceder desde la TV
-
-1. En tu Smart TV, abre el navegador web
-2. Escribe: `http://192.168.1.29:5173` (usa tu IP)
-3. La app cargará completamente
-
-### ⚠️ Si no funciona:
-- Verifica que tu TV y PC están en la **misma red WiFi**
-- Verifica la IP: es la que muestra el script `start.sh`
-- Si el backend da error "fetch failed":
-  - Asegúrate de que `--host 0.0.0.0` está activo en el backend
-  - Reinicia con el script `start.sh`
-
-## 🧪 Testing Manual E2E
-
-Después de ejecutar `bash scripts/start.sh`:
-
-### ✅ Frontend Checks
-
-- [ ] Frontend carga sin navbar (sin logo ni menú arriba)
-- [ ] Titulo del canal visible arriba del video (centrado)
-- [ ] Video player centrado en la pantalla
-- [ ] "🔴 EN VIVO" visible abajo del video (centrado)
-- [ ] Sidebar derecho con dos tabs: "Canales" y "Eventos"
-- [ ] Al hacer clic en "Canales" → muestra lista de canales
-- [ ] Al hacer clic en "Eventos" → muestra eventos agrupados por competición
-- [ ] Búsqueda en "Canales" filtra por nombre
-- [ ] Búsqueda en "Eventos" filtra por competición/equipo/stream
-- [ ] Al hacer clic en un canal → reproduce
-- [ ] Al hacer clic en un badge de stream en eventos → carga el canal
-- [ ] Layout es responsive (prueba con DevTools mobile)
-
-### ✅ Admin Panel Checks
-
-- [ ] Ir a /admin → se pide API key
-- [ ] Ingresar: `bustatv-dev-secret-key-changeme`
-- [ ] Dashboard muestra tabla con canales
-- [ ] Botón "Crear Canal" funciona
-- [ ] Editar canal (actualiza nombre, categoría, etc.)
-- [ ] Toggle on/off activa/desactiva canales
-- [ ] Botón eliminar funciona
-
-### ✅ Backend Checks
-
-```bash
-# Health endpoint
-curl http://localhost:8000/health
-# Debe retornar: {"status":"ok"}
-
-# Channels endpoint
-curl http://localhost:8000/api/channels
-# Debe retornar lista de canales en JSON
-
-# Swagger UI
-# Accede a http://localhost:8000/docs
-```
-
-### ✅ Acceso Remoto Checks
-
-- [ ] Desde TV/otro dispositivo: http://`<IP>`:5173 carga la app
-- [ ] Desde TV: Los canales se cargan sin errores
-- [ ] Desde TV: Los eventos se cargan sin errores
-- [ ] Desde TV: Puedo hacer clic en canales y eventos
-- [ ] Console (DevTools): SIN errores de "fetch failed"
-
-## 📝 Variables de Entorno
-
-### Backend (`.env`)
-
-```
-DATABASE_URL=sqlite:///./localTv.db
+DATABASE_URL=sqlite:///./bustaTv.db
 SECRET_API_KEY=bustatv-dev-secret-key-changeme
 ```
 
-### Frontend (`.env`)
-
+### `frontend/.env`
 ```
 VITE_API_URL=http://localhost:8000
 ```
 
-> **Nota:** Con acceso remoto, la URL se detecta automáticamente.
+> Si quieres acceso desde TV con auto-detección, **deja `VITE_API_URL` vacío** o no fijes ese archivo.
 
-## 🔒 Nota sobre Seguridad
+## Notas legales
 
-Este proyecto está en desarrollo. Para producción:
-
-- [ ] Cambiar `SECRET_API_KEY` a algo seguro
-- [ ] Configurar CORS según dominio específico
-- [ ] Usar HTTPS
-- [ ] Implementar autenticación con tokens JWT
-- [ ] Validar y sanitizar todas las entradas
-- [ ] Usar variables de entorno seguras
-- [ ] No exponer la API a internet sin autenticación
-
-## ⚠️ Notas Legales
-
-Este proyecto es **solo para fines educativos**. 
-
-Asegúrate de:
+Proyecto **solo con fines educativos**. Asegúrate de:
 - Tener permisos para usar/distribuir cualquier contenido
-- Cumplir con los términos de servicio de plataformas externas
+- Cumplir los términos de servicio de plataformas externas
 - Respetar derechos de autor y propiedad intelectual
 - Verificar regulaciones locales sobre streaming
 
-## 🤝 Contribuciones
+## Contribuciones
 
-Las contribuciones son bienvenidas. Por favor:
+```bash
+git checkout -b feature/mejora
+git commit -m "feat: descripción de la mejora"
+git push origin feature/mejora
+# Abre un Pull Request en GitHub
+```
 
-1. Fork el repositorio
-2. Crea una rama (`git checkout -b feature/mejora`)
-3. Commit los cambios (`git commit -m 'Agregar mejora'`)
-4. Push a la rama (`git push origin feature/mejora`)
-5. Abre un Pull Request
+## Licencia
 
-## 👨‍💻 Autor
+MIT — ver `LICENSE`.
 
-FofoStudio ([@fofostudio](https://github.com/fofostudio))
+## Créditos
 
-## 📄 Licencia
-
-MIT License - Ver LICENSE para detalles
-
-## 🔗 Enlaces
-
-- [GitHub](https://github.com/fofostudio/localTv)
-- [Documentación de Desarrollo](./CLAUDE.md)
-- [Especificaciones](./specs)
+- **FofoStudio Edition** mantenida por [@FofoStudio](https://github.com/FofoStudio)
+- Proyecto original: [@fofostudio/localTv](https://github.com/fofostudio/localTv)
 
 ---
 
-**Última actualización**: Abril 2026  
-**Versión**: 2.0.0 - Eventos integrados + Acceso remoto  
-**Estado**: Fase 6: Optimización y acceso remoto completado
+**Versión:** 2.1.0 — FofoStudio Edition  
+**Última actualización:** Abril 2026

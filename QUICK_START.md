@@ -1,16 +1,24 @@
-# Inicio Rápido - localTv
+# Inicio Rápido — LocalTv FofoStudio Edition
 
-## Comando único (instala + arranca)
+> **Repositorio:** https://github.com/FofoStudio/LocalTv-FofoStudio-Edition
+
+## Prerequisitos
+
+- **Python 3.11, 3.12 o 3.13** (no 3.14 — `pydantic-core` aún no publica wheels para 3.14)
+- **Node.js 18+**
+- **Git**
+
+## Comando único — Instala + arranca
 
 ### Windows (PowerShell — recomendado)
 
 ```powershell
-cd localTv
+git clone https://github.com/FofoStudio/LocalTv-FofoStudio-Edition.git
+cd LocalTv-FofoStudio-Edition
 .\setup.ps1
 ```
 
 Si la política de ejecución te bloquea:
-
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\setup.ps1
 ```
@@ -18,57 +26,50 @@ powershell -ExecutionPolicy Bypass -File .\setup.ps1
 ### Windows (CMD)
 
 ```cmd
-cd localTv
+git clone https://github.com/FofoStudio/LocalTv-FofoStudio-Edition.git
+cd LocalTv-FofoStudio-Edition
 setup.bat
 ```
 
-### Linux / macOS / Git Bash
+### Linux
 
 ```bash
-cd localTv
-bash setup.sh
+git clone https://github.com/FofoStudio/LocalTv-FofoStudio-Edition.git
+cd LocalTv-FofoStudio-Edition
+chmod +x setup.sh
+./setup.sh
 ```
 
-Eso es todo. El script:
+### macOS
 
-- Detecta Python 3.11/3.12/3.13 (rechaza 3.14 porque `pydantic-core` aún no publica wheels para 3.14)
-- Detecta Node.js ≥ 18
-- Crea el venv, instala dependencias backend
-- Instala dependencias frontend (con detección de binarios cruzados Linux/Windows)
-- Copia los archivos `.env` desde `.env.example`
-- Arranca backend (`uvicorn`) y frontend (`vite`)
+```bash
+git clone https://github.com/FofoStudio/LocalTv-FofoStudio-Edition.git
+cd LocalTv-FofoStudio-Edition
+chmod +x setup.sh
+./setup.sh
+```
 
 ## Solo instalar (sin arrancar)
 
-```powershell
-.\setup.ps1 --no-start
-```
+Añade `--no-start`:
 
-```bash
-bash setup.sh --no-start
-```
-
-```cmd
-setup.bat --no-start
-```
+| Plataforma | Comando |
+|-----------|---------|
+| Windows PowerShell | `.\setup.ps1 --no-start` |
+| Windows CMD | `setup.bat --no-start` |
+| Linux / macOS | `./setup.sh --no-start` |
 
 ## Solo arrancar (ya instalado)
 
-```powershell
-.\scripts\start.ps1
-```
-
-```cmd
-scripts\start.bat
-```
-
-```bash
-bash scripts/start.sh
-```
+| Plataforma | Comando |
+|-----------|---------|
+| Windows PowerShell | `.\scripts\start.ps1` |
+| Windows CMD | `scripts\start.bat` |
+| Linux / macOS | `bash scripts/start.sh` |
 
 ## Acceso
 
-Cuando los servicios arranquen verás:
+Cuando arranque verás:
 
 ```
 URLs de Acceso Local:
@@ -81,59 +82,84 @@ URLs de Acceso Remoto:
 ```
 
 - **Desde tu PC:** http://localhost:5173
-- **Desde tu TV u otro dispositivo en la red:** usa la IP local mostrada
-- **Panel Admin:** http://localhost:5173/admin (API Key: `bustatv-dev-secret-key-changeme`)
+- **Desde tu TV / tablet (misma WiFi):** la IP local que muestra el script
+- **Panel Admin:** http://localhost:5173/admin · API Key: `bustatv-dev-secret-key-changeme`
 
-## Solución de problemas comunes
+## Cómo instalar los prerequisitos rápidamente
 
-### "Python no encontrado" o falla la build de `pydantic-core`
-
-Tienes Python 3.14 (todavía no soportado) o no tienes Python instalado.
-
-- Windows: descarga **Python 3.13** desde https://www.python.org/downloads/ (marca "Add Python to PATH")
-- macOS: `brew install python@3.13`
-- Ubuntu: `sudo apt install python3.13 python3.13-venv`
-
-Después borra el venv viejo (si existe) y vuelve a ejecutar el setup:
+### Windows
 
 ```powershell
-Remove-Item -Recurse -Force backend\venv
-.\setup.ps1
+winget install --id Python.Python.3.13
+winget install --id OpenJS.NodeJS.LTS
+winget install --id Git.Git
 ```
 
-### "Cannot find native binding" / `@rolldown/binding-linux-x64-gnu` o `win32-x64-msvc`
-
-`node_modules` se instaló en otra plataforma (típico al cambiar entre WSL y PowerShell). El setup detecta esto y reinstala automáticamente, pero si lo arrancas manualmente:
-
-```powershell
-Remove-Item -Recurse -Force frontend\node_modules
-Remove-Item frontend\package-lock.json -ErrorAction SilentlyContinue
-cd frontend
-npm install
-```
-
-### `bash setup.sh` falla en Windows con `ifconfig: command not found` o rutas raras
-
-Estás usando WSL en lugar de PowerShell o Git Bash. **Usa `setup.ps1`** desde PowerShell. WSL es un Linux separado y no comparte el venv ni `node_modules` de Windows.
-
-### Puerto 5173 o 8000 en uso
-
-Detén el proceso que los esté ocupando, o cambia el puerto del frontend:
+### Linux (Debian/Ubuntu)
 
 ```bash
-cd frontend
-npm run dev -- --port 3000
+sudo apt update
+sudo apt install -y python3.13 python3.13-venv python3-pip nodejs npm git
+# Si Node es < 18:
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
 ```
 
-## Estructura de scripts
+### Linux (Fedora/RHEL)
+
+```bash
+sudo dnf install -y python3.13 nodejs npm git
+```
+
+### macOS
+
+```bash
+# Homebrew (si no lo tienes)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+brew install python@3.13 node git
+```
+
+## Solución de problemas express
+
+| Síntoma | Solución |
+|---------|----------|
+| `Failed to build pydantic-core` | Tienes Python 3.14 — instala 3.13, borra `backend/venv`, re-ejecuta setup |
+| `Cannot find native binding @rolldown/...` | `node_modules` se instaló en otra plataforma — borra `frontend/node_modules` y `frontend/package-lock.json`, re-instala |
+| `bash setup.sh` con rutas `/mnt/...` en Windows | Estás en WSL — usa `setup.ps1` desde PowerShell |
+| `setup.sh: line N: $'\r': command not found` | CRLF — `sed -i 's/\r$//' setup.sh scripts/*.sh` |
+| Puerto 5173/8000 ocupado | `npm run dev -- --port 3000` o `uvicorn ... --port 8001` |
+| TV ve "fetch failed" | Comprueba firewall de Windows (puertos 5173 y 8000); ambos dispositivos en la misma WiFi |
+
+## Funciones principales
+
+### Pestaña "Canales"
+- Lista de 100+ canales con búsqueda por nombre
+- Click en un canal lo reproduce arriba
+
+### Pestaña "Eventos"
+- Eventos del día agrupados por competición (NBA, Copa Libertadores, Premier, ...)
+- Búsqueda por equipo, competición o stream
+- **Botones de stream**: click en cualquier badge intenta cargar el canal local correspondiente; si no hay match, se muestra un toast indicándolo
+
+### Panel Admin
+- URL: `/admin`
+- API Key: `bustatv-dev-secret-key-changeme`
+- CRUD de canales (crear, editar, activar/desactivar, eliminar)
+
+## Mapa de scripts
 
 | Script | Plataforma | Función |
 |--------|-----------|---------|
-| `setup.ps1` | Windows PowerShell | Instalar + arrancar (recomendado en Windows) |
+| `setup.ps1` | Windows PowerShell | Instalar + arrancar |
 | `setup.bat` | Windows CMD | Instalar + arrancar |
-| `setup.sh` | Linux/macOS/Git Bash | Instalar + arrancar |
+| `setup.sh` | Linux / macOS / Git Bash | Instalar + arrancar |
 | `scripts/start.ps1` | Windows PowerShell | Solo arrancar |
 | `scripts/start.bat` | Windows CMD | Solo arrancar |
-| `scripts/start.sh` | Linux/macOS/Git Bash | Solo arrancar |
+| `scripts/start.sh` | Linux / macOS / Git Bash | Solo arrancar |
 
-Todos los scripts soportan la flag `--no-start` (excepto los `start.*` que solo arrancan).
+Todos los `setup.*` aceptan `--no-start` para saltarse el arranque.
+
+---
+
+**Documentación completa:** [README.md](./README.md)  
+**Notas de desarrollo:** [CLAUDE.md](./CLAUDE.md)
