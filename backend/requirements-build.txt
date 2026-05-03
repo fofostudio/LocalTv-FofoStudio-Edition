@@ -1,0 +1,5 @@
+# Dependencias adicionales solo para empaquetar el .exe.
+# (no se necesitan para correr la app en modo desarrollo)
+-r requirements.txt
+pyinstaller>=6.10.0
+pillow>=10.4.0

@@ -4,7 +4,17 @@
 
 localTv is a web streaming platform for live TV content, built for educational purposes. It features a React frontend with Vite, a FastAPI backend, and SQLite database. This guide helps developers understand the project architecture and how to contribute.
 
-**Status**: Phase 5 Complete - Integration, Testing, and Documentation Finalized
+**Status**: Phase 6 — Empaquetado como `.exe` Windows con instalador (`build.ps1`).
+
+### Cómo se empaqueta
+
+`build.ps1` orquesta: detección de Python/Node/Inno Setup → instalación automática de Inno Setup vía winget si falta → venv con `requirements-build.txt` → genera `installer/icon.ico` con Pillow → `npm run build` → PyInstaller (one-folder, GUI, Tk launcher en `installer/launcher.py`) → Inno Setup (per-user, sin admin, shortcuts en escritorio + menú inicio).
+
+Datos de runtime (BD SQLite) viven en `%LOCALAPPDATA%\LocalTv\` para que sobrevivan a actualizaciones del `.exe`. El backend en `main.py` detecta `_MEIPASS` y sirve `frontend_dist/` como SPA con catch-all routing.
+
+### Scraper
+
+Reemplazado los antiguos `scrape_*.js` (Node + Playwright + Chromium ≈ 300 MB) por `backend/app/services/scraper.py` en Python puro (httpx + regex). Endpoint `POST /api/admin/sync-channels` lo invoca; botón "Sincronizar" en `/admin/dashboard`.
 
 ## Stack Tecnológico Final
 

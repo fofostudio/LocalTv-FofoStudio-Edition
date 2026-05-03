@@ -1,67 +1,60 @@
 import { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { ChannelContext } from '../../context/ChannelContext';
 import { FavoritesContext } from '../../context/FavoritesContext';
 import ChannelCard from '../ChannelCard/ChannelCard';
 import styles from './ChannelSidebar.module.css';
 
 export default function ChannelSidebar() {
-  const navigate = useNavigate();
-  const { channels, filteredChannels, currentChannel, searchQuery, setSearchQuery } = useContext(ChannelContext);
+  const { channels, filteredChannels, currentChannel, setCurrentChannel } = useContext(ChannelContext);
   const { favorites, toggleFavorite, isFavorite } = useContext(FavoritesContext);
 
-  const favoriteChannels = channels.filter(ch => favorites.includes(ch.id));
-
-  const handleSelectChannel = (channel) => {
-    navigate(`/channel/${channel.id}`);
-  };
+  const favoriteChannels = channels.filter((ch) => favorites.includes(ch.id));
 
   return (
     <div className={styles.sidebar}>
-      <h3 className={styles.title}>Canales</h3>
-
-      <input
-        type="text"
-        placeholder="Buscar canal..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        className={styles.searchInput}
-      />
-
       {favoriteChannels.length > 0 && (
-        <>
-          <div className={styles.favoritesSection}>
-            <h4 className={styles.favoritesTitle}>FAVORITOS</h4>
-            <div className={styles.listFavorites}>
-              {favoriteChannels.map((channel) => (
-                <ChannelCard
-                  key={channel.id}
-                  channel={channel}
-                  isSelected={currentChannel?.id === channel.id}
-                  onSelect={() => handleSelectChannel(channel)}
-                  isFavorite={isFavorite(channel.id)}
-                  onToggleFavorite={toggleFavorite}
-                />
-              ))}
-            </div>
+        <section className={styles.section}>
+          <h4 className={styles.sectionTitle}>
+            <span className={styles.icon}>★</span> Favoritos
+            <span className={styles.count}>{favoriteChannels.length}</span>
+          </h4>
+          <div className={styles.list}>
+            {favoriteChannels.map((channel) => (
+              <ChannelCard
+                key={channel.id}
+                channel={channel}
+                variant="list"
+                isSelected={currentChannel?.id === channel.id}
+                onSelect={() => setCurrentChannel(channel)}
+                isFavorite={isFavorite(channel.id)}
+                onToggleFavorite={toggleFavorite}
+              />
+            ))}
           </div>
-          <div className={styles.divider} />
-        </>
+        </section>
       )}
 
-      <h4 className={styles.allChannelsTitle}>TODOS LOS CANALES</h4>
-      <div className={styles.list}>
-        {filteredChannels.map((channel) => (
-          <ChannelCard
-            key={channel.id}
-            channel={channel}
-            isSelected={currentChannel?.id === channel.id}
-            onSelect={() => handleSelectChannel(channel)}
-            isFavorite={isFavorite(channel.id)}
-            onToggleFavorite={toggleFavorite}
-          />
-        ))}
-      </div>
+      <section className={styles.section}>
+        <h4 className={styles.sectionTitle}>
+          Todos los canales
+          <span className={styles.count}>{filteredChannels.length}</span>
+        </h4>
+        <div className={styles.list}>
+          {filteredChannels.length === 0 ? (
+            <p className={styles.empty}>Sin resultados.</p>
+          ) : filteredChannels.map((channel) => (
+            <ChannelCard
+              key={channel.id}
+              channel={channel}
+              variant="list"
+              isSelected={currentChannel?.id === channel.id}
+              onSelect={() => setCurrentChannel(channel)}
+              isFavorite={isFavorite(channel.id)}
+              onToggleFavorite={toggleFavorite}
+            />
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { api } from '../services/api';
 
 export const ChannelContext = createContext();
@@ -6,43 +6,92 @@ export const ChannelContext = createContext();
 export function ChannelProvider({ children }) {
   const [channels, setChannels] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [currentChannel, setCurrentChannel] = useState(null);
+  const [currentChannel, setCurrentChannelState] = useState(null);
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch inicial
+  // Set de slugs realmente disponibles ahora mismo (probed contra tvtvhd)
+  const [liveSlugs, setLiveSlugs] = useState(() => new Set());
+  const [healthLoading, setHealthLoading] = useState(true);
+  const [healthCheckedAt, setHealthCheckedAt] = useState(null);
+
+  const refreshHealth = useCallback(async () => {
+    setHealthLoading(true);
+    try {
+      const data = await api.getStreamHealth();
+      setLiveSlugs(new Set(data.live || []));
+      setHealthCheckedAt(new Date());
+    } catch (e) {
+      console.error('Health check failed:', e);
+    } finally {
+      setHealthLoading(false);
+    }
+  }, []);
+
+  // Setter wrapping para que la selección actualice también el "current"
+  const setCurrentChannel = useCallback((ch) => {
+    setCurrentChannelState(ch);
+  }, []);
+
+  // Fetch inicial: canales + categorías
   useEffect(() => {
-    Promise.all([
-      api.getChannels(),
-      api.getCategories(),
-    ])
+    Promise.all([api.getChannels(), api.getCategories()])
       .then(([channelsData, categoriesData]) => {
         setChannels(channelsData);
         setCategories(categoriesData);
-        // Auto-seleccionar primer canal activo
-        if (channelsData.length > 0) {
-          setCurrentChannel(channelsData[0]);
-        }
         setLoading(false);
       })
       .catch((err) => {
-        console.error('Error fetching data:', err);
+        console.error(err);
         setError(err.message);
         setLoading(false);
       });
   }, []);
 
-  // Filtrar canales por categoría y búsqueda
-  const filteredChannels = (activeCategory === 'all'
-    ? channels.filter(ch => ch.is_active)
-    : channels.filter(ch =>
-        ch.category_id === activeCategory && ch.is_active
-      )
-  ).filter(ch =>
-    ch.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Fetch health en paralelo (no bloquea la UI inicial)
+  useEffect(() => {
+    refreshHealth();
+  }, [refreshHealth]);
+
+  // Auto-seleccionar el primer canal LIVE cuando tengamos datos
+  useEffect(() => {
+    if (currentChannel || !channels.length) return;
+    if (healthLoading) return;
+    const firstLive = channels.find((c) => liveSlugs.has(c.slug));
+    setCurrentChannelState(firstLive || channels[0]);
+  }, [channels, liveSlugs, healthLoading, currentChannel]);
+
+  const isLive = useCallback((slug) => liveSlugs.has(slug), [liveSlugs]);
+
+  // Filtrar canales por búsqueda + categoría
+  const filteredChannels = useMemo(() => {
+    let list = channels;
+    if (activeCategory !== 'all') {
+      list = list.filter((ch) => ch.category_id === activeCategory);
+    }
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter((ch) => ch.name.toLowerCase().includes(q));
+    }
+    // Ordenar: live primero, luego por nombre
+    return [...list].sort((a, b) => {
+      const al = liveSlugs.has(a.slug) ? 0 : 1;
+      const bl = liveSlugs.has(b.slug) ? 0 : 1;
+      if (al !== bl) return al - bl;
+      return a.name.localeCompare(b.name);
+    });
+  }, [channels, activeCategory, searchQuery, liveSlugs]);
+
+  // Próximo canal LIVE distinto al actual (para auto-skip cuando un canal falla)
+  const nextLiveChannel = useCallback((excludeSlug) => {
+    const lives = channels.filter(
+      (c) => liveSlugs.has(c.slug) && c.slug !== excludeSlug
+    );
+    if (!lives.length) return null;
+    return lives[Math.floor(Math.random() * lives.length)];
+  }, [channels, liveSlugs]);
 
   const value = {
     channels,
@@ -56,6 +105,13 @@ export function ChannelProvider({ children }) {
     filteredChannels,
     loading,
     error,
+    // health
+    liveSlugs,
+    isLive,
+    healthLoading,
+    healthCheckedAt,
+    refreshHealth,
+    nextLiveChannel,
   };
 
   return (

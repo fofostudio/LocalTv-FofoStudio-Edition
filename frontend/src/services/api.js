@@ -1,84 +1,64 @@
-// Detectar URL del backend dinámicamente
+// Detectar URL del backend dinámicamente.
+// En el .exe el frontend se sirve desde el mismo origen que el backend → '' (rutas relativas).
 const BASE_URL = (() => {
-  // Si hay variable de entorno, usarla
-  if (import.meta.env.VITE_API_URL) {
+  if (import.meta.env.VITE_API_URL !== undefined) {
     return import.meta.env.VITE_API_URL;
   }
-  // Si estamos en localhost (desarrollo), usar localhost:8000
   if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    return 'http://localhost:8000';
+    return ''; // mismo origen
   }
-  // Si estamos en Docker, usar el mismo host
-  return `http://${window.location.hostname}:8000`;
+  return '';
 })();
+
+async function jsonFetch(path, options = {}) {
+  const res = await fetch(`${BASE_URL}${path}`, options);
+  if (!res.ok) {
+    if (res.status === 401) throw new Error('API Key inválida');
+    let detail = '';
+    try { detail = (await res.json()).detail || ''; } catch (_) { /* ignore */ }
+    throw new Error(detail || `HTTP ${res.status}`);
+  }
+  if (res.status === 204) return null;
+  return res.json();
+}
 
 export const api = {
   // Canales (públicos)
-  getChannels: async () => {
-    const res = await fetch(`${BASE_URL}/api/channels/`);
-    if (!res.ok) throw new Error('Error fetching channels');
-    return res.json();
-  },
+  getChannels: () => jsonFetch('/api/channels/'),
+  getChannel: (id) => jsonFetch(`/api/channels/${id}`),
+  getCategories: () => jsonFetch('/api/categories/'),
 
-  getChannel: async (id) => {
-    const res = await fetch(`${BASE_URL}/api/channels/${id}`);
-    if (!res.ok) throw new Error('Error fetching channel');
-    return res.json();
-  },
+  // Admin
+  validateApiKey: (apiKey) => jsonFetch('/api/channels/', {
+    headers: { 'X-API-Key': apiKey },
+  }),
 
-  // Categorías (públicas)
-  getCategories: async () => {
-    const res = await fetch(`${BASE_URL}/api/categories/`);
-    if (!res.ok) throw new Error('Error fetching categories');
-    return res.json();
-  },
+  createChannel: (data, apiKey) => jsonFetch('/api/channels/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-API-Key': apiKey },
+    body: JSON.stringify(data),
+  }),
 
-  // Admin (requiere API key)
-  validateApiKey: async (apiKey) => {
-    const res = await fetch(`${BASE_URL}/api/channels`, {
-      headers: { 'X-API-Key': apiKey },
-    });
-    if (res.status === 401) {
-      throw new Error('API Key inválida');
-    }
-    if (!res.ok) throw new Error('Error validating API Key');
-    return res.json();
-  },
+  updateChannel: (id, data, apiKey) => jsonFetch(`/api/channels/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'X-API-Key': apiKey },
+    body: JSON.stringify(data),
+  }),
 
-  createChannel: async (data, apiKey) => {
-    const res = await fetch(`${BASE_URL}/api/channels`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-API-Key': apiKey,
-      },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new Error('Error creating channel');
-    return res.json();
-  },
+  deleteChannel: (id, apiKey) => jsonFetch(`/api/channels/${id}`, {
+    method: 'DELETE',
+    headers: { 'X-API-Key': apiKey },
+  }),
 
-  updateChannel: async (id, data, apiKey) => {
-    const res = await fetch(`${BASE_URL}/api/channels/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-API-Key': apiKey,
-      },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new Error('Error updating channel');
-    return res.json();
-  },
+  syncChannels: (apiKey) => jsonFetch('/api/admin/sync-channels', {
+    method: 'POST',
+    headers: { 'X-API-Key': apiKey },
+  }),
 
-  deleteChannel: async (id, apiKey) => {
-    const res = await fetch(`${BASE_URL}/api/channels/${id}`, {
-      method: 'DELETE',
-      headers: { 'X-API-Key': apiKey },
-    });
-    if (!res.ok) throw new Error('Error deleting channel');
-  },
+  // Health: cuáles canales están realmente disponibles ahora
+  getStreamHealth: () => jsonFetch('/api/streams/health'),
 
+  // Eventos diarios (fuente externa)
   getDiaryEvents: async () => {
     const res = await fetch('https://pltvhd.com/diaries.json');
     if (!res.ok) throw new Error('Failed to fetch diary events');

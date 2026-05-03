@@ -1,5 +1,22 @@
 # Empieza aquí — LocalTv FofoStudio Edition
 
+## ⚡ La forma fácil (Windows): instalador `.exe`
+
+Si solo quieres **usar** LocalTv en Windows, no necesitas nada de lo que sigue.
+
+1. Ve a la sección **Releases** del repo en GitHub.
+2. Descarga `LocalTv-Setup-1.0.0.exe`.
+3. Doble clic. Sigue el asistente (no pide admin).
+4. Aparece un acceso directo "**LocalTv**" en tu escritorio. Doble clic y listo.
+
+La app se abre en tu navegador automáticamente. Para apagarla, cierra la pequeña ventana "LocalTv está corriendo".
+
+> Si quieres modificar el código, contribuir, o estás en macOS/Linux, sigue leyendo.
+
+---
+
+## 🛠️ La forma de desarrollador
+
 Guía paso a paso para personas que **nunca han instalado un proyecto de programación**. No necesitas saber código. Sigue los pasos en orden.
 
 > **Tiempo total:** entre 10 y 20 minutos la primera vez (la mayor parte es esperar descargas).

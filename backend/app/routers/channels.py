@@ -11,7 +11,7 @@ router = APIRouter(prefix="/api/channels", tags=["channels"])
 @router.get("/", response_model=list[ChannelRead])
 def read_channels(
     db: Session = Depends(get_db),
-    active_only: bool = True,
+    active_only: bool = False,  # devolver TODOS por defecto; el frontend muestra "INACTIVO"
     category_slug: str = None
 ):
     return crud_channels.get_channels(db, active_only, category_slug)

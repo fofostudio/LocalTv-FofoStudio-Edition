@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>LocalTv — TV en vivo, gratis · FofoStudio Edition</title>
+<meta name="description" content="LocalTv es una app gratuita de TV en vivo para Windows y macOS. Cientos de canales, eventos en tiempo real, instalación de un clic, sin cuentas ni suscripciones." />
+<meta name="theme-color" content="#0b0b13" />
+<meta property="og:title" content="LocalTv — TV en vivo, gratis" />
+<meta property="og:description" content="Cientos de canales, eventos del día y reproducción al instante. Windows y macOS. 100% gratis." />
+<meta property="og:type" content="website" />
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+
+<style>
+  :root {
+    --bg-0: #07070b;
+    --bg-1: #0b0b13;
+    --bg-2: #11111c;
+    --fg: #f4f4f5;
+    --muted: #a1a1aa;
+    --dim: #71717a;
+    --red: #e50914;
+    --red-hover: #ff1620;
+    --red-dark: #b00610;
+    --green: #22c55e;
+    --cyan: #06b6d4;
+    --border: rgba(255, 255, 255, 0.08);
+    --card: rgba(255, 255, 255, 0.04);
+    --glass: rgba(17, 17, 28, 0.7);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg-0);
+    color: var(--fg);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; display: block; }
+
+  /* ---------- Background gradients (Netflix-ish) ---------- */
+  .bg-grad {
+    position: fixed; inset: 0; z-index: -1;
+    background:
+      radial-gradient(ellipse 80% 60% at 70% 0%, rgba(229, 9, 20, 0.20), transparent 60%),
+      radial-gradient(ellipse 60% 60% at 10% 80%, rgba(6, 182, 212, 0.10), transparent 60%),
+      linear-gradient(180deg, #0b0b13 0%, #07070b 100%);
+  }
+
+  /* ---------- Nav ---------- */
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    background: var(--glass);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    max-width: 1200px; margin: 0 auto;
+    padding: 16px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; letter-spacing: -0.02em; }
+  .brand-mark {
+    width: 36px; height: 36px; border-radius: 9px;
+    background: linear-gradient(135deg, var(--red), var(--red-dark));
+    display: grid; place-items: center;
+    box-shadow: 0 6px 18px rgba(229, 9, 20, 0.35);
+  }
+  .brand-mark .dot { width: 10px; height: 10px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 4px rgba(255,255,255,0.15); }
+  .brand-name { font-size: 18px; }
+  .brand-by { color: var(--dim); font-weight: 400; font-size: 13px; }
+
+  .nav-links { display: flex; gap: 22px; align-items: center; font-size: 14px; color: var(--muted); }
+  .nav-links a:hover { color: var(--fg); }
+  .nav-cta {
+    background: var(--red); color: #fff !important;
+    padding: 8px 16px; border-radius: 8px; font-weight: 600;
+    transition: background 0.15s;
+  }
+  .nav-cta:hover { background: var(--red-hover); }
+
+  @media (max-width: 720px) {
+    .nav-links a:not(.nav-cta) { display: none; }
+  }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    max-width: 1200px; margin: 0 auto;
+    padding: 80px 24px 60px;
+    text-align: center;
+  }
+  .badge-free {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 14px; border-radius: 999px;
+    background: rgba(34, 197, 94, 0.12);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: var(--green);
+    font-size: 13px; font-weight: 600;
+    margin-bottom: 28px;
+  }
+  .badge-free::before {
+    content: ""; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 12px var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  h1 {
+    font-size: clamp(40px, 7vw, 76px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    margin-bottom: 24px;
+    background: linear-gradient(180deg, #fff 0%, #b8b8c8 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  h1 .accent {
+    background: linear-gradient(135deg, var(--red), #ff5e65);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle {
+    font-size: clamp(16px, 2vw, 20px);
+    color: var(--muted);
+    max-width: 680px; margin: 0 auto 40px;
+  }
+
+  /* ---------- Download buttons ---------- */
+  .downloads {
+    display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .btn-download {
+    display: inline-flex; align-items: center; gap: 14px;
+    padding: 16px 28px;
+    border-radius: 12px;
+    font-weight: 600; font-size: 16px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--fg);
+    transition: transform 0.15s, background 0.15s, border-color 0.15s;
+    cursor: pointer;
+  }
+  .btn-download:hover { transform: translateY(-2px); background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.18); }
+  .btn-download.primary {
+    background: var(--red);
+    border-color: var(--red);
+    box-shadow: 0 10px 30px rgba(229, 9, 20, 0.35);
+  }
+  .btn-download.primary:hover { background: var(--red-hover); border-color: var(--red-hover); }
+  .btn-download svg { width: 24px; height: 24px; flex-shrink: 0; }
+  .btn-download .meta { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.2; }
+  .btn-download .meta small { font-size: 12px; color: rgba(255,255,255,0.6); font-weight: 400; }
+  .btn-download.primary .meta small { color: rgba(255,255,255,0.8); }
+
+  .hero-meta { color: var(--dim); font-size: 13px; margin-top: 18px; }
+  .hero-meta a { color: var(--cyan); }
+  .hero-meta a:hover { text-decoration: underline; }
+
+  /* ---------- Section ---------- */
+  section { padding: 80px 24px; }
+  .section-inner { max-width: 1200px; margin: 0 auto; }
+  .section-title {
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .section-sub {
+    text-align: center;
+    color: var(--muted);
+    max-width: 600px; margin: 0 auto 56px;
+    font-size: 16px;
+  }
+
+  /* ---------- Feature cards ---------- */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+  }
+  .feature {
+    padding: 28px;
+    border-radius: 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: transform 0.15s, border-color 0.15s, background 0.15s;
+  }
+  .feature:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); }
+  .feature .icon {
+    width: 44px; height: 44px; border-radius: 11px;
+    display: grid; place-items: center;
+    background: linear-gradient(135deg, var(--red), var(--red-dark));
+    margin-bottom: 18px;
+    box-shadow: 0 6px 18px rgba(229, 9, 20, 0.30);
+  }
+  .feature .icon svg { width: 22px; height: 22px; color: #fff; }
+  .feature h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .feature p { color: var(--muted); font-size: 14.5px; }
+
+  /* ---------- "Cómo funciona" steps ---------- */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+    counter-reset: step;
+  }
+  .step {
+    padding: 28px 24px;
+    border-radius: 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    position: relative;
+  }
+  .step::before {
+    counter-increment: step;
+    content: counter(step);
+    position: absolute; top: -16px; left: 24px;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--red); color: #fff;
+    display: grid; place-items: center;
+    font-weight: 800; font-size: 16px;
+    box-shadow: 0 6px 14px rgba(229, 9, 20, 0.45);
+  }
+  .step h4 { font-size: 16px; font-weight: 700; margin: 8px 0 10px; }
+  .step p { color: var(--muted); font-size: 14px; }
+  .step code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 12.5px; }
+
+  /* ---------- FAQ ---------- */
+  .faq { max-width: 800px; margin: 0 auto; }
+  details {
+    border-bottom: 1px solid var(--border);
+    padding: 18px 4px;
+  }
+  details > summary {
+    cursor: pointer;
+    list-style: none;
+    font-weight: 600;
+    font-size: 16px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  details > summary::-webkit-details-marker { display: none; }
+  details > summary::after {
+    content: "+";
+    font-size: 22px; font-weight: 300;
+    color: var(--muted);
+    transition: transform 0.2s;
+  }
+  details[open] > summary::after { transform: rotate(45deg); }
+  details > p {
+    margin-top: 12px; color: var(--muted);
+    font-size: 14.5px; line-height: 1.65;
+  }
+  details code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+
+  /* ---------- CTA bottom ---------- */
+  .cta-bottom {
+    margin: 40px auto 0;
+    max-width: 900px;
+    text-align: center;
+    padding: 56px 32px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, rgba(229, 9, 20, 0.16), rgba(229, 9, 20, 0.04));
+    border: 1px solid rgba(229, 9, 20, 0.3);
+  }
+  .cta-bottom h2 { font-size: clamp(24px, 3vw, 32px); margin-bottom: 12px; }
+  .cta-bottom p { color: var(--muted); margin-bottom: 24px; }
+
+  /* ---------- Footer ---------- */
+  footer {
+    padding: 40px 24px 60px;
+    text-align: center;
+    color: var(--dim);
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+  }
+  footer a { color: var(--muted); }
+  footer a:hover { color: var(--fg); }
+  footer .links { display: flex; justify-content: center; gap: 22px; margin-bottom: 14px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+<div class="bg-grad"></div>
+
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="brand">
+      <div class="brand-mark"><div class="dot"></div></div>
+      <div>
+        <div class="brand-name">LocalTv <span class="brand-by">· FofoStudio Edition</span></div>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="#features">Funciones</a>
+      <a href="#como-funciona">Cómo funciona</a>
+      <a href="#faq">Preguntas</a>
+      <a href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition" target="_blank" rel="noopener">GitHub</a>
+      <a href="#descargar" class="nav-cta">Descargar</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="descargar">
+  <div class="badge-free">100% gratis · sin cuentas · sin suscripciones</div>
+  <h1>Tu propia TV en vivo,<br><span class="accent">en un clic.</span></h1>
+  <p class="subtitle">
+    Cientos de canales, eventos del día en tiempo real y reproducción instantánea.
+    Instala el <strong>.exe</strong> en Windows o el <strong>.dmg</strong> en macOS y listo —
+    se abre como cualquier app y funciona desde tu navegador.
+  </p>
+
+  <div class="downloads">
+    <a id="btn-windows" class="btn-download" href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition/releases/latest" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M2.5 5.5L10.5 4.4V11.5H2.5V5.5ZM2.5 12.5H10.5V19.6L2.5 18.5V12.5ZM11.5 4.3L21.5 3V11.5H11.5V4.3ZM11.5 12.5H21.5V21L11.5 19.7V12.5Z"/>
+      </svg>
+      <span class="meta">
+        <span>Descargar para Windows</span>
+        <small>.exe · Windows 10 / 11 · sin admin</small>
+      </span>
+    </a>
+
+    <a id="btn-macos" class="btn-download" href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition/releases/latest" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M16.4 12.4c0-2.6 2.1-3.9 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9s-2-.9-3.4-.9c-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.3 2.5 1.3-.05 1.8-.85 3.4-.85s2.05.85 3.45.82c1.4-.02 2.3-1.25 3.2-2.45 1-1.4 1.4-2.75 1.45-2.85-.03-.02-2.8-1.07-2.85-4.25M14.05 5c.7-.85 1.18-2.05 1.05-3.25-1 .05-2.2.65-2.95 1.5-.65.75-1.25 1.95-1.05 3.1 1.1.1 2.25-.55 2.95-1.35"/>
+      </svg>
+      <span class="meta">
+        <span>Descargar para macOS</span>
+        <small>.dmg · macOS 11+ · Intel & Apple Silicon</small>
+      </span>
+    </a>
+  </div>
+
+  <p class="hero-meta">
+    <span id="version-info">Buscando la última versión...</span> ·
+    <a href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition/releases" target="_blank" rel="noopener">ver todas las versiones</a> ·
+    <a href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition" target="_blank" rel="noopener">código fuente</a>
+  </p>
+</header>
+
+<!-- ===================== Features ===================== -->
+<section id="features">
+  <div class="section-inner">
+    <h2 class="section-title">Todo lo que necesitas</h2>
+    <p class="section-sub">Diseñado para que abras la app y empieces a ver. Sin configurar, sin pagar, sin pasos extra.</p>
+
+    <div class="features">
+      <div class="feature">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </div>
+        <h3>Cientos de canales en vivo</h3>
+        <p>Deportes, noticias, entretenimiento y eventos especiales. La lista se sincroniza automáticamente.</p>
+      </div>
+
+      <div class="feature">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <h3>Eventos del día</h3>
+        <p>Mira qué partido está empezando, cuáles vienen y en qué canales se transmiten. Todo en una vista.</p>
+      </div>
+
+      <div class="feature">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <h3>Detección automática</h3>
+        <p>Verifica qué canales están realmente disponibles ahora — los caídos se marcan claramente.</p>
+      </div>
+
+      <div class="feature">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <h3>Funciona en tu red</h3>
+        <p>Abrelo en tu PC y míralo desde la TV, el celular o la tablet — solo cambia <code>localhost</code> por la IP de tu PC.</p>
+      </div>
+
+      <div class="feature">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h3>Privado y local</h3>
+        <p>Todo corre en tu máquina. Sin tracking, sin telemetría, sin servidores intermediarios. Tus datos no salen.</p>
+      </div>
+
+      <div class="feature">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <h3>Open source</h3>
+        <p>Código abierto bajo licencia MIT. Lee el código, contribuye, fórkalo, hazlo tuyo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== Cómo funciona ===================== -->
+<section id="como-funciona" style="background: linear-gradient(180deg, transparent, rgba(255,255,255,0.02));">
+  <div class="section-inner">
+    <h2 class="section-title">Cómo funciona</h2>
+    <p class="section-sub">Tres pasos. Menos de un minuto. Sin línea de comandos.</p>
+
+    <div class="steps">
+      <div class="step">
+        <h4>Descarga el instalador</h4>
+        <p>Elige <code>.exe</code> para Windows o <code>.dmg</code> para macOS desde el botón de arriba. ~80 MB.</p>
+      </div>
+      <div class="step">
+        <h4>Instala con doble clic</h4>
+        <p>En Windows no pide admin. En macOS arrastras la app a <code>Aplicaciones</code>.</p>
+      </div>
+      <div class="step">
+        <h4>Disfruta</h4>
+        <p>Se abre LocalTv en tu navegador. Elige un canal y dale play. Listo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FAQ ===================== -->
+<section id="faq">
+  <div class="section-inner">
+    <h2 class="section-title">Preguntas frecuentes</h2>
+    <p class="section-sub">Lo que la gente suele preguntar antes de instalar.</p>
+
+    <div class="faq">
+      <details>
+        <summary>¿De verdad es gratis? ¿Cuál es el truco?</summary>
+        <p>Sí, totalmente gratis. No hay versión de pago, no hay anuncios, no hay tracking. Es un proyecto open-source con fines educativos mantenido por <a href="https://github.com/fofostudio" target="_blank" rel="noopener">FofoStudio</a>. Si te gusta, dale una estrella en GitHub.</p>
+      </details>
+
+      <details>
+        <summary>¿Necesito permisos de administrador para instalar?</summary>
+        <p>En Windows <strong>no</strong>: el instalador es per-user, se instala bajo tu carpeta de usuario en <code>%LOCALAPPDATA%\Programs\LocalTv</code>. En macOS solo arrastras la app a <code>/Applications</code> (te puede pedir tu contraseña la primera vez, dependiendo de tu cuenta).</p>
+      </details>
+
+      <details>
+        <summary>macOS dice "no se puede abrir, desarrollador no identificado". ¿Qué hago?</summary>
+        <p>Eso es Gatekeeper, normal en apps no firmadas con Apple Developer ID (firmar cuesta US$99/año, no lo hacemos en este proyecto open-source). <strong>Solución, una sola vez:</strong> clic derecho sobre <code>LocalTv.app</code> → <strong>Abrir</strong> → <strong>Abrir</strong> en el diálogo. Listo, queda autorizada para siempre. Como alternativa por terminal: <code>xattr -dr com.apple.quarantine /Applications/LocalTv.app</code>.</p>
+      </details>
+
+      <details>
+        <summary>¿Funciona en mi Mac con M1 / M2 / M3?</summary>
+        <p>Sí. El <code>.dmg</code> incluye una build universal que corre nativa en Apple Silicon e Intel. Se instala desde macOS 11 (Big Sur) en adelante.</p>
+      </details>
+
+      <details>
+        <summary>¿Y en Linux?</summary>
+        <p>No hay un instalador empaquetado, pero el código corre perfecto en Linux en modo desarrollo. Clona el repo y corre <code>./setup.sh</code>. La app es 100% web — Vite + FastAPI — así que cualquier distro con Python 3.11+ y Node 18+ la puede correr.</p>
+      </details>
+
+      <details>
+        <summary>¿Se actualiza solo?</summary>
+        <p>Por ahora no. Cuando saquemos una versión nueva, descargas el instalador desde aquí y lo corres encima. Tus datos (canales, favoritos, configuración) se preservan: viven en una carpeta separada del usuario que no se toca al actualizar.</p>
+      </details>
+
+      <details>
+        <summary>¿Puedo verlo desde mi TV o celular?</summary>
+        <p>Sí, mientras estén en la misma red Wi-Fi. Abre LocalTv en tu PC, mira la URL en la ventana de control y reemplaza <code>localhost</code> por la IP local de tu PC (algo como <code>http://192.168.1.20:8765</code>) en el otro dispositivo.</p>
+      </details>
+
+      <details>
+        <summary>¿Esto es legal?</summary>
+        <p>El software es 100% legal — es un reproductor + un agregador. La responsabilidad sobre el contenido que decidas reproducir recae en ti. El proyecto se distribuye con fines educativos. Asegúrate de respetar los términos de servicio de las plataformas que uses y los derechos de autor de cada contenido.</p>
+      </details>
+
+      <details>
+        <summary>¿Cómo desinstalo?</summary>
+        <p><strong>Windows:</strong> Configuración → Aplicaciones → busca "LocalTv" → Desinstalar. <strong>macOS:</strong> arrastra <code>LocalTv.app</code> a la papelera. Si quieres borrar también tus datos: en Windows borra <code>%LOCALAPPDATA%\LocalTv</code>, en macOS borra <code>~/Library/Application Support/LocalTv</code>.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CTA final ===================== -->
+<section style="padding-top: 0;">
+  <div class="cta-bottom">
+    <h2>Cero costo. Cero registro. Cero excusas.</h2>
+    <p>Descarga el instalador para tu sistema y dale play en menos de un minuto.</p>
+    <a href="#descargar" class="btn-download primary" style="display: inline-flex;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <span class="meta"><span>Descargar LocalTv</span><small>Gratis · Windows + macOS</small></span>
+    </a>
+  </div>
+</section>
+
+<footer>
+  <div class="links">
+    <a href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition/releases" target="_blank" rel="noopener">Releases</a>
+    <a href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition/issues" target="_blank" rel="noopener">Reportar un bug</a>
+    <a href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition/blob/main/README.md" target="_blank" rel="noopener">Documentación</a>
+  </div>
+  <div>
+    LocalTv · FofoStudio Edition · MIT License · proyecto educativo open-source
+  </div>
+</footer>
+
+<script>
+  // ----- Auto-detect platform y resaltar el botón correcto -----
+  (function () {
+    var ua = navigator.userAgent.toLowerCase();
+    var platform = (navigator.userAgentData && navigator.userAgentData.platform || navigator.platform || "").toLowerCase();
+    var isMac = /mac|darwin/.test(platform) || /mac os x/.test(ua);
+    var isWin = /win/.test(platform) || /windows/.test(ua);
+    var win = document.getElementById("btn-windows");
+    var mac = document.getElementById("btn-macos");
+    if (isMac && mac) mac.classList.add("primary");
+    else if (win) win.classList.add("primary");
+  })();
+
+  // ----- Resolver URL de descarga directa contra la última Release -----
+  (function () {
+    var REPO = "fofostudio/LocalTv-FofoStudio-Edition";
+    var versionEl = document.getElementById("version-info");
+    fetch("https://api.github.com/repos/" + REPO + "/releases/latest")
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (!data || !data.assets) {
+          versionEl.textContent = "Aún no hay releases publicadas";
+          return;
+        }
+        var winAsset = data.assets.find(function (a) { return /\.exe$/i.test(a.name); });
+        var macAsset = data.assets.find(function (a) { return /\.dmg$/i.test(a.name); });
+        if (winAsset) document.getElementById("btn-windows").href = winAsset.browser_download_url;
+        if (macAsset) document.getElementById("btn-macos").href = macAsset.browser_download_url;
+        versionEl.innerHTML = "Versión <strong>" + data.tag_name + "</strong> · publicada " +
+          new Date(data.published_at).toLocaleDateString("es-ES", { year: "numeric", month: "long", day: "numeric" });
+      })
+      .catch(function () {
+        versionEl.textContent = "Descarga directa desde GitHub Releases";
+      });
+  })();
+
+  // Smooth scroll para anclas
+  document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      var t = document.querySelector(this.getAttribute("href"));
+      if (t) { e.preventDefault(); t.scrollIntoView({ behavior: "smooth", block: "start" }); }
+    });
+  });
+</script>
+</body>
+</html>

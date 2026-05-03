@@ -3,17 +3,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: calc(100vh - 60px);
-  background: var(--bg-primary);
+  height: 100%;
+  background: var(--bg-deepest);
+  padding: 24px;
 }
 
 .loginBox {
-  background: var(--bg-secondary);
+  background: var(--bg-glass-strong);
+  backdrop-filter: blur(14px);
   padding: 2rem;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   width: 100%;
   max-width: 400px;
+  box-shadow: var(--shadow-lg);
 }
 
 .loginBox h1 {
@@ -76,9 +79,10 @@
 
 /* ===== DASHBOARD ===== */
 .dashboardWrapper {
-  min-height: calc(100vh - 60px);
-  background: var(--bg-primary);
+  height: 100%;
+  background: var(--bg-deepest);
   padding: 2rem;
+  overflow-y: auto;
 }
 
 .dashboardHeader {
@@ -133,6 +137,36 @@
   color: var(--text-primary);
   margin: 0;
   font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.countBadge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.toolbarActions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.successText {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  color: var(--live);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
 }
 
 .tableWrapper {

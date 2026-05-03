@@ -1,110 +1,263 @@
-.card {
+/* =================== TILE (Netflix-style) =================== */
+.tile {
+  position: relative;
   display: flex;
-  align-items: center;
-  padding: 0.75rem;
+  flex-direction: column;
   background: var(--bg-card);
-  border: 2px solid transparent;
-  border-radius: 6px;
+  border-radius: var(--radius);
+  overflow: hidden;
   cursor: pointer;
-  transition: all 0.2s ease;
-  color: var(--text-primary);
-  font-family: inherit;
-  font-size: 0.9rem;
+  border: 1px solid transparent;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--tx), box-shadow var(--tx), border-color var(--tx);
+  outline: none;
+  animation: fadeIn var(--tx) ease-out;
 }
-
-.card:hover {
-  background: var(--bg-card-hover);
+.tile:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-strong);
+  z-index: 2;
+}
+.tile:focus-visible {
   border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
 }
-
-.card.selected {
+.tileSelected {
   border-color: var(--accent);
-  background: var(--bg-card-hover);
+  box-shadow: 0 0 0 2px var(--accent), 0 8px 24px var(--accent-glow);
 }
 
-.content {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.dim {
+  opacity: 0.45;
+  filter: grayscale(0.55);
+}
+.dim:hover {
+  opacity: 0.9;
+  filter: none;
+}
+
+.offlineBadge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(0, 0, 0, 0.75);
+  color: var(--text-muted);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+.inactiveBadge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(229, 9, 20, 0.85);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.15);
+  text-transform: uppercase;
+}
+
+.dotInactive {
+  background: var(--accent);
+  box-shadow: 0 0 6px rgba(229, 9, 20, 0.5);
+}
+
+.tileMedia {
+  position: relative;
   width: 100%;
+  aspect-ratio: 16 / 9;
+  background: var(--card-bg, linear-gradient(135deg, #1c1c28 0%, #0b0b13 100%));
+  display: grid;
+  place-items: center;
+  overflow: hidden;
 }
-
-.liveIndicator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 12px;
-  height: 12px;
-  flex-shrink: 0;
-}
-
-.online {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #00CC00;
-  box-shadow: 0 0 6px rgba(0, 204, 0, 0.6);
-  animation: pulse 2s infinite;
-  display: block;
-}
-
-.offline {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #CC0000;
-  display: block;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-    box-shadow: 0 0 6px rgba(0, 204, 0, 0.6);
-  }
-  50% {
-    opacity: 0.6;
-    box-shadow: 0 0 3px rgba(0, 204, 0, 0.3);
-  }
-}
-
-.logo {
-  width: 24px;
-  height: 24px;
+.tileLogo {
+  max-width: 70%;
+  max-height: 65%;
+  width: auto;
+  height: auto;
   object-fit: contain;
-  margin-left: auto;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
+  transition: transform var(--tx);
+}
+.tile:hover .tileLogo { transform: scale(1.06); }
+
+.tileInitials {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: rgba(255,255,255,0.95);
+  letter-spacing: 1px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.4);
 }
 
-.name {
-  flex: 1;
-  text-align: left;
-  font-weight: 500;
+.tileGloss {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+    transparent 50%,
+    rgba(0,0,0,0.55) 100%);
+  pointer-events: none;
 }
 
-.favoriteBtn {
+.liveBadge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0,0,0,0.65);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
+}
+.liveBadgeDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--live);
+  animation: pulseGlow 1.6s infinite;
+}
+
+.tileFooter {
+  padding: 8px 10px 10px;
+  background: var(--bg-card);
+}
+.tileName {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tileFav {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  border-radius: 50%;
+  font-size: 14px;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all var(--tx);
+}
+.tile:hover .tileFav,
+.tile:focus-within .tileFav,
+.favActive { opacity: 1; transform: scale(1); }
+
+/* =================== LIST (compact for sidebar) =================== */
+.list {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  background: none;
-  border: none;
+  gap: 10px;
+  padding: 8px;
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
   cursor: pointer;
-  font-size: 18px;
-  color: #666;
-  transition: all 0.2s ease;
-  padding: 0;
+  transition: all var(--tx);
+  color: var(--text-primary);
+  animation: fadeIn var(--tx) ease-out;
+}
+.list:hover {
+  background: var(--bg-card-hover);
+  transform: translateX(2px);
+}
+.listSelected {
+  background: var(--bg-card-hover);
+  border-color: var(--accent);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.listLogo {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--bg-elevated);
+}
+.listLogo img {
+  max-width: 80%;
+  max-height: 80%;
+  object-fit: contain;
+}
+.listInitials {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+.listText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.listName {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.listMeta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: 0.4px;
+}
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.dotLive {
+  background: var(--live);
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
+  animation: pulseGlow 1.6s infinite;
+}
+.dotOff { background: var(--offline); }
+
+/* =================== Favorito (compartido) =================== */
+.favBtn {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 16px;
+  transition: all var(--tx);
   flex-shrink: 0;
 }
-
-.favoriteBtn:hover {
-  color: #ffd700;
-  transform: scale(1.2);
-}
-
-.favoriteBtn.favoriteActive {
-  color: #ffd700;
-}
-
-.card:hover .favoriteBtn {
-  opacity: 1;
-}
+.favBtn:hover { color: var(--accent-3); transform: scale(1.15); }
+.favActive { color: var(--accent-3); }

@@ -1,0 +1,144 @@
+name: Build installers
+
+# Cuándo se dispara:
+#  - push de un tag vX.Y.Z         → builda Win + macOS y publica un Release
+#  - workflow_dispatch (manual)    → builda Win + macOS y deja artifacts (sin Release)
+#  - pull_request a main           → smoke test (verifica que ambos builds compilen)
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write   # necesario para crear Releases en el job final
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Windows: .\build.ps1 → dist/LocalTv-Setup-1.0.0.exe
+  # ---------------------------------------------------------------------------
+  windows:
+    name: Build Windows (.exe)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+          cache-dependency-path: backend/requirements-build.txt
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Inno Setup
+        # Choco viene preinstalado en windows-latest. Más confiable que winget en CI.
+        run: choco install innosetup -y --no-progress
+
+      - name: Build (.\build.ps1)
+        shell: pwsh
+        run: .\build.ps1
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LocalTv-Windows
+          path: dist/LocalTv-Setup-*.exe
+          if-no-files-found: error
+          retention-days: 30
+
+  # ---------------------------------------------------------------------------
+  # macOS: ./build.sh → dist/LocalTv-1.0.0.dmg
+  # ---------------------------------------------------------------------------
+  macos:
+    name: Build macOS (.dmg)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+          cache-dependency-path: backend/requirements-build.txt
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build (./build.sh)
+        run: |
+          chmod +x build.sh
+          ./build.sh
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LocalTv-macOS
+          path: dist/LocalTv-*.dmg
+          if-no-files-found: error
+          retention-days: 30
+
+  # ---------------------------------------------------------------------------
+  # Release: solo en tags vX.Y.Z. Junta los dos artifacts y publica.
+  # ---------------------------------------------------------------------------
+  release:
+    name: Publish GitHub Release
+    needs: [windows, macos]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: LocalTv-Windows
+          path: dist
+
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: LocalTv-macOS
+          path: dist
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: LocalTv ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            dist/LocalTv-Setup-*.exe
+            dist/LocalTv-*.dmg
+          body: |
+            ## LocalTv ${{ github.ref_name }} — FofoStudio Edition
+
+            ### 📥 Descarga
+
+            - **Windows 10/11** → `LocalTv-Setup-*.exe` (instalador per-user, sin admin)
+            - **macOS 11+ (Intel & Apple Silicon)** → `LocalTv-*.dmg` (arrastra a Aplicaciones)
+
+            ### macOS — primera vez
+
+            La app no está firmada con Developer ID. Al primer doble clic verás un aviso de Gatekeeper.
+            **Solución (una sola vez):** clic derecho sobre `LocalTv.app` → **Abrir** → **Abrir** en el diálogo.
+            O por terminal: `xattr -dr com.apple.quarantine /Applications/LocalTv.app`
+
+            ### Datos del usuario
+
+            La BD SQLite con tus canales y favoritos vive en:
+            - Windows: `%LOCALAPPDATA%\LocalTv\`
+            - macOS:   `~/Library/Application Support/LocalTv/`
+
+            Sobrevive a actualizaciones de la app.

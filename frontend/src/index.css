@@ -1,27 +1,60 @@
+/* ===========================================================
+   LocalTv — FofoStudio Edition
+   Netflix-inspired dark theme + glassmorphism
+   =========================================================== */
+
 :root {
   /* Fondos */
-  --bg-primary: #0a0a0a;       /* fondo general */
-  --bg-secondary: #1a1a1a;     /* cards y sidebar */
-  --bg-card: #1a1a1a;          /* tarjetas de canal */
-  --bg-card-hover: #252525;    /* hover en tarjeta */
-
-  /* Navbar */
-  --bg-navbar: #CC0000;        /* rojo ESPN */
+  --bg-deepest:       #06060a;
+  --bg-primary:       #0b0b13;
+  --bg-secondary:     #14141d;
+  --bg-elevated:      #1c1c28;
+  --bg-card:          #1a1a24;
+  --bg-card-hover:    #25253a;
+  --bg-glass:         rgba(20, 20, 29, 0.65);
+  --bg-glass-strong:  rgba(28, 28, 40, 0.85);
 
   /* Texto */
-  --text-primary: #FFFFFF;
-  --text-secondary: #A0A0A0;
-  --text-muted: #606060;
+  --text-primary:     #f5f5f7;
+  --text-secondary:   #b8b8c4;
+  --text-muted:       #6e6e80;
 
-  /* Acentos */
-  --accent: #CC0000;           /* botones principales, EN VIVO */
-  --accent-hover: #990000;     /* hover en botones */
+  /* Acentos (Netflix-inspired) */
+  --accent:           #e50914;     /* rojo Netflix */
+  --accent-soft:      #ff2a37;
+  --accent-hover:     #b00610;
+  --accent-glow:      rgba(229, 9, 20, 0.45);
+
+  --accent-2:         #06b6d4;     /* cyan secundario */
+  --accent-3:         #f5a524;     /* dorado favoritos */
+
+  /* Estados */
+  --live:             #22c55e;
+  --offline:          #6b7280;
 
   /* Bordes */
-  --border: #2a2a2a;
+  --border:           #232334;
+  --border-strong:    #2e2e44;
+
+  /* Sombras */
+  --shadow-sm:        0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-md:        0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lg:        0 16px 40px rgba(0, 0, 0, 0.6);
+  --shadow-glow:      0 0 32px var(--accent-glow);
+
+  /* Geometría */
+  --radius-sm:        6px;
+  --radius:           10px;
+  --radius-lg:        16px;
+  --radius-xl:        22px;
 
   /* Player */
-  --player-bg: #000000;
+  --player-bg:        #000000;
+
+  /* Transiciones */
+  --tx-fast:          120ms ease;
+  --tx:               200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  --tx-slow:          400ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 * {
@@ -36,10 +69,13 @@ html, body, #root {
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background-color: var(--bg-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg-deepest);
   color: var(--text-primary);
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
 }
 
 a {
@@ -51,8 +87,51 @@ button {
   cursor: pointer;
   border: none;
   font-family: inherit;
+  background: none;
+  color: inherit;
 }
 
 img {
   display: block;
+  max-width: 100%;
+}
+
+/* ===== Scrollbars dark elegantes ===== */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.18);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}
+
+/* ===== Selección de texto ===== */
+::selection {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ===== Utilidades globales de animación ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.55); }
+  50%      { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+}
+@keyframes shimmer {
+  0%   { background-position: -800px 0; }
+  100% { background-position: 800px 0; }
 }

@@ -2,7 +2,23 @@
 
 > **Repositorio:** https://github.com/FofoStudio/LocalTv-FofoStudio-Edition
 
-## Prerequisitos
+## ¿Solo quieres usarlo en Windows?
+
+Descarga `LocalTv-Setup-1.0.0.exe` desde **Releases** y ejecútalo. Crea acceso directo en el escritorio. No requiere Python, Node ni admin. **Listo.**
+
+Para desarrollar / ejecutar desde código:
+
+## Generar el `.exe` instalable (Windows)
+
+```powershell
+.\build.ps1                # build completo: frontend + backend (.exe) + instalador
+.\build.ps1 -Clean         # limpia dist/build antes
+.\build.ps1 -SkipFrontend  # reusa frontend/dist
+```
+
+Output: `dist\LocalTv-Setup-1.0.0.exe`. Inno Setup se instala automáticamente vía `winget` la primera vez.
+
+## Prerequisitos (modo desarrollo)
 
 - **Python 3.11, 3.12 o 3.13** (no 3.14 — `pydantic-core` aún no publica wheels para 3.14)
 - **Node.js 18+**
