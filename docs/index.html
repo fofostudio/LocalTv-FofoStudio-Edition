@@ -3,530 +3,887 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>LocalTv — TV en vivo, gratis · FofoStudio Edition</title>
-<meta name="description" content="LocalTv es una app gratuita de TV en vivo para Windows y macOS. Cientos de canales, eventos en tiempo real, instalación de un clic, sin cuentas ni suscripciones." />
-<meta name="theme-color" content="#0b0b13" />
-<meta property="og:title" content="LocalTv — TV en vivo, gratis" />
-<meta property="og:description" content="Cientos de canales, eventos del día y reproducción al instante. Windows y macOS. 100% gratis." />
+<title>LocalTv — TV en vivo, gratis. Para siempre.</title>
+<meta name="description" content="App nativa de TV en vivo para Windows y macOS. Cientos de canales, eventos del día, reproducción instantánea. 100% gratis, sin cuentas, sin telemetría, open source." />
+<meta name="theme-color" content="#000000" />
+<meta property="og:title" content="LocalTv — TV en vivo, gratis. Para siempre." />
+<meta property="og:description" content="App nativa con cientos de canales y eventos del día. Windows + macOS. 100% gratis, sin cuentas, open source." />
 <meta property="og:type" content="website" />
 <link rel="icon" type="image/svg+xml" href="favicon.svg" />
 
+<link rel="preconnect" href="https://rsms.me" crossorigin />
+<link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
 <style>
+  /* ================================================================
+     Design tokens — inspirados en shadcn / 21st.dev / Vercel Geist
+     ================================================================ */
   :root {
-    --bg-0: #07070b;
-    --bg-1: #0b0b13;
-    --bg-2: #11111c;
-    --fg: #f4f4f5;
-    --muted: #a1a1aa;
-    --dim: #71717a;
-    --red: #e50914;
-    --red-hover: #ff1620;
-    --red-dark: #b00610;
-    --green: #22c55e;
-    --cyan: #06b6d4;
-    --border: rgba(255, 255, 255, 0.08);
-    --card: rgba(255, 255, 255, 0.04);
-    --glass: rgba(17, 17, 28, 0.7);
+    --bg:           #050507;
+    --bg-soft:      #0a0a0d;
+    --surface:      #0e0e13;
+    --surface-2:    #14141b;
+    --border:       rgba(255, 255, 255, 0.08);
+    --border-strong:rgba(255, 255, 255, 0.14);
+    --fg:           #fafafa;
+    --fg-muted:     #a1a1aa;
+    --fg-dim:       #71717a;
+    --fg-faint:     #52525b;
+
+    --accent:       #ff2d3a;
+    --accent-2:     #ff5e65;
+    --accent-glow:  rgba(255, 45, 58, 0.35);
+    --green:        #22c55e;
+    --blue:         #60a5fa;
+    --purple:       #a78bfa;
+
+    --radius-sm: 8px;
+    --radius:    14px;
+    --radius-lg: 22px;
+
+    --grid: rgba(255, 255, 255, 0.04);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
   html, body { height: 100%; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-    background: var(--bg-0);
+    font-family: 'Inter var', 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-feature-settings: 'cv11', 'ss01', 'ss03';
+    background: var(--bg);
     color: var(--fg);
-    line-height: 1.55;
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
     overflow-x: hidden;
+    letter-spacing: -0.011em;
   }
   a { color: inherit; text-decoration: none; }
   img { max-width: 100%; display: block; }
+  code, .mono { font-family: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace; font-size: 0.92em; }
+  ::selection { background: var(--accent); color: #fff; }
 
-  /* ---------- Background gradients (Netflix-ish) ---------- */
-  .bg-grad {
-    position: fixed; inset: 0; z-index: -1;
+  /* ================================================================
+     Background — grid sutil + gradient mesh + spotlight reactivo
+     ================================================================ */
+  .bg-fixed {
+    position: fixed; inset: 0; z-index: -2; pointer-events: none;
     background:
-      radial-gradient(ellipse 80% 60% at 70% 0%, rgba(229, 9, 20, 0.20), transparent 60%),
-      radial-gradient(ellipse 60% 60% at 10% 80%, rgba(6, 182, 212, 0.10), transparent 60%),
-      linear-gradient(180deg, #0b0b13 0%, #07070b 100%);
+      radial-gradient(ellipse 60% 50% at 50% -10%, rgba(255, 45, 58, 0.18), transparent 70%),
+      radial-gradient(ellipse 40% 40% at 100% 100%, rgba(96, 165, 250, 0.08), transparent 60%),
+      radial-gradient(ellipse 40% 40% at 0% 100%, rgba(167, 139, 250, 0.06), transparent 60%),
+      var(--bg);
+  }
+  .bg-grid {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, #000 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, #000 30%, transparent 80%);
+  }
+  /* Spotlight reactivo al mouse */
+  .spotlight {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background: radial-gradient(600px circle at var(--mx, 50%) var(--my, 30%),
+      rgba(255, 45, 58, 0.10), transparent 60%);
+    transition: background 0.1s ease-out;
   }
 
-  /* ---------- Nav ---------- */
+  /* ================================================================
+     Container + nav
+     ================================================================ */
+  .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
   nav {
     position: sticky; top: 0; z-index: 50;
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    background: var(--glass);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    background: rgba(5, 5, 7, 0.72);
     border-bottom: 1px solid var(--border);
   }
-  .nav-inner {
-    max-width: 1200px; margin: 0 auto;
-    padding: 16px 24px;
+  .nav-row {
     display: flex; align-items: center; justify-content: space-between;
+    height: 60px;
   }
-  .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; letter-spacing: -0.02em; }
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 600; letter-spacing: -0.02em; font-size: 15px;
+  }
   .brand-mark {
-    width: 36px; height: 36px; border-radius: 9px;
-    background: linear-gradient(135deg, var(--red), var(--red-dark));
+    width: 28px; height: 28px; border-radius: 7px; position: relative;
+    background: linear-gradient(135deg, var(--accent), #c8101c);
+    box-shadow: 0 4px 14px var(--accent-glow), inset 0 1px 0 rgba(255,255,255,0.2);
     display: grid; place-items: center;
-    box-shadow: 0 6px 18px rgba(229, 9, 20, 0.35);
   }
-  .brand-mark .dot { width: 10px; height: 10px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 4px rgba(255,255,255,0.15); }
-  .brand-name { font-size: 18px; }
-  .brand-by { color: var(--dim); font-weight: 400; font-size: 13px; }
+  .brand-mark::after {
+    content: ""; width: 8px; height: 8px; border-radius: 50%;
+    background: #fff; box-shadow: 0 0 0 3px rgba(255,255,255,0.15);
+  }
+  .brand-by { color: var(--fg-faint); font-weight: 400; font-size: 13px; }
 
-  .nav-links { display: flex; gap: 22px; align-items: center; font-size: 14px; color: var(--muted); }
-  .nav-links a:hover { color: var(--fg); }
+  .nav-menu { display: flex; gap: 28px; align-items: center; font-size: 14px; color: var(--fg-muted); }
+  .nav-menu a:hover { color: var(--fg); }
   .nav-cta {
-    background: var(--red); color: #fff !important;
-    padding: 8px 16px; border-radius: 8px; font-weight: 600;
-    transition: background 0.15s;
+    background: var(--fg); color: var(--bg) !important;
+    padding: 8px 14px; border-radius: 8px; font-weight: 500; font-size: 13px;
+    transition: opacity 0.15s, transform 0.15s;
   }
-  .nav-cta:hover { background: var(--red-hover); }
+  .nav-cta:hover { opacity: 0.92; transform: translateY(-1px); }
 
-  @media (max-width: 720px) {
-    .nav-links a:not(.nav-cta) { display: none; }
+  @media (max-width: 760px) {
+    .nav-menu a:not(.nav-cta) { display: none; }
   }
 
-  /* ---------- Hero ---------- */
-  .hero {
-    max-width: 1200px; margin: 0 auto;
-    padding: 80px 24px 60px;
-    text-align: center;
-  }
-  .badge-free {
+  /* ================================================================
+     Hero
+     ================================================================ */
+  .hero { padding: 96px 0 64px; text-align: center; position: relative; }
+
+  .pill {
     display: inline-flex; align-items: center; gap: 8px;
-    padding: 6px 14px; border-radius: 999px;
-    background: rgba(34, 197, 94, 0.12);
-    border: 1px solid rgba(34, 197, 94, 0.3);
-    color: var(--green);
-    font-size: 13px; font-weight: 600;
+    padding: 5px 12px 5px 6px; border-radius: 999px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    color: var(--fg-muted); font-size: 12.5px; font-weight: 500;
+    backdrop-filter: blur(8px);
     margin-bottom: 28px;
   }
-  .badge-free::before {
-    content: ""; width: 8px; height: 8px; border-radius: 50%;
-    background: var(--green);
-    box-shadow: 0 0 12px var(--green);
-    animation: pulse 2s infinite;
+  .pill-tag {
+    background: var(--accent); color: #fff;
+    padding: 2px 8px; border-radius: 999px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
+    text-transform: uppercase;
   }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
+  .pill-arrow {
+    color: var(--fg-dim); font-size: 14px; transition: transform 0.2s;
   }
+  .pill:hover .pill-arrow { transform: translateX(2px); color: var(--fg); }
 
   h1 {
-    font-size: clamp(40px, 7vw, 76px);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    line-height: 1.05;
-    margin-bottom: 24px;
-    background: linear-gradient(180deg, #fff 0%, #b8b8c8 100%);
+    font-family: 'Inter var', 'Inter', sans-serif;
+    font-size: clamp(44px, 7.5vw, 84px);
+    font-weight: 600;
+    letter-spacing: -0.045em;
+    line-height: 1.02;
+    margin-bottom: 22px;
+    background: linear-gradient(180deg, #ffffff 0%, #c8c8d0 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
   }
-  h1 .accent {
-    background: linear-gradient(135deg, var(--red), #ff5e65);
+  h1 .gradient {
+    background: linear-gradient(135deg, #ff2d3a 0%, #ff8a92 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+    font-style: italic;
   }
-  .subtitle {
-    font-size: clamp(16px, 2vw, 20px);
-    color: var(--muted);
-    max-width: 680px; margin: 0 auto 40px;
+  .lede {
+    font-size: clamp(16px, 1.6vw, 18.5px);
+    color: var(--fg-muted);
+    max-width: 620px; margin: 0 auto 38px;
+    letter-spacing: -0.005em;
   }
 
-  /* ---------- Download buttons ---------- */
-  .downloads {
-    display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
-    margin-bottom: 16px;
-  }
-  .btn-download {
-    display: inline-flex; align-items: center; gap: 14px;
-    padding: 16px 28px;
-    border-radius: 12px;
-    font-weight: 600; font-size: 16px;
-    border: 1px solid var(--border);
-    background: var(--card);
+  /* ================================================================
+     Botones download
+     ================================================================ */
+  .btn-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-weight: 500; font-size: 14.5px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
     color: var(--fg);
-    transition: transform 0.15s, background 0.15s, border-color 0.15s;
     cursor: pointer;
+    transition: transform 0.15s, background 0.15s, border-color 0.15s, box-shadow 0.15s;
+    position: relative; overflow: hidden;
   }
-  .btn-download:hover { transform: translateY(-2px); background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.18); }
-  .btn-download.primary {
-    background: var(--red);
-    border-color: var(--red);
-    box-shadow: 0 10px 30px rgba(229, 9, 20, 0.35);
+  .btn:hover { transform: translateY(-1px); background: var(--surface-2); border-color: rgba(255,255,255,0.22); }
+  .btn-primary {
+    background: var(--fg);
+    color: var(--bg);
+    border-color: var(--fg);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 8px 24px rgba(255,255,255,0.06);
   }
-  .btn-download.primary:hover { background: var(--red-hover); border-color: var(--red-hover); }
-  .btn-download svg { width: 24px; height: 24px; flex-shrink: 0; }
-  .btn-download .meta { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.2; }
-  .btn-download .meta small { font-size: 12px; color: rgba(255,255,255,0.6); font-weight: 400; }
-  .btn-download.primary .meta small { color: rgba(255,255,255,0.8); }
+  .btn-primary:hover { background: #f0f0f0; }
+  .btn svg { width: 17px; height: 17px; flex-shrink: 0; }
+  .btn-meta { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.2; gap: 1px; }
+  .btn-meta small { font-size: 11px; color: var(--fg-dim); font-weight: 400; }
+  .btn-primary .btn-meta small { color: rgba(0,0,0,0.55); }
 
-  .hero-meta { color: var(--dim); font-size: 13px; margin-top: 18px; }
-  .hero-meta a { color: var(--cyan); }
-  .hero-meta a:hover { text-decoration: underline; }
+  .hero-meta {
+    color: var(--fg-faint); font-size: 13px; margin-top: 8px;
+    display: inline-flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center;
+  }
+  .hero-meta a { color: var(--fg-muted); border-bottom: 1px dotted var(--border-strong); padding-bottom: 1px; }
+  .hero-meta a:hover { color: var(--fg); border-color: var(--fg-muted); }
+  .hero-meta .dot { color: var(--fg-faint); }
 
-  /* ---------- Section ---------- */
-  section { padding: 80px 24px; }
-  .section-inner { max-width: 1200px; margin: 0 auto; }
-  .section-title {
-    font-size: clamp(28px, 4vw, 40px);
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    text-align: center;
-    margin-bottom: 16px;
+  /* Stats inline */
+  .stats-row {
+    display: flex; gap: 36px; justify-content: center; margin-top: 56px; flex-wrap: wrap;
+  }
+  .stat { text-align: center; }
+  .stat-num {
+    font-size: 28px; font-weight: 600; letter-spacing: -0.03em;
+    background: linear-gradient(180deg, #fff 0%, #a1a1aa 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .stat-label { font-size: 12px; color: var(--fg-dim); margin-top: 2px; letter-spacing: 0.02em; text-transform: uppercase; }
+
+  /* ================================================================
+     Marquee de logos
+     ================================================================ */
+  .marquee-section {
+    padding: 56px 0 32px;
+  }
+  .marquee-label {
+    text-align: center; color: var(--fg-faint); font-size: 12px;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .marquee {
+    overflow: hidden; position: relative;
+    mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  }
+  .marquee-track {
+    display: flex; gap: 48px; align-items: center;
+    width: max-content;
+    animation: scroll 40s linear infinite;
+  }
+  .marquee-item {
+    height: 36px; width: auto; opacity: 0.55;
+    filter: grayscale(0.3) brightness(1.1);
+    transition: opacity 0.2s, filter 0.2s;
+  }
+  .marquee-item:hover { opacity: 1; filter: none; }
+  @keyframes scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ================================================================
+     Sections
+     ================================================================ */
+  section { padding: 96px 0; }
+  .section-head { text-align: center; margin-bottom: 56px; }
+  .eyebrow {
+    color: var(--accent); font-size: 13px; font-weight: 500;
+    letter-spacing: 0.04em; margin-bottom: 14px;
+    display: inline-block;
+  }
+  h2 {
+    font-size: clamp(30px, 4vw, 44px);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+    margin-bottom: 14px;
   }
   .section-sub {
-    text-align: center;
-    color: var(--muted);
-    max-width: 600px; margin: 0 auto 56px;
-    font-size: 16px;
+    color: var(--fg-muted); font-size: 17px;
+    max-width: 580px; margin: 0 auto;
+    letter-spacing: -0.005em;
   }
 
-  /* ---------- Feature cards ---------- */
-  .features {
+  /* ================================================================
+     Bento grid de features
+     ================================================================ */
+  .bento {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 18px;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 14px;
   }
-  .feature {
-    padding: 28px;
-    border-radius: 16px;
-    background: var(--card);
+  .bento-card {
+    background: var(--surface);
     border: 1px solid var(--border);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    transition: transform 0.15s, border-color 0.15s, background 0.15s;
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    position: relative; overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
   }
-  .feature:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); }
-  .feature .icon {
-    width: 44px; height: 44px; border-radius: 11px;
+  .bento-card:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+  .bento-card::before {
+    content: ""; position: absolute; inset: 0;
+    background: radial-gradient(600px circle at var(--cmx, 50%) var(--cmy, 50%),
+      rgba(255, 255, 255, 0.04), transparent 40%);
+    opacity: 0; transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .bento-card:hover::before { opacity: 1; }
+  .bento-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: linear-gradient(135deg, rgba(255, 45, 58, 0.18), rgba(255, 45, 58, 0.05));
+    border: 1px solid rgba(255, 45, 58, 0.25);
     display: grid; place-items: center;
-    background: linear-gradient(135deg, var(--red), var(--red-dark));
     margin-bottom: 18px;
-    box-shadow: 0 6px 18px rgba(229, 9, 20, 0.30);
+    color: var(--accent-2);
   }
-  .feature .icon svg { width: 22px; height: 22px; color: #fff; }
-  .feature h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-  .feature p { color: var(--muted); font-size: 14.5px; }
+  .bento-icon svg { width: 18px; height: 18px; }
+  .bento-card h3 { font-size: 17px; font-weight: 600; letter-spacing: -0.015em; margin-bottom: 8px; }
+  .bento-card p { color: var(--fg-muted); font-size: 14.5px; line-height: 1.55; }
 
-  /* ---------- "Cómo funciona" steps ---------- */
+  .bento-card.span-3 { grid-column: span 3; }
+  .bento-card.span-2 { grid-column: span 2; }
+  .bento-card.span-4 { grid-column: span 4; }
+  .bento-card.row-2 { grid-row: span 2; }
+
+  .bento-illust {
+    margin-top: 22px;
+    border-radius: var(--radius);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    padding: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; color: var(--fg-muted);
+    line-height: 1.7;
+  }
+  .bento-illust .live { color: var(--green); }
+  .bento-illust .err  { color: var(--accent); }
+  .bento-illust .dim  { color: var(--fg-faint); }
+
+  .pill-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+  .pill-list span {
+    font-size: 11px; padding: 4px 10px; border-radius: 999px;
+    background: rgba(255,255,255,0.05); color: var(--fg-muted);
+    border: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  @media (max-width: 880px) {
+    .bento { grid-template-columns: 1fr; }
+    .bento-card.span-3, .bento-card.span-2, .bento-card.span-4 { grid-column: span 1; }
+  }
+
+  /* ================================================================
+     Steps "Cómo funciona"
+     ================================================================ */
   .steps {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 24px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
     counter-reset: step;
   }
-  .step {
-    padding: 28px 24px;
-    border-radius: 14px;
-    background: var(--card);
+  .step-card {
+    background: var(--surface);
     border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 32px 28px;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+  .step-card:hover { border-color: var(--border-strong); }
+  .step-card::before {
+    counter-increment: step;
+    content: "0" counter(step);
+    position: absolute; top: 22px; right: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--fg-faint);
+    letter-spacing: 0.02em;
+  }
+  .step-card h4 { font-size: 17px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.015em; }
+  .step-card p  { color: var(--fg-muted); font-size: 14.5px; }
+  .step-card code { color: var(--fg); background: var(--surface-2); padding: 1px 6px; border-radius: 4px; }
+  @media (max-width: 760px) { .steps { grid-template-columns: 1fr; } }
+
+  /* ================================================================
+     Pricing — "Forever Free"
+     ================================================================ */
+  .pricing-wrap { display: grid; place-items: center; }
+  .pricing {
+    width: 100%; max-width: 480px;
+    background: linear-gradient(180deg, var(--surface) 0%, var(--bg-soft) 100%);
+    border: 1px solid var(--border-strong);
+    border-radius: 24px;
+    padding: 36px 32px;
+    position: relative; overflow: hidden;
+    box-shadow: 0 30px 80px -30px rgba(255, 45, 58, 0.4),
+                0 0 0 1px rgba(255, 45, 58, 0.15) inset;
+  }
+  .pricing::before {
+    content: ""; position: absolute; top: -200px; right: -200px;
+    width: 400px; height: 400px; border-radius: 50%;
+    background: radial-gradient(circle, var(--accent-glow) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .pricing-tag {
+    display: inline-block;
+    background: rgba(255, 45, 58, 0.12);
+    color: var(--accent-2);
+    border: 1px solid rgba(255, 45, 58, 0.3);
+    padding: 4px 10px; border-radius: 999px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; margin-bottom: 20px;
     position: relative;
   }
-  .step::before {
-    counter-increment: step;
-    content: counter(step);
-    position: absolute; top: -16px; left: 24px;
-    width: 36px; height: 36px; border-radius: 50%;
-    background: var(--red); color: #fff;
-    display: grid; place-items: center;
-    font-weight: 800; font-size: 16px;
-    box-shadow: 0 6px 14px rgba(229, 9, 20, 0.45);
+  .pricing-price {
+    font-size: 64px; font-weight: 600; letter-spacing: -0.04em;
+    line-height: 1; margin-bottom: 6px;
+    background: linear-gradient(180deg, #fff 0%, #c8c8d0 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: relative;
   }
-  .step h4 { font-size: 16px; font-weight: 700; margin: 8px 0 10px; }
-  .step p { color: var(--muted); font-size: 14px; }
-  .step code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 12.5px; }
+  .pricing-price small {
+    font-size: 16px; color: var(--fg-muted); margin-left: 8px;
+    font-weight: 400;
+    -webkit-text-fill-color: var(--fg-muted);
+  }
+  .pricing-desc { color: var(--fg-muted); font-size: 15px; margin-bottom: 28px; position: relative; }
+  .pricing ul { list-style: none; margin-bottom: 28px; position: relative; }
+  .pricing li {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 7px 0; color: var(--fg);
+    font-size: 14.5px;
+  }
+  .pricing li svg { width: 16px; height: 16px; color: var(--green); flex-shrink: 0; margin-top: 2px; }
+  .pricing-cta {
+    display: flex; gap: 8px; flex-wrap: wrap; position: relative;
+  }
+  .pricing-cta .btn { flex: 1; justify-content: center; min-width: 180px; }
 
-  /* ---------- FAQ ---------- */
-  .faq { max-width: 800px; margin: 0 auto; }
-  details {
-    border-bottom: 1px solid var(--border);
-    padding: 18px 4px;
+  /* ================================================================
+     FAQ
+     ================================================================ */
+  .faq-grid { max-width: 760px; margin: 0 auto; }
+  .faq-item {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s, background 0.2s;
   }
-  details > summary {
-    cursor: pointer;
+  .faq-item:hover { border-color: var(--border-strong); }
+  .faq-item summary {
     list-style: none;
-    font-weight: 600;
-    font-size: 16px;
+    cursor: pointer;
+    padding: 18px 22px;
+    font-size: 15.5px;
+    font-weight: 500;
     display: flex; justify-content: space-between; align-items: center;
+    gap: 18px;
+    letter-spacing: -0.005em;
   }
-  details > summary::-webkit-details-marker { display: none; }
-  details > summary::after {
-    content: "+";
-    font-size: 22px; font-weight: 300;
-    color: var(--muted);
-    transition: transform 0.2s;
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item summary::after {
+    content: ""; width: 14px; height: 14px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2.4' stroke-linecap='round'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg>");
+    background-size: contain; background-repeat: no-repeat;
+    transition: transform 0.25s;
+    flex-shrink: 0;
   }
-  details[open] > summary::after { transform: rotate(45deg); }
-  details > p {
-    margin-top: 12px; color: var(--muted);
+  .faq-item[open] summary::after {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'><line x1='5' y1='12' x2='19' y2='12'/></svg>");
+  }
+  .faq-item .body {
+    padding: 0 22px 20px; color: var(--fg-muted);
     font-size: 14.5px; line-height: 1.65;
   }
-  details code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+  .faq-item .body code {
+    background: var(--surface-2); border: 1px solid var(--border);
+    color: var(--fg); padding: 1px 6px; border-radius: 4px; font-size: 13px;
+  }
+  .faq-item .body a { color: var(--blue); border-bottom: 1px dotted; }
 
-  /* ---------- CTA bottom ---------- */
-  .cta-bottom {
-    margin: 40px auto 0;
-    max-width: 900px;
-    text-align: center;
+  /* ================================================================
+     CTA final
+     ================================================================ */
+  .cta-card {
+    max-width: 980px; margin: 0 auto;
+    border-radius: 26px;
+    background:
+      radial-gradient(ellipse 80% 100% at 50% 0%, rgba(255, 45, 58, 0.22), transparent 70%),
+      linear-gradient(180deg, var(--surface) 0%, var(--bg-soft) 100%);
+    border: 1px solid var(--border-strong);
     padding: 56px 32px;
-    border-radius: 24px;
-    background: linear-gradient(135deg, rgba(229, 9, 20, 0.16), rgba(229, 9, 20, 0.04));
-    border: 1px solid rgba(229, 9, 20, 0.3);
-  }
-  .cta-bottom h2 { font-size: clamp(24px, 3vw, 32px); margin-bottom: 12px; }
-  .cta-bottom p { color: var(--muted); margin-bottom: 24px; }
-
-  /* ---------- Footer ---------- */
-  footer {
-    padding: 40px 24px 60px;
     text-align: center;
-    color: var(--dim);
-    font-size: 13px;
-    border-top: 1px solid var(--border);
+    position: relative; overflow: hidden;
   }
-  footer a { color: var(--muted); }
-  footer a:hover { color: var(--fg); }
-  footer .links { display: flex; justify-content: center; gap: 22px; margin-bottom: 14px; flex-wrap: wrap; }
+  .cta-card h2 { margin-bottom: 12px; }
+  .cta-card p { color: var(--fg-muted); margin-bottom: 28px; font-size: 16px; }
+
+  /* ================================================================
+     Footer
+     ================================================================ */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 48px 0 56px;
+    color: var(--fg-faint);
+    font-size: 13px;
+  }
+  footer .row {
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 18px;
+  }
+  footer .links { display: flex; gap: 24px; flex-wrap: wrap; }
+  footer .links a { color: var(--fg-muted); }
+  footer .links a:hover { color: var(--fg); }
+  .made-by { color: var(--fg-dim); }
+  .made-by a { color: var(--fg-muted); border-bottom: 1px dotted var(--border-strong); }
+
+  /* ================================================================
+     Reveal-on-scroll
+     ================================================================ */
+  .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.6s, transform 0.6s; }
+  .reveal.in { opacity: 1; transform: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track { animation: none; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+    html { scroll-behavior: auto; }
+  }
 </style>
 </head>
 <body>
-<div class="bg-grad"></div>
 
+<div class="bg-fixed"></div>
+<div class="bg-grid"></div>
+<div class="spotlight" id="spotlight"></div>
+
+<!-- ============================ NAV ============================ -->
 <nav>
-  <div class="nav-inner">
+  <div class="container nav-row">
     <a href="#" class="brand">
-      <div class="brand-mark"><div class="dot"></div></div>
-      <div>
-        <div class="brand-name">LocalTv <span class="brand-by">· FofoStudio Edition</span></div>
-      </div>
+      <div class="brand-mark"></div>
+      <span>LocalTv <span class="brand-by">/ FofoStudio</span></span>
     </a>
-    <div class="nav-links">
-      <a href="#features">Funciones</a>
-      <a href="#como-funciona">Cómo funciona</a>
-      <a href="#faq">Preguntas</a>
-      <a href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition" target="_blank" rel="noopener">GitHub</a>
-      <a href="#descargar" class="nav-cta">Descargar</a>
+    <div class="nav-menu">
+      <a href="#features">Features</a>
+      <a href="#how">Cómo funciona</a>
+      <a href="#pricing">Precio</a>
+      <a href="#faq">FAQ</a>
+      <a href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition" target="_blank" rel="noopener">GitHub ↗</a>
+      <a href="#download" class="nav-cta">Descargar →</a>
     </div>
   </div>
 </nav>
 
-<header class="hero" id="descargar">
-  <div class="badge-free">100% gratis · sin cuentas · sin suscripciones</div>
-  <h1>Tu propia TV en vivo,<br><span class="accent">en un clic.</span></h1>
-  <p class="subtitle">
-    Cientos de canales, eventos del día en tiempo real y reproducción instantánea.
-    Instala el <strong>.exe</strong> en Windows o el <strong>.dmg</strong> en macOS y listo —
-    se abre como cualquier app y funciona desde tu navegador.
-  </p>
-
-  <div class="downloads">
-    <a id="btn-windows" class="btn-download" href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition/releases/latest" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path d="M2.5 5.5L10.5 4.4V11.5H2.5V5.5ZM2.5 12.5H10.5V19.6L2.5 18.5V12.5ZM11.5 4.3L21.5 3V11.5H11.5V4.3ZM11.5 12.5H21.5V21L11.5 19.7V12.5Z"/>
-      </svg>
-      <span class="meta">
-        <span>Descargar para Windows</span>
-        <small>.exe · Windows 10 / 11 · sin admin</small>
-      </span>
+<!-- ============================ HERO ============================ -->
+<header class="hero" id="download">
+  <div class="container">
+    <a href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition/releases/latest" target="_blank" rel="noopener" class="pill">
+      <span class="pill-tag">v1.0.1</span>
+      <span>Acabamos de lanzar — instaladores nativos para Windows + macOS</span>
+      <span class="pill-arrow">→</span>
     </a>
 
-    <a id="btn-macos" class="btn-download" href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition/releases/latest" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path d="M16.4 12.4c0-2.6 2.1-3.9 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9s-2-.9-3.4-.9c-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.3 2.5 1.3-.05 1.8-.85 3.4-.85s2.05.85 3.45.82c1.4-.02 2.3-1.25 3.2-2.45 1-1.4 1.4-2.75 1.45-2.85-.03-.02-2.8-1.07-2.85-4.25M14.05 5c.7-.85 1.18-2.05 1.05-3.25-1 .05-2.2.65-2.95 1.5-.65.75-1.25 1.95-1.05 3.1 1.1.1 2.25-.55 2.95-1.35"/>
-      </svg>
-      <span class="meta">
-        <span>Descargar para macOS</span>
-        <small>.dmg · macOS 11+ · Intel & Apple Silicon</small>
-      </span>
-    </a>
+    <h1>
+      Tu propia TV en vivo,<br>
+      <span class="gradient">gratis para siempre.</span>
+    </h1>
+
+    <p class="lede">
+      App nativa con cientos de canales y los eventos del día.
+      Instala el <span class="mono">.exe</span> o el <span class="mono">.dmg</span>,
+      ábrelo en un clic. Sin cuentas, sin telemetría, sin trucos.
+    </p>
+
+    <div class="btn-row">
+      <a id="btn-windows" class="btn" href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition/releases/latest" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M2.5 5.5L10.5 4.4V11.5H2.5V5.5ZM2.5 12.5H10.5V19.6L2.5 18.5V12.5ZM11.5 4.3L21.5 3V11.5H11.5V4.3ZM11.5 12.5H21.5V21L11.5 19.7V12.5Z"/>
+        </svg>
+        <span class="btn-meta"><span>Descargar para Windows</span><small>.exe · 22 MB · sin admin</small></span>
+      </a>
+      <a id="btn-macos" class="btn" href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition/releases/latest" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M16.4 12.4c0-2.6 2.1-3.9 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9s-2-.9-3.4-.9c-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.3 2.5 1.3-.05 1.8-.85 3.4-.85s2.05.85 3.45.82c1.4-.02 2.3-1.25 3.2-2.45 1-1.4 1.4-2.75 1.45-2.85-.03-.02-2.8-1.07-2.85-4.25M14.05 5c.7-.85 1.18-2.05 1.05-3.25-1 .05-2.2.65-2.95 1.5-.65.75-1.25 1.95-1.05 3.1 1.1.1 2.25-.55 2.95-1.35"/>
+        </svg>
+        <span class="btn-meta"><span>Descargar para macOS</span><small>.dmg · 27 MB · Intel & Apple Silicon</small></span>
+      </a>
+    </div>
+
+    <div class="hero-meta">
+      <span id="version-info">Resolviendo última versión…</span>
+      <span class="dot">·</span>
+      <a href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition/releases" target="_blank" rel="noopener">Todas las versiones</a>
+      <span class="dot">·</span>
+      <a href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition" target="_blank" rel="noopener">Código fuente</a>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat"><div class="stat-num" data-target="96">0</div><div class="stat-label">canales en vivo</div></div>
+      <div class="stat"><div class="stat-num">2</div><div class="stat-label">plataformas nativas</div></div>
+      <div class="stat"><div class="stat-num">$0</div><div class="stat-label">para siempre</div></div>
+      <div class="stat"><div class="stat-num">MIT</div><div class="stat-label">open source</div></div>
+    </div>
   </div>
-
-  <p class="hero-meta">
-    <span id="version-info">Buscando la última versión...</span> ·
-    <a href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition/releases" target="_blank" rel="noopener">ver todas las versiones</a> ·
-    <a href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition" target="_blank" rel="noopener">código fuente</a>
-  </p>
 </header>
 
-<!-- ===================== Features ===================== -->
-<section id="features">
-  <div class="section-inner">
-    <h2 class="section-title">Todo lo que necesitas</h2>
-    <p class="section-sub">Diseñado para que abras la app y empieces a ver. Sin configurar, sin pagar, sin pasos extra.</p>
+<!-- ============================ MARQUEE ============================ -->
+<section class="marquee-section">
+  <div class="container">
+    <div class="marquee-label">Algunos de los canales incluidos</div>
+  </div>
+  <div class="marquee">
+    <div class="marquee-track" id="logo-track">
+      <!-- Logos se inyectan por JS -->
+    </div>
+  </div>
+</section>
 
-    <div class="features">
-      <div class="feature">
-        <div class="icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+<!-- ============================ FEATURES (BENTO) ============================ -->
+<section id="features">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="eyebrow">Features</div>
+      <h2>Todo lo que necesitas. Nada de lo que no.</h2>
+      <p class="section-sub">Pensado para que abras la app y empieces a ver. Sin configurar, sin pagar, sin pasos extra.</p>
+    </div>
+
+    <div class="bento reveal">
+      <div class="bento-card span-3 row-2">
+        <div class="bento-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
         </div>
         <h3>Cientos de canales en vivo</h3>
-        <p>Deportes, noticias, entretenimiento y eventos especiales. La lista se sincroniza automáticamente.</p>
-      </div>
-
-      <div class="feature">
-        <div class="icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <p>Deportes, noticias, entretenimiento. Lista que se sincroniza desde el panel admin con un clic.</p>
+        <div class="bento-illust">
+          <div><span class="live">●</span> ESPN <span class="dim">— en vivo · 14:30 hs</span></div>
+          <div><span class="live">●</span> Fox Sports <span class="dim">— en vivo · 14:32 hs</span></div>
+          <div><span class="live">●</span> TyC Sports <span class="dim">— en vivo</span></div>
+          <div><span class="dim">○ DAZN — fuera de aire</span></div>
+          <div><span class="live">●</span> Telefé <span class="dim">— en vivo</span></div>
         </div>
-        <h3>Eventos del día</h3>
-        <p>Mira qué partido está empezando, cuáles vienen y en qué canales se transmiten. Todo en una vista.</p>
       </div>
 
-      <div class="feature">
-        <div class="icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <div class="bento-card span-3">
+        <div class="bento-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         </div>
-        <h3>Detección automática</h3>
-        <p>Verifica qué canales están realmente disponibles ahora — los caídos se marcan claramente.</p>
+        <h3>Eventos del día, en tiempo real</h3>
+        <p>Qué partido empieza, cuáles vienen, en qué canales se ven. Filtros: en vivo / próximos / finalizados.</p>
       </div>
 
-      <div class="feature">
-        <div class="icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      <div class="bento-card span-3">
+        <div class="bento-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <h3>Health-check automático</h3>
+        <p>Verifica continuamente qué canales están realmente disponibles. Los caídos se marcan, no te hace perder tiempo.</p>
+      </div>
+
+      <div class="bento-card span-2">
+        <div class="bento-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
         </div>
         <h3>Funciona en tu red</h3>
-        <p>Abrelo en tu PC y míralo desde la TV, el celular o la tablet — solo cambia <code>localhost</code> por la IP de tu PC.</p>
+        <p>Abrelo en la PC, míralo en la TV o el celu cambiando <code>localhost</code> por la IP local.</p>
       </div>
 
-      <div class="feature">
-        <div class="icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <div class="bento-card span-2">
+        <div class="bento-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         </div>
-        <h3>Privado y local</h3>
-        <p>Todo corre en tu máquina. Sin tracking, sin telemetría, sin servidores intermediarios. Tus datos no salen.</p>
+        <h3>Privacidad total</h3>
+        <p>Todo corre en tu máquina. Sin tracking, sin telemetría, sin servidores. Tus datos no salen de ahí.</p>
       </div>
 
-      <div class="feature">
-        <div class="icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      <div class="bento-card span-2">
+        <div class="bento-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
         </div>
         <h3>Open source</h3>
-        <p>Código abierto bajo licencia MIT. Lee el código, contribuye, fórkalo, hazlo tuyo.</p>
+        <p>MIT. Lee el código, fórkalo, contribuye, hazlo tuyo.</p>
+        <div class="pill-list">
+          <span>FastAPI</span><span>React 19</span><span>SQLite</span><span>Vite</span>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ===================== Cómo funciona ===================== -->
-<section id="como-funciona" style="background: linear-gradient(180deg, transparent, rgba(255,255,255,0.02));">
-  <div class="section-inner">
-    <h2 class="section-title">Cómo funciona</h2>
-    <p class="section-sub">Tres pasos. Menos de un minuto. Sin línea de comandos.</p>
+<!-- ============================ HOW IT WORKS ============================ -->
+<section id="how" style="padding-top: 24px;">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="eyebrow">Setup</div>
+      <h2>Tres pasos. Menos de un minuto.</h2>
+      <p class="section-sub">Sin línea de comandos, sin docker, sin servidores que configurar.</p>
+    </div>
 
-    <div class="steps">
-      <div class="step">
+    <div class="steps reveal">
+      <div class="step-card">
         <h4>Descarga el instalador</h4>
-        <p>Elige <code>.exe</code> para Windows o <code>.dmg</code> para macOS desde el botón de arriba. ~80 MB.</p>
+        <p><code>.exe</code> para Windows o <code>.dmg</code> para macOS desde el botón de arriba. ~22-27 MB.</p>
       </div>
-      <div class="step">
+      <div class="step-card">
         <h4>Instala con doble clic</h4>
         <p>En Windows no pide admin. En macOS arrastras la app a <code>Aplicaciones</code>.</p>
       </div>
-      <div class="step">
+      <div class="step-card">
         <h4>Disfruta</h4>
-        <p>Se abre LocalTv en tu navegador. Elige un canal y dale play. Listo.</p>
+        <p>Se abre LocalTv en tu navegador. Elige un canal, dale play. Ya está.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ===================== FAQ ===================== -->
-<section id="faq">
-  <div class="section-inner">
-    <h2 class="section-title">Preguntas frecuentes</h2>
-    <p class="section-sub">Lo que la gente suele preguntar antes de instalar.</p>
+<!-- ============================ PRICING ============================ -->
+<section id="pricing" style="padding-top: 24px;">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="eyebrow">Pricing</div>
+      <h2>Una sola opción: <span class="gradient">gratis</span>.</h2>
+      <p class="section-sub">Sin freemium, sin trial, sin "premium". El proyecto entero está bajo licencia MIT.</p>
+    </div>
 
-    <div class="faq">
-      <details>
+    <div class="pricing-wrap reveal">
+      <div class="pricing">
+        <span class="pricing-tag">Free forever</span>
+        <div class="pricing-price">$0<small>/ siempre</small></div>
+        <p class="pricing-desc">Todo lo que ves, todo lo que viene. Sin asteriscos.</p>
+
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Cientos de canales en vivo</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Eventos del día con timing en vivo</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Detección automática de disponibilidad</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Reproductor HLS optimizado (Clappr + hls.js)</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Sincronización de canales con un clic</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Updates futuras sin coste</li>
+        </ul>
+
+        <div class="pricing-cta">
+          <a href="#download" class="btn btn-primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Descargar gratis
+          </a>
+          <a href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition" target="_blank" rel="noopener" class="btn">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2c-3.2.69-3.87-1.54-3.87-1.54-.52-1.34-1.27-1.69-1.27-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.68 1.25 3.34.96.1-.74.4-1.25.73-1.54-2.55-.29-5.24-1.27-5.24-5.67 0-1.25.45-2.27 1.18-3.07-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.15 1.18a10.96 10.96 0 0 1 5.74 0c2.19-1.49 3.15-1.18 3.15-1.18.62 1.58.23 2.75.11 3.04.73.8 1.18 1.82 1.18 3.07 0 4.41-2.69 5.37-5.25 5.66.41.36.78 1.06.78 2.13v3.16c0 .31.21.68.79.56C20.21 21.39 23.5 17.07 23.5 12c0-6.35-5.15-11.5-11.5-11.5z"/></svg>
+            Star en GitHub
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FAQ ============================ -->
+<section id="faq" style="padding-top: 24px;">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="eyebrow">FAQ</div>
+      <h2>Preguntas frecuentes</h2>
+      <p class="section-sub">Lo que la gente suele preguntar antes de instalar.</p>
+    </div>
+
+    <div class="faq-grid reveal">
+      <details class="faq-item">
         <summary>¿De verdad es gratis? ¿Cuál es el truco?</summary>
-        <p>Sí, totalmente gratis. No hay versión de pago, no hay anuncios, no hay tracking. Es un proyecto open-source con fines educativos mantenido por <a href="https://github.com/fofostudio" target="_blank" rel="noopener">FofoStudio</a>. Si te gusta, dale una estrella en GitHub.</p>
+        <div class="body">Sí, totalmente gratis. No hay versión paga, no hay anuncios, no hay tracking. Es un proyecto open-source con fines educativos mantenido por <a href="https://github.com/fofostudio" target="_blank" rel="noopener">FofoStudio</a>. Si te gusta, dale una star en GitHub.</div>
       </details>
 
-      <details>
+      <details class="faq-item">
         <summary>¿Necesito permisos de administrador para instalar?</summary>
-        <p>En Windows <strong>no</strong>: el instalador es per-user, se instala bajo tu carpeta de usuario en <code>%LOCALAPPDATA%\Programs\LocalTv</code>. En macOS solo arrastras la app a <code>/Applications</code> (te puede pedir tu contraseña la primera vez, dependiendo de tu cuenta).</p>
+        <div class="body">En Windows <strong>no</strong>: el instalador es per-user, va a tu carpeta de usuario en <code>%LOCALAPPDATA%\Programs\LocalTv</code>. En macOS solo arrastras la app a <code>/Applications</code>.</div>
       </details>
 
-      <details>
-        <summary>macOS dice "no se puede abrir, desarrollador no identificado". ¿Qué hago?</summary>
-        <p>Eso es Gatekeeper, normal en apps no firmadas con Apple Developer ID (firmar cuesta US$99/año, no lo hacemos en este proyecto open-source). <strong>Solución, una sola vez:</strong> clic derecho sobre <code>LocalTv.app</code> → <strong>Abrir</strong> → <strong>Abrir</strong> en el diálogo. Listo, queda autorizada para siempre. Como alternativa por terminal: <code>xattr -dr com.apple.quarantine /Applications/LocalTv.app</code>.</p>
+      <details class="faq-item">
+        <summary>macOS dice "no se puede abrir, desarrollador no identificado"</summary>
+        <div class="body">Es Gatekeeper, normal en apps no firmadas con Apple Developer ID (firmar cuesta US$99/año, no lo pagamos en este proyecto open-source). <strong>Solución una sola vez:</strong> clic derecho sobre <code>LocalTv.app</code> → <strong>Abrir</strong> → <strong>Abrir</strong>. O por terminal: <code>xattr -dr com.apple.quarantine /Applications/LocalTv.app</code>.</div>
       </details>
 
-      <details>
-        <summary>¿Funciona en mi Mac con M1 / M2 / M3?</summary>
-        <p>Sí. El <code>.dmg</code> incluye una build universal que corre nativa en Apple Silicon e Intel. Se instala desde macOS 11 (Big Sur) en adelante.</p>
+      <details class="faq-item">
+        <summary>¿Funciona en Mac con M1, M2 o M3?</summary>
+        <div class="body">Sí. El <code>.dmg</code> es universal — corre nativo en Apple Silicon e Intel. macOS 11 (Big Sur) o superior.</div>
       </details>
 
-      <details>
+      <details class="faq-item">
         <summary>¿Y en Linux?</summary>
-        <p>No hay un instalador empaquetado, pero el código corre perfecto en Linux en modo desarrollo. Clona el repo y corre <code>./setup.sh</code>. La app es 100% web — Vite + FastAPI — así que cualquier distro con Python 3.11+ y Node 18+ la puede correr.</p>
+        <div class="body">No hay instalador empaquetado todavía, pero el código corre perfecto en modo desarrollo. Clona el repo y corre <code>./setup.sh</code>. Cualquier distro con Python 3.11+ y Node 18+ funciona.</div>
       </details>
 
-      <details>
+      <details class="faq-item">
         <summary>¿Se actualiza solo?</summary>
-        <p>Por ahora no. Cuando saquemos una versión nueva, descargas el instalador desde aquí y lo corres encima. Tus datos (canales, favoritos, configuración) se preservan: viven en una carpeta separada del usuario que no se toca al actualizar.</p>
+        <div class="body">Por ahora no. Cuando salga una versión nueva, descargas el instalador y lo corres encima. Tus datos (canales, favoritos, configuración) se preservan: viven en una carpeta separada que no se toca al actualizar.</div>
       </details>
 
-      <details>
+      <details class="faq-item">
         <summary>¿Puedo verlo desde mi TV o celular?</summary>
-        <p>Sí, mientras estén en la misma red Wi-Fi. Abre LocalTv en tu PC, mira la URL en la ventana de control y reemplaza <code>localhost</code> por la IP local de tu PC (algo como <code>http://192.168.1.20:8765</code>) en el otro dispositivo.</p>
+        <div class="body">Sí, mientras estén en la misma red Wi-Fi. Abre LocalTv en la PC, mira la URL en la ventana de control y reemplaza <code>localhost</code> por la IP local de tu PC (algo como <code>http://192.168.1.20:8765</code>) en el otro dispositivo.</div>
       </details>
 
-      <details>
+      <details class="faq-item">
         <summary>¿Esto es legal?</summary>
-        <p>El software es 100% legal — es un reproductor + un agregador. La responsabilidad sobre el contenido que decidas reproducir recae en ti. El proyecto se distribuye con fines educativos. Asegúrate de respetar los términos de servicio de las plataformas que uses y los derechos de autor de cada contenido.</p>
+        <div class="body">El software es 100% legal — es un reproductor + agregador. La responsabilidad sobre el contenido que decidas reproducir recae en ti. El proyecto se distribuye con fines educativos. Asegúrate de respetar términos de servicio y derechos de autor de cada contenido.</div>
       </details>
 
-      <details>
+      <details class="faq-item">
         <summary>¿Cómo desinstalo?</summary>
-        <p><strong>Windows:</strong> Configuración → Aplicaciones → busca "LocalTv" → Desinstalar. <strong>macOS:</strong> arrastra <code>LocalTv.app</code> a la papelera. Si quieres borrar también tus datos: en Windows borra <code>%LOCALAPPDATA%\LocalTv</code>, en macOS borra <code>~/Library/Application Support/LocalTv</code>.</p>
+        <div class="body"><strong>Windows:</strong> Configuración → Aplicaciones → "LocalTv" → Desinstalar. <strong>macOS:</strong> arrastra <code>LocalTv.app</code> a la papelera. Para borrar también tus datos: en Windows borra <code>%LOCALAPPDATA%\LocalTv</code>, en macOS borra <code>~/Library/Application Support/LocalTv</code>.</div>
       </details>
     </div>
   </div>
 </section>
 
-<!-- ===================== CTA final ===================== -->
-<section style="padding-top: 0;">
-  <div class="cta-bottom">
-    <h2>Cero costo. Cero registro. Cero excusas.</h2>
-    <p>Descarga el instalador para tu sistema y dale play en menos de un minuto.</p>
-    <a href="#descargar" class="btn-download primary" style="display: inline-flex;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      <span class="meta"><span>Descargar LocalTv</span><small>Gratis · Windows + macOS</small></span>
-    </a>
+<!-- ============================ FINAL CTA ============================ -->
+<section style="padding-top: 24px;">
+  <div class="container">
+    <div class="cta-card reveal">
+      <h2>Cero costo. Cero registro. Cero excusas.</h2>
+      <p>Descarga el instalador para tu sistema y dale play en menos de un minuto.</p>
+      <div class="btn-row" style="margin-bottom: 0;">
+        <a id="cta-windows" href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition/releases/latest" target="_blank" rel="noopener" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.5 5.5L10.5 4.4V11.5H2.5V5.5ZM2.5 12.5H10.5V19.6L2.5 18.5V12.5ZM11.5 4.3L21.5 3V11.5H11.5V4.3ZM11.5 12.5H21.5V21L11.5 19.7V12.5Z"/></svg>
+          Descargar para Windows
+        </a>
+        <a id="cta-macos" href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition/releases/latest" target="_blank" rel="noopener" class="btn">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.4c0-2.6 2.1-3.9 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9s-2-.9-3.4-.9c-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.3 2.5 1.3-.05 1.8-.85 3.4-.85s2.05.85 3.45.82c1.4-.02 2.3-1.25 3.2-2.45 1-1.4 1.4-2.75 1.45-2.85-.03-.02-2.8-1.07-2.85-4.25M14.05 5c.7-.85 1.18-2.05 1.05-3.25-1 .05-2.2.65-2.95 1.5-.65.75-1.25 1.95-1.05 3.1 1.1.1 2.25-.55 2.95-1.35"/></svg>
+          Descargar para macOS
+        </a>
+      </div>
+    </div>
   </div>
 </section>
 
+<!-- ============================ FOOTER ============================ -->
 <footer>
-  <div class="links">
-    <a href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition" target="_blank" rel="noopener">GitHub</a>
-    <a href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition/releases" target="_blank" rel="noopener">Releases</a>
-    <a href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition/issues" target="_blank" rel="noopener">Reportar un bug</a>
-    <a href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition/blob/main/README.md" target="_blank" rel="noopener">Documentación</a>
-  </div>
-  <div>
-    LocalTv · FofoStudio Edition · MIT License · proyecto educativo open-source
+  <div class="container row">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <span>LocalTv <span class="brand-by">/ FofoStudio Edition</span></span>
+    </div>
+    <div class="links">
+      <a href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition/releases" target="_blank" rel="noopener">Releases</a>
+      <a href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition/issues" target="_blank" rel="noopener">Issues</a>
+      <a href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition/blob/main/README.md" target="_blank" rel="noopener">Docs</a>
+      <a href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition/blob/main/LICENSE" target="_blank" rel="noopener">MIT</a>
+    </div>
+    <div class="made-by">Hecho por <a href="https://github.com/fofostudio" target="_blank" rel="noopener">@FofoStudio</a></div>
   </div>
 </footer>
 
+<!-- ============================ SCRIPTS ============================ -->
 <script>
-  // ----- Auto-detect platform y resaltar el botón correcto -----
+  // ----- Auto-detect platform y resaltar el botón correcto
   (function () {
     var ua = navigator.userAgent.toLowerCase();
-    var platform = (navigator.userAgentData && navigator.userAgentData.platform || navigator.platform || "").toLowerCase();
-    var isMac = /mac|darwin/.test(platform) || /mac os x/.test(ua);
-    var isWin = /win/.test(platform) || /windows/.test(ua);
+    var pf = (navigator.userAgentData && navigator.userAgentData.platform || navigator.platform || "").toLowerCase();
+    var isMac = /mac|darwin/.test(pf) || /mac os x/.test(ua);
     var win = document.getElementById("btn-windows");
     var mac = document.getElementById("btn-macos");
-    if (isMac && mac) mac.classList.add("primary");
-    else if (win) win.classList.add("primary");
+    var ctaWin = document.getElementById("cta-windows");
+    var ctaMac = document.getElementById("cta-macos");
+    if (isMac) {
+      mac.classList.add("btn-primary"); win.classList.remove("btn-primary");
+      ctaMac.classList.add("btn-primary"); ctaWin.classList.remove("btn-primary");
+    } else {
+      win.classList.add("btn-primary"); mac.classList.remove("btn-primary");
+      ctaWin.classList.add("btn-primary"); ctaMac.classList.remove("btn-primary");
+    }
   })();
 
-  // ----- Resolver URL de descarga directa contra la última Release -----
+  // ----- Resolver URLs de descarga directa contra la última Release
   (function () {
     var REPO = "fofostudio/LocalTv-FofoStudio-Edition";
     var versionEl = document.getElementById("version-info");
@@ -539,23 +896,102 @@
         }
         var winAsset = data.assets.find(function (a) { return /\.exe$/i.test(a.name); });
         var macAsset = data.assets.find(function (a) { return /\.dmg$/i.test(a.name); });
-        if (winAsset) document.getElementById("btn-windows").href = winAsset.browser_download_url;
-        if (macAsset) document.getElementById("btn-macos").href = macAsset.browser_download_url;
-        versionEl.innerHTML = "Versión <strong>" + data.tag_name + "</strong> · publicada " +
-          new Date(data.published_at).toLocaleDateString("es-ES", { year: "numeric", month: "long", day: "numeric" });
+        if (winAsset) {
+          document.getElementById("btn-windows").href = winAsset.browser_download_url;
+          document.getElementById("cta-windows").href = winAsset.browser_download_url;
+        }
+        if (macAsset) {
+          document.getElementById("btn-macos").href = macAsset.browser_download_url;
+          document.getElementById("cta-macos").href = macAsset.browser_download_url;
+        }
+        versionEl.innerHTML = "Versión <strong style='color:#fff'>" + data.tag_name + "</strong> · " +
+          new Date(data.published_at).toLocaleDateString("es-ES", { year: "numeric", month: "short", day: "numeric" });
       })
       .catch(function () {
         versionEl.textContent = "Descarga directa desde GitHub Releases";
       });
   })();
 
-  // Smooth scroll para anclas
-  document.querySelectorAll('a[href^="#"]').forEach(function (a) {
-    a.addEventListener("click", function (e) {
-      var t = document.querySelector(this.getAttribute("href"));
-      if (t) { e.preventDefault(); t.scrollIntoView({ behavior: "smooth", block: "start" }); }
+  // ----- Spotlight reactivo al mouse
+  (function () {
+    var sp = document.getElementById("spotlight");
+    var raf;
+    window.addEventListener("mousemove", function (e) {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(function () {
+        sp.style.setProperty("--mx", e.clientX + "px");
+        sp.style.setProperty("--my", e.clientY + "px");
+      });
     });
-  });
+    document.querySelectorAll(".bento-card").forEach(function (card) {
+      card.addEventListener("mousemove", function (e) {
+        var r = card.getBoundingClientRect();
+        card.style.setProperty("--cmx", (e.clientX - r.left) + "px");
+        card.style.setProperty("--cmy", (e.clientY - r.top) + "px");
+      });
+    });
+  })();
+
+  // ----- Reveal on scroll
+  (function () {
+    if (!('IntersectionObserver' in window)) {
+      document.querySelectorAll(".reveal").forEach(function (el) { el.classList.add("in"); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+    document.querySelectorAll(".reveal").forEach(function (el) { io.observe(el); });
+  })();
+
+  // ----- Stat number animation
+  (function () {
+    var els = document.querySelectorAll("[data-target]");
+    if (!els.length) return;
+    var animated = new WeakSet();
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting || animated.has(e.target)) return;
+        animated.add(e.target);
+        var target = parseInt(e.target.getAttribute("data-target"), 10);
+        var start = performance.now();
+        var dur = 1100;
+        function tick(t) {
+          var p = Math.min(1, (t - start) / dur);
+          var eased = 1 - Math.pow(1 - p, 3);
+          e.target.textContent = Math.round(target * eased) + (p === 1 ? "+" : "");
+          if (p < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      });
+    }, { threshold: 0.5 });
+    els.forEach(function (el) { io.observe(el); });
+  })();
+
+  // ----- Marquee de logos (carga los del repo, duplica para loop infinito)
+  (function () {
+    var SLUGS = [
+      'azteca7','bein-sports-espanol','bein-sports-xtra-espanol','canal11','canal5',
+      'cbs-sports-network','dazn1','dazn2','dazn-laliga',
+      'dsports','dsports2','dsports-plus','espn','espn2','espn3','espn4','espn5',
+      'espn-deportes','espn-premium','espnu','foxsports','foxsports1','foxsports2','foxsports3',
+      'foxsports-premium','goltv','liga-campeones1','liga-campeones2','liga-campeones3',
+      'premiere1','sky-sports-laliga','sporttv1','sporttv2','sporttv3','sporttv4','sporttv5',
+      'telefe','telemundo','tntsports','tudn','tycsports','unimas','univision','usa-network',
+    ];
+    var BASE = "https://raw.githubusercontent.com/fofostudio/LocalTv-FofoStudio-Edition/main/frontend/public/logos/";
+    var track = document.getElementById("logo-track");
+    if (!track) return;
+    function makeRow() {
+      return SLUGS.map(function (s) {
+        return '<img class="marquee-item" src="' + BASE + s + '.png" alt="' + s + '" loading="lazy" />';
+      }).join("");
+    }
+    // duplicado para loop sin saltos
+    track.innerHTML = makeRow() + makeRow();
+  })();
 </script>
 </body>
 </html>
