@@ -1,130 +1,61 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+/**
+ * Reproductor HLS nativo: <video controls> + hls.js.
+ *
+ * Por qué cambiamos Clappr por esto:
+ *   - Controles del sistema operativo (touch nativo en mobile, atajos en
+ *     desktop, accesibilidad).
+ *   - Picture-in-Picture y AirPlay automáticos sin botón custom.
+ *   - ~30 KB de hls.js vs ~150 KB de Clappr.
+ *   - Safari (iOS / macOS) reproduce HLS nativo sin lib extra.
+ *
+ * El Cast SDK (Chromecast) sigue siendo independiente y se monta encima
+ * via CastButton.
+ */
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ChannelContext } from '../../context/ChannelContext';
-import { streamPlaylistUrl, lanStreamUrl, isCapacitor } from '../../services/platform';
+import { streamPlaylistUrl, lanStreamUrl } from '../../services/platform';
 import CastButton from '../CastButton/CastButton';
 import styles from './VideoPlayer.module.css';
 
 const BASE_URL = import.meta.env.VITE_API_URL || '';
 
-function describeError(raw) {
-  // hls.js wrapper events tienen este shape:
-  // { raw: { type, details, response: { code, text }, ... } }
-  const inner = raw?.raw || raw;
-  const code = inner?.response?.code;
-  const details = inner?.details;
-
-  if (code === 502) {
+function describeError(detail) {
+  // hls.js error.details enums los más comunes
+  const d = String(detail || '').toLowerCase();
+  if (d.includes('manifestloaderror') || d.includes('manifestparsingerror')) {
     return {
       title: 'Canal no disponible ahora',
-      message: 'El servidor de origen no tiene este canal activo en este momento.',
+      message: 'El servidor no devolvió un manifest válido. Probá otro canal.',
       kind: 'unavailable',
     };
   }
-  if (details === 'manifestParsingError') {
+  if (d.includes('fragloaderror') || d.includes('fragparsingerror')) {
     return {
-      title: 'Stream corrupto',
-      message: 'El manifest llegó vacío o malformado. Probá otro canal.',
-      kind: 'unavailable',
+      title: 'Stream interrumpido',
+      message: 'Se cortó la descarga de fragmentos.',
+      kind: 'network',
     };
   }
-  if (details === 'manifestLoadError') {
+  if (d.includes('levelloaderror')) {
     return {
-      title: 'No se pudo cargar el stream',
-      message: 'Error de red al pedir el manifest.',
+      title: 'Nivel de calidad no disponible',
+      message: 'El stream no se pudo cargar.',
       kind: 'network',
     };
   }
   return {
     title: 'Error reproduciendo el canal',
-    message: details ? `(${details})` : 'Probá otro canal.',
+    message: detail ? `(${detail})` : 'Probá otro canal.',
     kind: 'generic',
   };
 }
 
 export default function VideoPlayer({ channel }) {
   const { nextLiveChannel, setCurrentChannel } = useContext(ChannelContext);
-  const playerRef = useRef(null);
-  const clapprRef = useRef(null);
+  const videoRef = useRef(null);
+  const hlsRef = useRef(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const cleanup = () => {
-      if (clapprRef.current) {
-        try { clapprRef.current.destroy(); } catch (_) { /* ignore */ }
-        clapprRef.current = null;
-      }
-      const div = document.getElementById('video-player');
-      if (div) div.innerHTML = '';
-    };
-    cleanup();
-    setError(null);
-
-    if (!channel?.slug) return;
-
-    if (!window.Clappr) {
-      setError({ title: 'Player no disponible', message: 'Clappr no se cargó.', kind: 'generic' });
-      return;
-    }
-
-    setLoading(true);
-
-    let cancelled = false;
-    (async () => {
-      let proxyUrl;
-      try {
-        proxyUrl = await streamPlaylistUrl(channel.slug);
-      } catch (e) {
-        if (cancelled) return;
-        setError({ title: 'No se pudo iniciar el proxy HLS', message: e.message, kind: 'generic' });
-        setLoading(false);
-        return;
-      }
-      if (cancelled) return;
-
-      try {
-        clapprRef.current = new window.Clappr.Player({
-          source: proxyUrl,
-          mimeType: 'application/x-mpegURL',
-          parentId: '#video-player',
-          width: '100%',
-          height: '100%',
-          autoPlay: true,
-          mute: false,
-          poster: channel.logo_url || '',
-          events: {
-            onReady: () => setLoading(false),
-            onPlay:  () => { setLoading(false); setError(null); },
-            onError: (e) => {
-              console.error('Clappr error:', e);
-              setError(describeError(e));
-              setLoading(false);
-            },
-          },
-          hlsjsConfig: {
-            enableWorker: true,
-            lowLatencyMode: false,
-            backBufferLength: 30,
-            manifestLoadingMaxRetry: 1,
-            fragLoadingMaxRetry: 2,
-          },
-        });
-      } catch (e) {
-        console.error(e);
-        if (!cancelled) {
-          setError({ title: 'Error al iniciar el player', message: e.message, kind: 'generic' });
-          setLoading(false);
-        }
-      }
-    })();
-
-    return () => { cancelled = true; cleanup(); };
-  }, [channel?.slug, channel?.logo_url]);
-
-  const tryNextLive = () => {
-    const next = nextLiveChannel(channel?.slug);
-    if (next) setCurrentChannel(next);
-  };
 
   // ----- URL pública LAN para Chromecast (resuelta async) -----
   const [castUrl, setCastUrl] = useState(null);
@@ -135,72 +66,164 @@ export default function VideoPlayer({ channel }) {
     return () => { cancelled = true; };
   }, [channel?.slug]);
 
-  // ----- Picture-in-Picture ("popup" flotante) -----
-  const [pipSupported, setPipSupported] = useState(false);
-  const [inPip, setInPip] = useState(false);
+  // ----- Carga del stream cuando cambia el canal -----
   useEffect(() => {
-    setPipSupported(typeof document !== 'undefined' && document.pictureInPictureEnabled);
-    const onEnter = () => setInPip(true);
-    const onLeave = () => setInPip(false);
-    document.addEventListener('enterpictureinpicture', onEnter);
-    document.addEventListener('leavepictureinpicture', onLeave);
-    return () => {
-      document.removeEventListener('enterpictureinpicture', onEnter);
-      document.removeEventListener('leavepictureinpicture', onLeave);
-    };
-  }, []);
-
-  const togglePip = async () => {
-    try {
-      const videoEl = document.querySelector('#video-player video');
-      if (!videoEl) return;
-      if (document.pictureInPictureElement) {
-        await document.exitPictureInPicture();
-      } else {
-        await videoEl.requestPictureInPicture();
+    const cleanup = () => {
+      if (hlsRef.current) {
+        try { hlsRef.current.destroy(); } catch (_) { /* ignore */ }
+        hlsRef.current = null;
       }
-    } catch (e) {
-      console.warn('PiP error:', e?.message || e);
-    }
+      const video = videoRef.current;
+      if (video) {
+        try { video.pause(); } catch (_) {}
+        try { video.removeAttribute('src'); video.load(); } catch (_) {}
+      }
+    };
+    cleanup();
+    setError(null);
+
+    if (!channel?.slug) return;
+    setLoading(true);
+
+    let cancelled = false;
+    (async () => {
+      let proxyUrl;
+      try {
+        proxyUrl = await streamPlaylistUrl(channel.slug);
+      } catch (e) {
+        if (!cancelled) {
+          setError({ title: 'No se pudo iniciar el proxy HLS', message: e.message, kind: 'generic' });
+          setLoading(false);
+        }
+        return;
+      }
+      if (cancelled) return;
+      const video = videoRef.current;
+      if (!video) return;
+
+      // Safari (macOS/iOS) soporta HLS nativo. En el resto, usamos hls.js.
+      const isNativeHls = video.canPlayType('application/vnd.apple.mpegurl');
+      if (isNativeHls) {
+        video.src = proxyUrl;
+        video.play().catch(() => { /* autoplay puede ser bloqueado */ });
+        return;
+      }
+
+      const Hls = window.Hls;
+      if (!Hls?.isSupported?.()) {
+        setError({
+          title: 'Player no compatible',
+          message: 'Este navegador no soporta HLS. Usá Chrome, Edge, Firefox o Safari.',
+          kind: 'generic',
+        });
+        setLoading(false);
+        return;
+      }
+
+      const hls = new Hls({
+        enableWorker: true,
+        lowLatencyMode: false,
+        backBufferLength: 30,
+        manifestLoadingMaxRetry: 1,
+        fragLoadingMaxRetry: 2,
+      });
+      hlsRef.current = hls;
+      hls.loadSource(proxyUrl);
+      hls.attachMedia(video);
+
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        video.play().catch(() => { /* autoplay bloqueado, el user le da play */ });
+      });
+      hls.on(Hls.Events.ERROR, (_evt, data) => {
+        if (data.fatal) {
+          console.error('hls.js fatal:', data);
+          if (!cancelled) {
+            setError(describeError(data.details));
+            setLoading(false);
+          }
+        }
+      });
+    })();
+
+    return () => { cancelled = true; cleanup(); };
+  }, [channel?.slug]);
+
+  // ----- Listeners del <video> para sincronizar loading + errores -----
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    const onPlaying = () => { setLoading(false); setError(null); };
+    const onWaiting = () => setLoading(true);
+    const onError = () => {
+      const code = v.error?.code;
+      if (!code) return;
+      // 4 = MEDIA_ERR_SRC_NOT_SUPPORTED — típico de canal caído
+      const kind = code === 4 ? 'unavailable' : 'network';
+      setError({
+        title: code === 4 ? 'Canal no disponible' : 'Error de reproducción',
+        message: v.error?.message || `Código ${code}`,
+        kind,
+      });
+      setLoading(false);
+    };
+    v.addEventListener('playing', onPlaying);
+    v.addEventListener('waiting', onWaiting);
+    v.addEventListener('error', onError);
+    return () => {
+      v.removeEventListener('playing', onPlaying);
+      v.removeEventListener('waiting', onWaiting);
+      v.removeEventListener('error', onError);
+    };
+  }, [channel?.slug]);
+
+  const tryNextLive = () => {
+    const next = nextLiveChannel(channel?.slug);
+    if (next) setCurrentChannel(next);
   };
+
+  const finalCastUrl = useMemo(
+    () => castUrl || `${window.location.origin}${BASE_URL}/api/streams/${channel?.slug || ''}/playlist.m3u8`,
+    [castUrl, channel?.slug],
+  );
 
   return (
     <div className={styles.playerWrapper}>
-      <div id="video-player" ref={playerRef} className={styles.player} />
+      <video
+        ref={videoRef}
+        className={styles.player}
+        controls
+        playsInline
+        autoPlay
+        // x-webkit-airplay habilita el botón AirPlay nativo en iOS/macOS Safari
+        x-webkit-airplay="allow"
+        poster={channel?.logo_url || undefined}
+        crossOrigin="anonymous"
+      />
+
       {channel && (
         <div className={styles.controls}>
-          {pipSupported && (
-            <button
-              className={`${styles.pipButton} ${inPip ? styles.active : ''}`}
-              onClick={togglePip}
-              disabled={loading || error}
-              title={inPip ? 'Cerrar popup flotante' : 'Abrir en popup flotante'}
-              aria-label="Picture-in-Picture"
-            >
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="5" width="18" height="14" rx="2" ry="2"/>
-                <rect x="12" y="11" width="7" height="6" rx="1" ry="1" fill="currentColor"/>
-              </svg>
-            </button>
-          )}
           <CastButton
-            streamUrl={castUrl || `${window.location.origin}${BASE_URL}/api/streams/${channel.slug}/playlist.m3u8`}
+            streamUrl={finalCastUrl}
             channelName={channel.name}
             logoUrl={channel.logo_url}
             loading={loading}
           />
         </div>
       )}
+
       {!channel && (
         <div className={styles.placeholder}>
           <p>Selecciona un canal para ver el stream</p>
         </div>
       )}
-      {loading && channel && (
+
+      {loading && channel && !error && (
         <div className={styles.overlay}>
-          <p>Cargando stream...</p>
+          <div className={styles.spinner} />
+          <p>Cargando…</p>
         </div>
       )}
+
       {error && (
         <div className={styles.errorPanel}>
           <div className={styles.errorIcon}>

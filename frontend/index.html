@@ -16,8 +16,9 @@
     <meta property="og:description" content="Plataforma de streaming en vivo." />
     <meta property="og:image" content="/logo.png" />
 
-    <!-- Clappr Player (HLS) -->
-    <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+    <!-- HLS player: hls.js para browsers no-Safari + <video> nativo
+         (Safari/iOS soportan HLS nativo sin lib extra). -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />

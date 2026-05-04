@@ -87,6 +87,51 @@ function Header() {
   );
 }
 
+function Footer() {
+  const v = import.meta.env.VITE_APP_VERSION || '0.0.0';
+  return (
+    <footer className={styles.footer}>
+      <span className={styles.footerLeft}>
+        <span className={styles.footerLogo} aria-hidden="true">
+          <span className={styles.footerLogoDot} />
+        </span>
+        <span>
+          LocalTv <span className={styles.footerSep}>·</span>{' '}
+          <a
+            href="https://github.com/fofostudio"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.footerLink}
+          >
+            creado por <strong>FofoStudio</strong>
+          </a>
+        </span>
+      </span>
+      <span className={styles.footerRight}>
+        <a
+          href="https://github.com/fofostudio/LocalTv-FofoStudio-Edition"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.footerLink}
+        >
+          GitHub
+        </a>
+        <span className={styles.footerSep}>·</span>
+        <a
+          href={`https://github.com/fofostudio/LocalTv-FofoStudio-Edition/releases/tag/v${v}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.footerLink}
+        >
+          v{v}
+        </a>
+        <span className={styles.footerSep}>·</span>
+        <span className={styles.footerMuted}>MIT</span>
+      </span>
+    </footer>
+  );
+}
+
 export default function App() {
   return (
     <UpdateGate>
@@ -110,6 +155,7 @@ export default function App() {
                   />
                 </Routes>
               </main>
+              <Footer />
             </div>
           </BrowserRouter>
         </ChannelProvider>
