@@ -86,20 +86,72 @@ export async function fetchChannels() {
 }
 
 /**
- * Health check rápido: un solo fetch a status.json devuelve el estado
- * Activo/Inactivo de cada canal. Sustituye los probes paralelos viejos.
+ * Health check híbrido:
+ * 1. status.json filtra los slugs que tvtvhd marca "Activo" (barato).
+ * 2. Para cada uno hacemos deep probe: pedimos el HTML del player,
+ *    extraemos la URL del .m3u8 real, GET y verificamos que el body
+ *    empiece con #EXTM3U. Solo así lo marcamos live.
  *
- * Devuelve Set<string> con los slugs en vivo.
+ * Esto evita falsos positivos cuando el JSON dice "Activo" pero el
+ * stream real ya está roto (lag entre status y realidad).
+ *
+ * Devuelve Set<string> con los slugs realmente en vivo.
  */
-export async function checkHealth(slugs) {
-  // ignoramos el parámetro slugs — status.json los trae a todos
+const M3U8_PATTERNS = [
+  /playbackURL\s*[=:]\s*["']?([^"'<>\s]+\.m3u8[^"'<>\s]*)/i,
+  /<source[^>]+src=["']([^"']+\.m3u8[^"']*)["']/i,
+  /(https?:\/\/[^"'<>\s]+\.m3u8[^"'<>\s]*)/i,
+];
+
+async function probeOne(slug) {
+  const cap = window.Capacitor;
+  const { CapacitorHttp } = cap.Plugins;
+  const upstream = `https://tvtvhd.com/vivo/canales.php?stream=${encodeURIComponent(slug)}`;
+  try {
+    const r = await CapacitorHttp.get({
+      url: upstream,
+      headers: { ...HEADERS, Origin: 'https://tvtvhd.com' },
+      connectTimeout: 4000, readTimeout: 5000,
+    });
+    if (r.status !== 200) return false;
+    const html = typeof r.data === 'string' ? r.data : String(r.data);
+    let m3u8 = null;
+    for (const pat of M3U8_PATTERNS) {
+      const m = pat.exec(html);
+      if (m && m[1].startsWith('http')) { m3u8 = m[1]; break; }
+    }
+    if (!m3u8) return false;
+    const r2 = await CapacitorHttp.get({
+      url: m3u8,
+      headers: { ...HEADERS, Origin: 'https://tvtvhd.com' },
+      connectTimeout: 4000, readTimeout: 4000,
+    });
+    if (r2.status !== 200) return false;
+    const text = typeof r2.data === 'string' ? r2.data : String(r2.data);
+    return text.trimStart().startsWith('#EXTM3U');
+  } catch (_) { return false; }
+}
+
+export async function checkHealth(_slugs, { concurrency = 8 } = {}) {
+  // 1. Filtro inicial: status.json
+  let candidates = [];
   try {
     const chans = await fetchChannels();
-    const live = new Set();
-    for (const c of chans) if (c.is_live) live.add(c.slug);
-    return live;
+    candidates = chans.filter((c) => c.is_live).map((c) => c.slug);
   } catch (e) {
-    console.warn('[mobileScraper] health falló:', e.message || e);
+    console.warn('[mobileScraper] status.json falló:', e.message || e);
     return new Set();
   }
+  // 2. Deep probe
+  const live = new Set();
+  let i = 0;
+  async function worker() {
+    while (i < candidates.length) {
+      const idx = i++;
+      const slug = candidates[idx];
+      if (await probeOne(slug)) live.add(slug);
+    }
+  }
+  await Promise.all(Array.from({ length: concurrency }, () => worker()));
+  return live;
 }

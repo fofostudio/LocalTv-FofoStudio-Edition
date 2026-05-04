@@ -60,11 +60,12 @@ function describeError(detail) {
 }
 
 export default function VideoPlayer({ channel }) {
-  const { nextLiveChannel, setCurrentChannel } = useContext(ChannelContext);
+  const { nextLiveChannel, setCurrentChannel, isLive, healthLoading } = useContext(ChannelContext);
   const videoRef = useRef(null);
   const hlsRef = useRef(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [forcePlay, setForcePlay] = useState(false);
 
   // ----- URL pública LAN para Chromecast (resuelta async) -----
   const [castUrl, setCastUrl] = useState(null);
@@ -92,6 +93,20 @@ export default function VideoPlayer({ channel }) {
     setError(null);
 
     if (!channel?.slug) return;
+
+    // Si el canal está marcado offline por el health check Y el user no
+    // forzó reproducción, mostramos un aviso antes de gastar bandwidth
+    // intentando un stream que sabemos roto. Ahorra el demuxer-error.
+    if (!healthLoading && !isLive(channel.slug) && !forcePlay) {
+      setLoading(false);
+      setError({
+        title: 'Canal probablemente fuera de aire',
+        message: 'tvtvhd lo marca como caído. Podés intentar reproducirlo igual o saltar al próximo canal disponible.',
+        kind: 'unavailable',
+        canForce: true,
+      });
+      return;
+    }
     setLoading(true);
 
     let cancelled = false;
@@ -182,7 +197,10 @@ export default function VideoPlayer({ channel }) {
     })();
 
     return () => { cancelled = true; cleanup(); };
-  }, [channel?.slug]);
+  }, [channel?.slug, forcePlay, healthLoading]);
+
+  // Reset forcePlay cuando cambia el canal
+  useEffect(() => { setForcePlay(false); }, [channel?.slug]);
 
   // ----- Listeners del <video> para sincronizar loading + errores -----
   useEffect(() => {
@@ -271,6 +289,14 @@ export default function VideoPlayer({ channel }) {
             <button className={styles.errorBtnPrimary} onClick={tryNextLive}>
               ▶ Probar otro canal disponible
             </button>
+            {error.canForce && (
+              <button
+                className={styles.errorBtnGhost}
+                onClick={() => { setError(null); setForcePlay(true); }}
+              >
+                Intentar igual
+              </button>
+            )}
           </div>
         </div>
       )}
