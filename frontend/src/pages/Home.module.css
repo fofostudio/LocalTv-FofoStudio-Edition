@@ -164,8 +164,49 @@
   .mainContent { grid-template-columns: minmax(0, 1fr) 320px; }
   .rowGrid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
 }
+
+/* ====== Mobile: layout en una columna scrolleable ====== */
 @media (max-width: 768px) {
-  .mainContent { grid-template-columns: 1fr; }
-  .playerSection { padding: 12px; gap: 18px; }
-  .rowGrid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+  .home {
+    height: auto;
+    min-height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .mainContent {
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+    min-height: 0;
+  }
+  .playerSection {
+    overflow: visible;
+    padding: 12px;
+    gap: 18px;
+    flex: 0 0 auto;
+  }
+  .videoContainer {
+    aspect-ratio: 16 / 9;
+    width: 100%;
+  }
+  .channelTitle {
+    font-size: 1rem;
+  }
+  .rowGrid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 10px;
+  }
+  .row {
+    gap: 8px;
+  }
+  .rowTitle {
+    font-size: 0.95rem;
+  }
+}
+
+/* ====== Pantallas chicas (~iPhone SE) ====== */
+@media (max-width: 380px) {
+  .rowGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }

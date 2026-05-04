@@ -59,3 +59,19 @@
   background: var(--bg-secondary);
   border-top: 1px solid var(--border);
 }
+
+/* En mobile el sidebar se convierte en una sección al final del scroll
+   (no superpuesta, no colapsada). El usuario hace scroll vertical y
+   llega al panel de eventos abajo. */
+@media (max-width: 768px) {
+  .sidebar {
+    border-left: none;
+    border-top: 1px solid var(--border);
+    min-height: 60vh;
+    overflow: visible;
+  }
+  .content {
+    overflow: visible;
+    min-height: 50vh;
+  }
+}

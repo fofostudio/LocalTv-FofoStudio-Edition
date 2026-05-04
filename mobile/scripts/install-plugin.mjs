@@ -77,14 +77,50 @@ if (fs.existsSync(TOP_GRADLE)) {
   }
 }
 
-// ---- 3) Registrar el plugin en MainActivity.java
-//      Capacitor 6: los plugins anotados con @CapacitorPlugin se descubren
-//      automáticamente. NO hace falta editar MainActivity. Pero verificamos
-//      que existe el archivo y dejamos un comentario por si el user lo abre.
+// ---- 3) Registrar el plugin en MainActivity.java (explícito)
+//      Capacitor 6 a veces falla al descubrir plugins por annotation. Para
+//      garantizar que HlsProxy está disponible desde JS, lo registramos
+//      explícitamente con registerPlugin(HlsProxyPlugin.class).
 const MAIN_ACTIVITY = path.resolve(JAVA_PKG, 'MainActivity.java');
 if (fs.existsSync(MAIN_ACTIVITY)) {
-  console.log(`[install-plugin] MainActivity.java OK en ${path.relative(ROOT, MAIN_ACTIVITY)}`);
-  console.log('  (Capacitor 6 auto-discover los plugins, no hay que editarla)');
+  let mainSrc = fs.readFileSync(MAIN_ACTIVITY, 'utf-8');
+  const importLine = `import ${PKG}.proxy.HlsProxyPlugin;`;
+  const registerCall = `        registerPlugin(HlsProxyPlugin.class);`;
+
+  // Agregar el import si falta
+  if (!mainSrc.includes(importLine)) {
+    mainSrc = mainSrc.replace(
+      /(import com\.getcapacitor\.BridgeActivity;)/,
+      `$1\n${importLine}`,
+    );
+  }
+
+  // Asegurar override de onCreate con registerPlugin
+  if (!mainSrc.includes('registerPlugin(HlsProxyPlugin.class)')) {
+    if (mainSrc.includes('public class MainActivity extends BridgeActivity')) {
+      // Buscar si ya hay un onCreate; si no, agregarlo
+      if (!mainSrc.includes('protected void onCreate')) {
+        mainSrc = mainSrc.replace(
+          /(public class MainActivity extends BridgeActivity\s*\{)/,
+          `$1
+    @Override
+    protected void onCreate(android.os.Bundle savedInstanceState) {
+${registerCall}
+        super.onCreate(savedInstanceState);
+    }
+`,
+        );
+      } else {
+        // Inyectar registerPlugin antes de super.onCreate
+        mainSrc = mainSrc.replace(
+          /(protected void onCreate\([^)]*\)\s*\{)/,
+          `$1\n${registerCall}`,
+        );
+      }
+    }
+  }
+  fs.writeFileSync(MAIN_ACTIVITY, mainSrc);
+  console.log(`[install-plugin] MainActivity.java parcheada con registerPlugin(HlsProxyPlugin)`);
 }
 
 // ---- 4) Asegurar que AndroidManifest permite cleartext traffic en localhost
