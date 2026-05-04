@@ -167,20 +167,20 @@ async def _refresh_health(slugs: list[str]) -> set[str]:
 @router.get("/health")
 async def health(db: Session = Depends(get_db)):
     """
-    Devuelve {live: [slugs activos]}.
+    Devuelve {live: [slugs activos]} usando tvtvhd status.json como
+    fuente oficial. Es lo que el sitio web usa internamente para
+    saber qué canales están al aire.
 
-    Estrategia híbrida (la del v1.0.14 confiaba sólo en status.json y
-    daba falsos positivos: el JSON dice "Activo" pero el m3u8 real está
-    roto):
+    Trade-off conocido:
+    - Pro: rápido (1 fetch ~300ms), refleja la lista oficial,
+      maximiza la cantidad de canales live (~50/98).
+    - Con: hay lag de 1-2 minutos entre que un canal cae y status.json
+      lo marca Inactivo. Para ese caso las defensas del player
+      (validación Content-Type=html en /segment + recovery agresivo
+      de hls.js + panel "Stream corrupto") absorben el bache.
 
-    1. Pedimos status.json a tvtvhd → lista de slugs Activo (filtro
-       inicial barato).
-    2. Probe DEEP paralelo a cada uno: descargamos el HTML del player,
-       extraemos la URL real del .m3u8, hacemos GET y verificamos que
-       el body empiece con #EXTM3U. Solo si pasa eso lo marcamos live.
-
-    Si status.json falla, hacemos deep probe a TODOS los slugs (más
-    lento pero igualmente correcto).
+    Si status.json falla (DNS/timeout) usamos el deep probe paralelo
+    como fallback.
     """
     now = time.time()
     age = now - _health_cache["ts"]
@@ -192,29 +192,25 @@ async def health(db: Session = Depends(get_db)):
             "source": _health_cache.get("source", "cache"),
         }
 
-    # 1. Filtro inicial con status.json (barato): solo los Activo según tvtvhd
-    candidates: list[str] = []
+    # 1. Fast path: status.json (un solo fetch)
     try:
         from app.services.scraper import fetch_status
         status_map = await fetch_status()  # {slug: is_live}
-        candidates = [slug for slug, is_live in status_map.items() if is_live]
-    except Exception:
-        # Sin status.json → probamos todos los slugs de la BD
-        candidates = [c.slug for c in crud_channels.get_channels(db, active_only=False)]
-
-    # 2. Deep probe paralelo: confirmar que el m3u8 real responde
-    live = await _refresh_health(candidates) if candidates else set()
-
-    _health_cache["ts"] = now
-    _health_cache["live"] = live
-    _health_cache["source"] = "status.json+deep-probe"
-    return {
-        "live": sorted(live),
-        "total": len(live),
-        "candidates": len(candidates),
-        "cached_age_s": 0.0,
-        "source": "status.json+deep-probe",
-    }
+        live = {slug for slug, is_live in status_map.items() if is_live}
+        _health_cache["ts"] = now
+        _health_cache["live"] = live
+        _health_cache["source"] = "status.json"
+        return {"live": sorted(live), "total": len(live), "cached_age_s": 0.0,
+                "source": "status.json"}
+    except Exception as e:
+        # 2. Fallback: deep probe (más lento)
+        slugs = [c.slug for c in crud_channels.get_channels(db, active_only=False)]
+        live = await _refresh_health(slugs)
+        _health_cache["ts"] = now
+        _health_cache["live"] = live
+        _health_cache["source"] = "deep-probe"
+        return {"live": sorted(live), "total": len(live), "cached_age_s": 0.0,
+                "source": "deep-probe", "fallback_reason": str(e)}
 
 
 # ---------------------------------------------------------------------------

@@ -93,20 +93,6 @@ export default function VideoPlayer({ channel }) {
     setError(null);
 
     if (!channel?.slug) return;
-
-    // Si el canal está marcado offline por el health check Y el user no
-    // forzó reproducción, mostramos un aviso antes de gastar bandwidth
-    // intentando un stream que sabemos roto. Ahorra el demuxer-error.
-    if (!healthLoading && !isLive(channel.slug) && !forcePlay) {
-      setLoading(false);
-      setError({
-        title: 'Canal probablemente fuera de aire',
-        message: 'tvtvhd lo marca como caído. Podés intentar reproducirlo igual o saltar al próximo canal disponible.',
-        kind: 'unavailable',
-        canForce: true,
-      });
-      return;
-    }
     setLoading(true);
 
     let cancelled = false;

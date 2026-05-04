@@ -103,49 +103,23 @@ const M3U8_PATTERNS = [
   /(https?:\/\/[^"'<>\s]+\.m3u8[^"'<>\s]*)/i,
 ];
 
-async function probeOne(slug) {
-  // Probe ligero: si el HTML del player carga 200 y tiene una URL
-  // m3u8 embedida, lo consideramos live. Las validaciones de bytes
-  // en el HlsProxy plugin filtran los streams realmente rotos.
-  const cap = window.Capacitor;
-  const { CapacitorHttp } = cap.Plugins;
-  const upstream = `https://tvtvhd.com/vivo/canales.php?stream=${encodeURIComponent(slug)}`;
-  try {
-    const r = await CapacitorHttp.get({
-      url: upstream,
-      headers: { ...HEADERS, Origin: 'https://tvtvhd.com' },
-      connectTimeout: 6000, readTimeout: 8000,
-    });
-    if (r.status !== 200) return false;
-    const html = typeof r.data === 'string' ? r.data : String(r.data);
-    for (const pat of M3U8_PATTERNS) {
-      const m = pat.exec(html);
-      if (m && m[1].startsWith('http')) return true;
-    }
-    return false;
-  } catch (_) { return false; }
-}
-
-export async function checkHealth(_slugs, { concurrency = 8 } = {}) {
-  // 1. Filtro inicial: status.json
-  let candidates = [];
+/**
+ * Health check: usa status.json de tvtvhd directo. Es la lista oficial
+ * de canales al aire — un solo fetch ~300ms.
+ *
+ * Lag conocido (1-2 min) entre que un canal cae y status.json lo refleja:
+ * para ese bache las defensas del player (validación Content-Type=html
+ * en HlsProxy + recovery agresivo de hls.js + panel "Stream corrupto"
+ * con botón "Probar otro canal disponible") absorben el caso.
+ */
+export async function checkHealth(_slugs) {
   try {
     const chans = await fetchChannels();
-    candidates = chans.filter((c) => c.is_live).map((c) => c.slug);
+    const live = new Set();
+    for (const c of chans) if (c.is_live) live.add(c.slug);
+    return live;
   } catch (e) {
     console.warn('[mobileScraper] status.json falló:', e.message || e);
     return new Set();
   }
-  // 2. Deep probe
-  const live = new Set();
-  let i = 0;
-  async function worker() {
-    while (i < candidates.length) {
-      const idx = i++;
-      const slug = candidates[idx];
-      if (await probeOne(slug)) live.add(slug);
-    }
-  }
-  await Promise.all(Array.from({ length: concurrency }, () => worker()));
-  return live;
 }
