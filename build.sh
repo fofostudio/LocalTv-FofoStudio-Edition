@@ -155,12 +155,13 @@ ok "icon.icns OK"
 
 # ---- 6. Build del frontend -------------------------------------------------
 if [[ $SKIP_FRONTEND -eq 0 ]]; then
-  step "Build del frontend (Vite)"
+  step "Build del frontend (Vite, version=$VERSION)"
   pushd "$ROOT/frontend" >/dev/null
   if [[ ! -d node_modules ]]; then
     npm install
   fi
-  npm run build
+  # Inyectar LOCALTV_VERSION para vite.config.js (UpdateGate lo usa)
+  LOCALTV_VERSION="$VERSION" npm run build
   popd >/dev/null
   ok "Frontend buildeado en frontend/dist"
 fi

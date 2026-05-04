@@ -184,13 +184,17 @@ OK "icon.ico OK"
 # 6. Build del frontend (Vite)
 # ----------------------------------------------------------------------------
 if (-not $SkipFrontend) {
-    Step "Build del frontend (Vite)"
+    Step "Build del frontend (Vite, version=$Version)"
     Push-Location (Join-Path $Root "frontend")
     try {
         if (-not (Test-Path "node_modules")) {
             & npm install
             if ($LASTEXITCODE -ne 0) { Err "npm install falló"; exit 1 }
         }
+        # Inyectar LOCALTV_VERSION para que vite.config.js la lea y la
+        # inyecte en import.meta.env.VITE_APP_VERSION (UpdateGate la usa
+        # para comparar contra GitHub Releases).
+        $env:LOCALTV_VERSION = $Version
         & npm run build
         if ($LASTEXITCODE -ne 0) { Err "npm run build falló"; exit 1 }
     } finally {

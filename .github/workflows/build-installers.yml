@@ -162,6 +162,8 @@ jobs:
 
       - name: Build frontend (Vite)
         working-directory: frontend
+        env:
+          LOCALTV_VERSION: ${{ steps.ver.outputs.version }}
         run: npm run build
 
       - name: Install mobile deps

@@ -7,6 +7,7 @@ import Home from './pages/Home';
 import ChannelPage from './pages/ChannelPage';
 import AdminLogin from './pages/Admin/AdminLogin';
 import AdminDashboard from './pages/Admin/AdminDashboard';
+import UpdateGate from './components/UpdateGate/UpdateGate';
 import styles from './App.module.css';
 
 function GlobalSearch() {
@@ -80,7 +81,7 @@ function Header() {
         <Link to="/admin" className={`${styles.navLink} ${isAdmin ? styles.navActive : ''}`}>
           Admin
         </Link>
-        <span className={styles.versionTag}>v1.0</span>
+        <span className={styles.versionTag}>v{import.meta.env.VITE_APP_VERSION || '0.0.0'}</span>
       </nav>
     </header>
   );
@@ -88,29 +89,31 @@ function Header() {
 
 export default function App() {
   return (
-    <FavoritesProvider>
-      <ChannelProvider>
-        <BrowserRouter>
-          <div className={styles.appContainer}>
-            <Header />
-            <main className={styles.routesContainer}>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/channel/:channelId" element={<ChannelPage />} />
-                <Route path="/admin" element={<AdminLogin />} />
-                <Route
-                  path="/admin/dashboard"
-                  element={
-                    <ProtectedRoute>
-                      <AdminDashboard />
-                    </ProtectedRoute>
-                  }
-                />
-              </Routes>
-            </main>
-          </div>
-        </BrowserRouter>
-      </ChannelProvider>
-    </FavoritesProvider>
+    <UpdateGate>
+      <FavoritesProvider>
+        <ChannelProvider>
+          <BrowserRouter>
+            <div className={styles.appContainer}>
+              <Header />
+              <main className={styles.routesContainer}>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/channel/:channelId" element={<ChannelPage />} />
+                  <Route path="/admin" element={<AdminLogin />} />
+                  <Route
+                    path="/admin/dashboard"
+                    element={
+                      <ProtectedRoute>
+                        <AdminDashboard />
+                      </ProtectedRoute>
+                    }
+                  />
+                </Routes>
+              </main>
+            </div>
+          </BrowserRouter>
+        </ChannelProvider>
+      </FavoritesProvider>
+    </UpdateGate>
   );
 }
