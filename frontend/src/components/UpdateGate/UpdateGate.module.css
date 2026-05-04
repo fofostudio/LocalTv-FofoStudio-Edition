@@ -212,6 +212,17 @@
   margin-bottom: 16px;
 }
 
+.installing {
+  font-size: 0.88rem;
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  padding: 12px 14px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
 /* ----- Notes ----- */
 .notes {
   margin-bottom: 18px;

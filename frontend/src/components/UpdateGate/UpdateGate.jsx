@@ -52,6 +52,32 @@ function pickAsset(assets, platform) {
   return null;
 }
 
+/**
+ * Intenta auto-actualizar via el endpoint /api/update/install del backend
+ * Python (que solo existe dentro del .exe / .app empaquetado). Si responde
+ * 200 → la app se va a cerrar sola en ~1.5s. Si no hay backend (browser
+ * puro) o no está bundled, devuelve false para que el caller use fallback.
+ */
+async function tryAutoUpdate(url, assetName) {
+  try {
+    // 1) Verificar que el backend tiene capability de auto-update
+    const cap = await fetch('/api/update/capabilities', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .catch(() => null);
+    if (!cap?.canAutoUpdate) return false;
+
+    // 2) Disparar la instalación
+    const res = await fetch('/api/update/install', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, asset_name: assetName }),
+    });
+    return res.ok;
+  } catch (_) {
+    return false;
+  }
+}
+
 export default function UpdateGate({ children }) {
   const [state, setState] = useState({ status: 'checking' });
 
@@ -115,13 +141,17 @@ export default function UpdateGate({ children }) {
 function UpdatePrompt({ latest, current, asset, notes, platform, releaseUrl }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState(null);
+  const [progress, setProgress] = useState(null); // 'downloading' | 'installing'
 
   const handleUpdate = async () => {
     setBusy(true);
     setErr(null);
+    setProgress(null);
+
     try {
-      // Android: usar plugin nativo AppUpdater si está disponible
+      // ----- Android: plugin Capacitor AppUpdater
       if (platform === 'android' && asset?.browser_download_url) {
+        setProgress('downloading');
         const Updater = window.Capacitor?.Plugins?.AppUpdater;
         if (Updater?.downloadAndInstall) {
           await Updater.downloadAndInstall({
@@ -130,7 +160,6 @@ function UpdatePrompt({ latest, current, asset, notes, platform, releaseUrl }) {
           });
           return;
         }
-        // Fallback: abrir browser para descarga
         if (window.Capacitor?.Plugins?.Browser?.open) {
           await window.Capacitor.Plugins.Browser.open({ url: asset.browser_download_url });
         } else {
@@ -138,13 +167,28 @@ function UpdatePrompt({ latest, current, asset, notes, platform, releaseUrl }) {
         }
         return;
       }
-      // Win / Mac / Web: abrir la URL de descarga; el navegador descarga
+
+      // ----- Windows / macOS dentro del .exe / .app: usar endpoint nativo
+      // que descarga e instala silencioso. Si no hay backend (browser web
+      // puro) o no es bundled, cae a window.open.
+      if ((platform === 'win' || platform === 'mac') && asset?.browser_download_url) {
+        const handled = await tryAutoUpdate(asset.browser_download_url, asset.name);
+        if (handled) {
+          setProgress('installing');
+          // El backend va a matar el proceso en ~1.5s. Mostramos un mensaje
+          // y esperamos a que la app se cierre sola.
+          return;
+        }
+      }
+
+      // ----- Fallback general: abrir URL de descarga en el browser
       const url = asset?.browser_download_url || releaseUrl;
       if (url) window.open(url, '_blank');
     } catch (e) {
       setErr(String(e?.message || e));
     } finally {
-      setBusy(false);
+      // Si fue installing, dejamos busy=true porque la app se está cerrando
+      if (progress !== 'installing') setBusy(false);
     }
   };
 
@@ -201,7 +245,13 @@ function UpdatePrompt({ latest, current, asset, notes, platform, releaseUrl }) {
             onClick={handleUpdate}
             disabled={busy}
           >
-            {busy ? 'Descargando…' : 'Actualizar ahora →'}
+            {progress === 'installing'
+              ? 'Instalando, la app se cerrará…'
+              : progress === 'downloading'
+                ? 'Descargando…'
+                : busy
+                  ? 'Procesando…'
+                  : 'Actualizar ahora →'}
           </button>
           <a
             href={releaseUrl}
@@ -212,6 +262,13 @@ function UpdatePrompt({ latest, current, asset, notes, platform, releaseUrl }) {
             Ver release en GitHub
           </a>
         </div>
+
+        {progress === 'installing' && (
+          <div className={styles.installing}>
+            ⚙ El instalador está corriendo silencioso en segundo plano.
+            La app se va a cerrar y abrir sola con la versión nueva.
+          </div>
+        )}
 
         {err && <div className={styles.error}>Error: {err}</div>}
 
