@@ -29,11 +29,51 @@ async function getSqlite() {
 async function openDb() {
   if (_db) return _db;
   const sqlite = await getSqlite();
-  const exists = (await sqlite.isConnection(DB_NAME, false))?.result;
-  _db = exists
-    ? await sqlite.retrieveConnection(DB_NAME, false)
-    : await sqlite.createConnection(DB_NAME, false, 'no-encryption', DB_VERSION, false);
-  await _db.open();
+
+  // Estrategia defensiva: tratar cualquier resultado raro de isConnection /
+  // createConnection sin asumir que la API se comporte determinísticamente.
+  // El bug típico: tras un hot-reload del WebView Android, la conexión queda
+  // registrada en el lado nativo aunque _db esté null acá.
+  async function tryRetrieve() {
+    try {
+      const c = await sqlite.retrieveConnection(DB_NAME, false);
+      if (c) return c;
+    } catch (_) { /* sigue */ }
+    return null;
+  }
+  async function tryCreate() {
+    return await sqlite.createConnection(DB_NAME, false, 'no-encryption', DB_VERSION, false);
+  }
+
+  // Caso A: la conexión ya está registrada → reusar
+  let exists = false;
+  try {
+    exists = !!(await sqlite.isConnection(DB_NAME, false))?.result;
+  } catch (_) { exists = false; }
+
+  if (exists) {
+    _db = await tryRetrieve();
+  }
+  if (!_db) {
+    try {
+      _db = await tryCreate();
+    } catch (e) {
+      // "Connection localtv already exists" → cerrar y reintentar
+      const msg = String(e?.message || e).toLowerCase();
+      if (msg.includes('already') || msg.includes('exist')) {
+        try { await sqlite.closeConnection(DB_NAME, false); } catch (_) {}
+        _db = (await tryRetrieve()) || (await tryCreate());
+      } else {
+        throw e;
+      }
+    }
+  }
+  if (!_db) throw new Error('No se pudo abrir la BD local');
+
+  // open() falla si ya estaba abierta — lo absorbemos
+  try { await _db.open(); } catch (e) {
+    if (!String(e?.message || e).toLowerCase().includes('open')) throw e;
+  }
   await _ensureSchema(_db);
   return _db;
 }

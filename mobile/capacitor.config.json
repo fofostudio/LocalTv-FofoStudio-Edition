@@ -1,0 +1,13 @@
+{
+  "appId": "com.fofostudio.localtv",
+  "appName": "LocalTv",
+  "webDir": "public",
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": true
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}
