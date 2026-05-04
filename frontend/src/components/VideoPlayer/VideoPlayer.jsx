@@ -1,5 +1,6 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { ChannelContext } from '../../context/ChannelContext';
+import { streamPlaylistUrl, isCapacitor } from '../../services/platform';
 import CastButton from '../CastButton/CastButton';
 import styles from './VideoPlayer.module.css';
 
@@ -68,42 +69,56 @@ export default function VideoPlayer({ channel }) {
 
     setLoading(true);
 
-    const proxyUrl = `${BASE_URL}/api/streams/${channel.slug}/playlist.m3u8`;
+    let cancelled = false;
+    (async () => {
+      let proxyUrl;
+      try {
+        proxyUrl = await streamPlaylistUrl(channel.slug);
+      } catch (e) {
+        if (cancelled) return;
+        setError({ title: 'No se pudo iniciar el proxy HLS', message: e.message, kind: 'generic' });
+        setLoading(false);
+        return;
+      }
+      if (cancelled) return;
 
-    try {
-      clapprRef.current = new window.Clappr.Player({
-        source: proxyUrl,
-        mimeType: 'application/x-mpegURL',
-        parentId: '#video-player',
-        width: '100%',
-        height: '100%',
-        autoPlay: true,
-        mute: false,
-        poster: channel.logo_url || '',
-        events: {
-          onReady: () => setLoading(false),
-          onPlay:  () => { setLoading(false); setError(null); },
-          onError: (e) => {
-            console.error('Clappr error:', e);
-            setError(describeError(e));
-            setLoading(false);
+      try {
+        clapprRef.current = new window.Clappr.Player({
+          source: proxyUrl,
+          mimeType: 'application/x-mpegURL',
+          parentId: '#video-player',
+          width: '100%',
+          height: '100%',
+          autoPlay: true,
+          mute: false,
+          poster: channel.logo_url || '',
+          events: {
+            onReady: () => setLoading(false),
+            onPlay:  () => { setLoading(false); setError(null); },
+            onError: (e) => {
+              console.error('Clappr error:', e);
+              setError(describeError(e));
+              setLoading(false);
+            },
           },
-        },
-        hlsjsConfig: {
-          enableWorker: true,
-          lowLatencyMode: false,
-          backBufferLength: 30,
-          manifestLoadingMaxRetry: 1,
-          fragLoadingMaxRetry: 2,
-        },
-      });
-    } catch (e) {
-      console.error(e);
-      setError({ title: 'Error al iniciar el player', message: e.message, kind: 'generic' });
-      setLoading(false);
-    }
+          hlsjsConfig: {
+            enableWorker: true,
+            lowLatencyMode: false,
+            backBufferLength: 30,
+            manifestLoadingMaxRetry: 1,
+            fragLoadingMaxRetry: 2,
+          },
+        });
+      } catch (e) {
+        console.error(e);
+        if (!cancelled) {
+          setError({ title: 'Error al iniciar el player', message: e.message, kind: 'generic' });
+          setLoading(false);
+        }
+      }
+    })();
 
-    return cleanup;
+    return () => { cancelled = true; cleanup(); };
   }, [channel?.slug, channel?.logo_url]);
 
   const tryNextLive = () => {

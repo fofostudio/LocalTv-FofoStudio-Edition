@@ -1,0 +1,15 @@
+# Capacitor genera estos al ejecutar `cap add android`
+android/
+
+# Build output del frontend que se copia
+public/
+
+# Node
+node_modules/
+
+# Build outputs locales
+*.apk
+*.aab
+*.jks
+*.keystore
+keystore.properties

@@ -1,0 +1,20 @@
+{
+  "name": "localtv-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LocalTv Android — Capacitor wrapper con plugin HLS-proxy nativo",
+  "scripts": {
+    "frontend:build": "cd ../frontend && npm run build",
+    "frontend:copy": "node scripts/copy-frontend.mjs",
+    "build": "npm run frontend:build && npm run frontend:copy && cap sync android",
+    "open:android": "cap open android",
+    "run:android": "cap run android",
+    "apk:debug": "cd android && (gradlew.bat assembleDebug || ./gradlew assembleDebug)",
+    "apk:release": "cd android && (gradlew.bat assembleRelease || ./gradlew assembleRelease)"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.1.0",
+    "@capacitor/core": "^6.1.0",
+    "@capacitor/cli": "^6.1.0"
+  }
+}

@@ -1,0 +1,677 @@
+{
+  "version": 1,
+  "channels": [
+    {
+      "name": "ESPN",
+      "slug": "espn",
+      "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/ESPN_wordmark.svg/200px-ESPN_wordmark.svg.png",
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "ESPN 2",
+      "slug": "espn2",
+      "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/ESPN_wordmark.svg/200px-ESPN_wordmark.svg.png",
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "ESPN 3",
+      "slug": "espn3",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "ESPN 4",
+      "slug": "espn4",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "ESPN 5",
+      "slug": "espn5",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "ESPN 6",
+      "slug": "espn6",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "ESPN 7",
+      "slug": "espn7",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "DSports",
+      "slug": "dsports",
+      "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/DirectTV_Sports_logo.png/200px-DirectTV_Sports_logo.png",
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "DSports+",
+      "slug": "dsports-plus",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "DSports 2",
+      "slug": "dsports2",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "GOLTV",
+      "slug": "goltv",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "VTV Plus",
+      "slug": "vtvplus",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "ECDF LigaPro (eventos)",
+      "slug": "ecdf-ligapro",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Fox Sports",
+      "slug": "foxsports",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Fox Sports 2",
+      "slug": "foxsports2",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Fox Sports 3",
+      "slug": "foxsports3",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "TNT Sports",
+      "slug": "tntsports",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "ESPN Premium",
+      "slug": "espn-premium",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "TyC Sports",
+      "slug": "tycsports",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "TyC Sports Internacional",
+      "slug": "tycsports-internacional",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Telefe",
+      "slug": "telefe",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "TV Pública",
+      "slug": "tv-publica",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "GOLPERU",
+      "slug": "golperu",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Liga1 MAX",
+      "slug": "liga1-max",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Movistar Deportes",
+      "slug": "movistar-deportes",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Win Sports Plus",
+      "slug": "winsports-plus",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Win Sports",
+      "slug": "winsports",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Fox Sports Premium",
+      "slug": "foxsports-premium",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "TUDN",
+      "slug": "tudn",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Caliente TV",
+      "slug": "caliente-tv",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Azteca 7",
+      "slug": "azteca7",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Canal 5",
+      "slug": "canal5",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "TVC Deportes",
+      "slug": "tvc-deportes",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Azteca Deportes",
+      "slug": "azteca-deportes",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Hisports",
+      "slug": "hisports",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Sky Sports LaLiga",
+      "slug": "sky-sports-laliga",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Sky Sports Bundesliga",
+      "slug": "sky-sports-bundesliga",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Fox Deportes",
+      "slug": "fox-deportes",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "ESPN Deportes",
+      "slug": "espn-deportes",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Univisión",
+      "slug": "univision",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Fox Sports 1",
+      "slug": "foxsports1",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Universo",
+      "slug": "universo",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "BeIN Sports Español",
+      "slug": "bein-sports-espanol",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Unimás",
+      "slug": "unimas",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "BeIN Sports Xtra Español",
+      "slug": "bein-sports-xtra-espanol",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "ESPN U",
+      "slug": "espnu",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "CBS Sports Network",
+      "slug": "cbs-sports-network",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "USA Network",
+      "slug": "usa-network",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Telemundo",
+      "slug": "telemundo",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "TNT Sports Chile",
+      "slug": "tnt-sports-chile",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Premiere 1",
+      "slug": "premiere1",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Premiere 2",
+      "slug": "premiere2",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Premiere 3",
+      "slug": "premiere3",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Premiere 4",
+      "slug": "premiere4",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Premiere 5",
+      "slug": "premiere5",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Premiere 6",
+      "slug": "premiere6",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Premiere 7",
+      "slug": "premiere7",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Premiere 8",
+      "slug": "premiere8",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Sportv",
+      "slug": "sportv",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Sportv 2",
+      "slug": "sportv2",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Sportv 3",
+      "slug": "sportv3",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Sport TV 1",
+      "slug": "sporttv1",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Sport TV 2",
+      "slug": "sporttv2",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Sport TV 3",
+      "slug": "sporttv3",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Sport TV 4",
+      "slug": "sporttv4",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Sport TV 5",
+      "slug": "sporttv5",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Sport TV 6",
+      "slug": "sporttv6",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Canal 11",
+      "slug": "canal11",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Dazn Eleven 1",
+      "slug": "dazn-eleven1",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Dazn Eleven 2",
+      "slug": "dazn-eleven2",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Dazn Eleven 3",
+      "slug": "dazn-eleven3",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Dazn Eleven 4",
+      "slug": "dazn-eleven4",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Dazn Eleven 5",
+      "slug": "dazn-eleven5",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Dazn Eleven 6",
+      "slug": "dazn-eleven6",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "DAZN 1",
+      "slug": "dazn1",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "DAZN 2",
+      "slug": "dazn2",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "DAZN 3 (eventos)",
+      "slug": "dazn3-eventos",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "DAZN 4 (eventos)",
+      "slug": "dazn4-eventos",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "DAZN LaLiga",
+      "slug": "dazn-laliga",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "La 1 TVE",
+      "slug": "la1-tve",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Liga de Campeones 1",
+      "slug": "liga-campeones1",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Liga de Campeones 2",
+      "slug": "liga-campeones2",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Liga de Campeones 3",
+      "slug": "liga-campeones3",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "M+ LaLiga TV",
+      "slug": "mplus-laligatv",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "LaLigaTV BAR",
+      "slug": "laligatv-bar",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Sky Bundesliga 1",
+      "slug": "sky-bundesliga1",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Sky Bundesliga 2",
+      "slug": "sky-bundesliga2",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Sky Bundesliga 3",
+      "slug": "sky-bundesliga3",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Sky Bundesliga 4",
+      "slug": "sky-bundesliga4",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Sky Bundesliga 5",
+      "slug": "sky-bundesliga5",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "DAZN 1 DE",
+      "slug": "dazn1-de",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "DAZN 2 DE",
+      "slug": "dazn2-de",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "ESPN 1 NL",
+      "slug": "espn1-nl",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "ESPN 2 NL",
+      "slug": "espn2-nl",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "ESPN 3 NL",
+      "slug": "espn3-nl",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    },
+    {
+      "name": "Dazn Eleven Pro 1 BE",
+      "slug": "dazn-eleven-pro1-be",
+      "logo_url": null,
+      "category_id": 1,
+      "is_active": true
+    }
+  ]
+}
