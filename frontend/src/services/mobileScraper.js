@@ -104,6 +104,9 @@ const M3U8_PATTERNS = [
 ];
 
 async function probeOne(slug) {
+  // Probe ligero: si el HTML del player carga 200 y tiene una URL
+  // m3u8 embedida, lo consideramos live. Las validaciones de bytes
+  // en el HlsProxy plugin filtran los streams realmente rotos.
   const cap = window.Capacitor;
   const { CapacitorHttp } = cap.Plugins;
   const upstream = `https://tvtvhd.com/vivo/canales.php?stream=${encodeURIComponent(slug)}`;
@@ -111,24 +114,15 @@ async function probeOne(slug) {
     const r = await CapacitorHttp.get({
       url: upstream,
       headers: { ...HEADERS, Origin: 'https://tvtvhd.com' },
-      connectTimeout: 4000, readTimeout: 5000,
+      connectTimeout: 6000, readTimeout: 8000,
     });
     if (r.status !== 200) return false;
     const html = typeof r.data === 'string' ? r.data : String(r.data);
-    let m3u8 = null;
     for (const pat of M3U8_PATTERNS) {
       const m = pat.exec(html);
-      if (m && m[1].startsWith('http')) { m3u8 = m[1]; break; }
+      if (m && m[1].startsWith('http')) return true;
     }
-    if (!m3u8) return false;
-    const r2 = await CapacitorHttp.get({
-      url: m3u8,
-      headers: { ...HEADERS, Origin: 'https://tvtvhd.com' },
-      connectTimeout: 4000, readTimeout: 4000,
-    });
-    if (r2.status !== 200) return false;
-    const text = typeof r2.data === 'string' ? r2.data : String(r2.data);
-    return text.trimStart().startsWith('#EXTM3U');
+    return false;
   } catch (_) { return false; }
 }
 

@@ -84,14 +84,22 @@
 /* ====== Chips de filtro por país ====== */
 .regionChips {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  overflow-x: auto;
-  overflow-y: hidden;
   padding: 4px 2px 8px;
   margin-top: -4px;
   scrollbar-width: none;
 }
 .regionChips::-webkit-scrollbar { display: none; }
+/* En mobile (<= 768px) volvemos a scroll horizontal porque el wrap no
+   se ve bien en pantallas estrechas (los chips ocupan demasiadas líneas) */
+@media (max-width: 768px) {
+  .regionChips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+}
 .chip {
   display: inline-flex;
   align-items: center;

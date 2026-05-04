@@ -119,40 +119,31 @@ _health_cache: dict = {"ts": 0.0, "live": set()}
 
 async def _probe_one(client: httpx.AsyncClient, slug: str) -> tuple[str, bool]:
     """
-    Probe profundo:
-    1. Pide el HTML del player y extrae la URL del .m3u8
-    2. Hace HEAD al .m3u8 real para confirmar que el upstream sirve el stream
-    Solo es "live" si los dos pasos dan 200 y el manifest tiene contenido.
+    Probe ligero, optimizado para mostrar la mayor cantidad de canales
+    realmente disponibles sin matar la lista por ratelimits o timeouts:
+
+    Pide el HTML del player. Si responde 200 y contiene una URL .m3u8
+    embedida → live. Si no → offline.
+
+    NO confiamos sólo en status.json (lo del v1.0.14 daba falsos
+    positivos), pero tampoco hacemos un segundo GET al m3u8 (era
+    demasiado estricto en v1.0.15). Las validaciones de bytes en
+    /segment ya filtran los streams realmente rotos en runtime.
     """
     upstream = f"https://tvtvhd.com/vivo/canales.php?stream={slug}"
     try:
-        r = await client.get(upstream, timeout=4.0)
+        r = await client.get(upstream, timeout=8.0)
         if r.status_code != 200:
             return slug, False
-        html = r.text
-        m3u8_url = None
+        html = r.text or ""
+        # Si el HTML del player tiene una URL m3u8 embedida, el slug
+        # está vivo en tvtvhd. La calidad real del stream se valida en
+        # los endpoints /playlist.m3u8 y /segment.
         for pat in _PATTERNS:
             m = pat.search(html)
-            if m:
-                u = m.group(1).strip()
-                if u.startswith("http"):
-                    m3u8_url = u
-                    break
-        if not m3u8_url:
-            return slug, False
-
-        # HEAD al manifest real. Si da error o 4xx/5xx → offline.
-        try:
-            r2 = await client.get(m3u8_url, timeout=3.5)
-            if r2.status_code != 200:
-                return slug, False
-            text = r2.text or ""
-            # El manifest válido empieza con #EXTM3U
-            if not text.lstrip().startswith("#EXTM3U"):
-                return slug, False
-            return slug, True
-        except (httpx.HTTPError, asyncio.TimeoutError):
-            return slug, False
+            if m and m.group(1).strip().startswith("http"):
+                return slug, True
+        return slug, False
     except (httpx.HTTPError, asyncio.TimeoutError):
         return slug, False
 
