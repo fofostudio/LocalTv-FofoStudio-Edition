@@ -30,50 +30,57 @@ async function openDb() {
   if (_db) return _db;
   const sqlite = await getSqlite();
 
-  // Estrategia defensiva: tratar cualquier resultado raro de isConnection /
-  // createConnection sin asumir que la API se comporte determinísticamente.
-  // El bug típico: tras un hot-reload del WebView Android, la conexión queda
-  // registrada en el lado nativo aunque _db esté null acá.
-  async function tryRetrieve() {
-    try {
-      const c = await sqlite.retrieveConnection(DB_NAME, false);
-      if (c) return c;
-    } catch (_) { /* sigue */ }
-    return null;
-  }
-  async function tryCreate() {
-    return await sqlite.createConnection(DB_NAME, false, 'no-encryption', DB_VERSION, false);
-  }
+  // Estrategia: matar todas las conexiones zombie y crear una fresca.
+  // El plugin @capacitor-community/sqlite tiene varios estados internos
+  // (registrada / abierta / consistente con el SO) que se desincronizan
+  // tras hot-reloads del WebView. Reusar conexiones viejas tira errores
+  // intermitentes ("Connection already exist", "execute not available
+  // connection"). Crear de cero es lo único determinístico.
 
-  // Caso A: la conexión ya está registrada → reusar
-  let exists = false;
+  // 1) Reconciliar estado interno del plugin (limpia ghosts del SO)
+  try { await sqlite.checkConnectionsConsistency(); }
+  catch (e) { console.warn('[mobileDb] checkConnectionsConsistency:', e?.message || e); }
+
+  // 2) Cerrar la conexión registrada si la hubiera
   try {
-    exists = !!(await sqlite.isConnection(DB_NAME, false))?.result;
-  } catch (_) { exists = false; }
+    const exists = (await sqlite.isConnection(DB_NAME, false))?.result;
+    if (exists) {
+      try { await sqlite.closeConnection(DB_NAME, false); } catch (_) { /* ignore */ }
+    }
+  } catch (_) { /* ignore */ }
 
-  if (exists) {
-    _db = await tryRetrieve();
-  }
-  if (!_db) {
-    try {
-      _db = await tryCreate();
-    } catch (e) {
-      // "Connection localtv already exists" → cerrar y reintentar
-      const msg = String(e?.message || e).toLowerCase();
-      if (msg.includes('already') || msg.includes('exist')) {
-        try { await sqlite.closeConnection(DB_NAME, false); } catch (_) {}
-        _db = (await tryRetrieve()) || (await tryCreate());
-      } else {
-        throw e;
-      }
+  // 3) Crear y abrir una conexión fresca
+  try {
+    _db = await sqlite.createConnection(DB_NAME, false, 'no-encryption', DB_VERSION, false);
+  } catch (e) {
+    // Si todavía dice "already exist" después del close, hacemos un último intento
+    const msg = String(e?.message || e).toLowerCase();
+    if (msg.includes('already') || msg.includes('exist')) {
+      try { await sqlite.closeConnection(DB_NAME, false); } catch (_) {}
+      _db = await sqlite.createConnection(DB_NAME, false, 'no-encryption', DB_VERSION, false);
+    } else {
+      throw e;
     }
   }
-  if (!_db) throw new Error('No se pudo abrir la BD local');
 
-  // open() falla si ya estaba abierta — lo absorbemos
-  try { await _db.open(); } catch (e) {
-    if (!String(e?.message || e).toLowerCase().includes('open')) throw e;
+  // 4) Asegurar abierta. open() falla si ya estaba abierta — lo absorbemos.
+  try { await _db.open(); }
+  catch (e) {
+    const msg = String(e?.message || e).toLowerCase();
+    if (!(msg.includes('open') || msg.includes('already'))) throw e;
   }
+
+  // 5) Sanity check: si execute() no responde acá, algo del plugin se rompió
+  //    irrecuperablemente — cerramos todo y avisamos.
+  try {
+    await _db.execute('SELECT 1');
+  } catch (e) {
+    console.error('[mobileDb] sanity SELECT 1 falló, recreando:', e?.message || e);
+    try { await sqlite.closeConnection(DB_NAME, false); } catch (_) {}
+    _db = await sqlite.createConnection(DB_NAME, false, 'no-encryption', DB_VERSION, false);
+    await _db.open();
+  }
+
   await _ensureSchema(_db);
   return _db;
 }
