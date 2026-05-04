@@ -67,6 +67,7 @@ HIDDEN = [
     "app.routers.admin",
     "app.routers.logos",
     "app.routers.updater",
+    "app.routers.network",
     "app.crud",
     "app.crud.channels",
     "app.crud.categories",

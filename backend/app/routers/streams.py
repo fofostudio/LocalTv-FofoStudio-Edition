@@ -175,7 +175,14 @@ async def _refresh_health(slugs: list[str]) -> set[str]:
 
 @router.get("/health")
 async def health(db: Session = Depends(get_db)):
-    """Devuelve {live: [slugs activos], total: N, cached_age_s: float}."""
+    """
+    Devuelve {live: [slugs activos]} usando status.json de tvtvhd como fuente
+    de verdad. Ese JSON ya marca cada canal como Activo/Inactivo, así que
+    no necesitamos hacer probes paralelos (lento y susceptible a rate-limits).
+
+    Si status.json falla por algún motivo (DNS, timeout), caemos al método
+    viejo: probes deep paralelos.
+    """
     now = time.time()
     age = now - _health_cache["ts"]
     if age < _HEALTH_TTL and _health_cache["live"]:
@@ -183,18 +190,28 @@ async def health(db: Session = Depends(get_db)):
             "live": sorted(_health_cache["live"]),
             "total": len(_health_cache["live"]),
             "cached_age_s": round(age, 1),
+            "source": _health_cache.get("source", "cache"),
         }
 
-    slugs = [c.slug for c in crud_channels.get_channels(db, active_only=False)]
-    live = await _refresh_health(slugs)
-
-    _health_cache["ts"] = now
-    _health_cache["live"] = live
-    return {
-        "live": sorted(live),
-        "total": len(live),
-        "cached_age_s": 0.0,
-    }
+    # 1. Fast path — un solo fetch a status.json
+    try:
+        from app.services.scraper import fetch_status
+        status_map = await fetch_status()  # {slug: is_live}
+        live = {slug for slug, is_live in status_map.items() if is_live}
+        _health_cache["ts"] = now
+        _health_cache["live"] = live
+        _health_cache["source"] = "status.json"
+        return {"live": sorted(live), "total": len(live), "cached_age_s": 0.0,
+                "source": "status.json"}
+    except Exception as e:
+        # 2. Fallback al probe deep paralelo
+        slugs = [c.slug for c in crud_channels.get_channels(db, active_only=False)]
+        live = await _refresh_health(slugs)
+        _health_cache["ts"] = now
+        _health_cache["live"] = live
+        _health_cache["source"] = "deep-probe"
+        return {"live": sorted(live), "total": len(live), "cached_age_s": 0.0,
+                "source": "deep-probe", "fallback_reason": str(e)}
 
 
 # ---------------------------------------------------------------------------

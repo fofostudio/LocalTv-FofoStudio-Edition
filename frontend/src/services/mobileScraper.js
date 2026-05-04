@@ -1,19 +1,22 @@
 /**
  * Scraper de tvtvhd.com en JS — port directo de backend/app/services/scraper.py.
  *
- * Usa CapacitorHttp (no fetch del WebView) para evitar CORS y poder pasar el
- * User-Agent de browser que tvtvhd espera. fetch() del WebView también
- * funcionaría aquí porque tvtvhd manda CORS abierto en la home, pero
- * CapacitorHttp es más confiable y no depende de policy del WebView.
+ * Antes parseaba HTML. tvtvhd cambió: ahora la home es vacía y los canales
+ * se cargan dinámicamente desde https://tvtvhd.com/status.json. Lee ese
+ * JSON, devuelve canales + estado live/offline.
+ *
+ * Usa CapacitorHttp (no fetch del WebView) para evitar CORS y poder pasar
+ * el User-Agent de browser que tvtvhd espera.
  */
 
-const SOURCE_URL = 'https://tvtvhd.com/';
+const STATUS_URL = 'https://tvtvhd.com/status.json';
 const HEADERS = {
   'User-Agent':
     'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) ' +
     'Chrome/120.0.0.0 Mobile Safari/537.36',
-  Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+  Accept: 'application/json,text/javascript,*/*;q=0.9',
   'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8',
+  Referer: 'https://tvtvhd.com/',
 };
 
 function slugify(text) {
@@ -25,102 +28,78 @@ function slugify(text) {
     .replace(/^-+|-+$/g, '') || 'canal';
 }
 
-/** Extrae canales del HTML (mismos patrones que el scraper Python) */
-function extractChannels(html) {
-  const re = /(?:<a[^>]+href|onclick)\s*=\s*["'][^"']*?stream=([^"'&)]+)[^"']*?["'][^>]*>([\s\S]{0,200}?)<\/a>/gi;
-  const skipPrefix = /^(Activo|Inactivo|Link|Ver)\b/i;
-  const seen = new Map();
+function parseStreamParam(link) {
+  const m = /stream=([^&\s"']+)/.exec(link || '');
+  return m ? m[1].trim() : null;
+}
 
-  let m;
-  while ((m = re.exec(html)) !== null) {
-    const stream_param = m[1].trim();
-    const name = m[2].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-    if (!name || name.length < 2 || name.length > 80) continue;
-    if (skipPrefix.test(name)) continue;
-    const slug = slugify(name);
-    if (seen.has(slug)) continue;
-    seen.set(slug, {
-      name,
-      slug,
-      stream_param,
-      stream_url: `https://tvtvhd.com/vivo/canales.php?stream=${stream_param}`,
-    });
+function normalizeStatus(payload) {
+  const seen = new Map();
+  for (const region of Object.keys(payload || {})) {
+    const items = payload[region];
+    if (!Array.isArray(items)) continue;
+    for (const entry of items) {
+      if (!entry || typeof entry !== 'object') continue;
+      const name = String(entry.Canal || '').trim();
+      const estado = String(entry.Estado || '').trim().toLowerCase();
+      const link = entry.Link || '';
+      const stream_param = parseStreamParam(link);
+      if (!name || !stream_param) continue;
+      const slug = slugify(name);
+      if (seen.has(slug)) {
+        // Si ya existe, ascender a "live" si esta versión lo está
+        if (estado === 'activo' && !seen.get(slug).is_live) {
+          seen.get(slug).is_live = true;
+        }
+        continue;
+      }
+      seen.set(slug, {
+        name,
+        slug,
+        stream_param,
+        stream_url: `https://tvtvhd.com/vivo/canales.php?stream=${stream_param}`,
+        region,
+        is_live: estado === 'activo',
+      });
+    }
   }
   return [...seen.values()];
 }
 
-export async function fetchChannels() {
+async function getJson() {
   const cap = window.Capacitor;
-  if (!cap?.Plugins?.CapacitorHttp) {
-    throw new Error('CapacitorHttp no disponible');
-  }
+  if (!cap?.Plugins?.CapacitorHttp) throw new Error('CapacitorHttp no disponible');
   const { CapacitorHttp } = cap.Plugins;
   const r = await CapacitorHttp.get({
-    url: SOURCE_URL,
+    url: STATUS_URL,
     headers: HEADERS,
-    connectTimeout: 15000,
-    readTimeout: 30000,
+    connectTimeout: 10000,
+    readTimeout: 15000,
   });
-  if (r.status !== 200) throw new Error(`Upstream HTTP ${r.status}`);
-  return extractChannels(typeof r.data === 'string' ? r.data : String(r.data));
+  if (r.status !== 200) throw new Error(`HTTP ${r.status}`);
+  return typeof r.data === 'string' ? JSON.parse(r.data) : r.data;
+}
+
+export async function fetchChannels() {
+  const data = await getJson();
+  return normalizeStatus(data);
 }
 
 /**
- * Health check: para cada slug activo, hace probe al HTML del player y
- * verifica que el m3u8 está accesible. Concurrency limitada porque
- * tvtvhd tira si vamos muy fuerte.
+ * Health check rápido: un solo fetch a status.json devuelve el estado
+ * Activo/Inactivo de cada canal. Sustituye los probes paralelos viejos.
+ *
+ * Devuelve Set<string> con los slugs en vivo.
  */
-const M3U8_PATTERNS = [
-  /playbackURL\s*[=:]\s*["']?([^"'<>\s]+\.m3u8[^"'<>\s]*)/i,
-  /<source[^>]+src=["']([^"']+\.m3u8[^"']*)["']/i,
-  /(https?:\/\/[^"'<>\s]+\.m3u8[^"'<>\s]*)/i,
-];
-
-async function probeOne(slug) {
-  const cap = window.Capacitor;
-  const { CapacitorHttp } = cap.Plugins;
-  const upstream = `https://tvtvhd.com/vivo/canales.php?stream=${encodeURIComponent(slug)}`;
+export async function checkHealth(slugs) {
+  // ignoramos el parámetro slugs — status.json los trae a todos
   try {
-    const r = await CapacitorHttp.get({
-      url: upstream,
-      headers: { ...HEADERS, Referer: SOURCE_URL, Origin: 'https://tvtvhd.com' },
-      connectTimeout: 4000,
-      readTimeout: 5000,
-    });
-    if (r.status !== 200) return false;
-    const html = typeof r.data === 'string' ? r.data : String(r.data);
-    let m3u8 = null;
-    for (const pat of M3U8_PATTERNS) {
-      const mm = pat.exec(html);
-      if (mm && mm[1].startsWith('http')) { m3u8 = mm[1]; break; }
-    }
-    if (!m3u8) return false;
-
-    const r2 = await CapacitorHttp.get({
-      url: m3u8,
-      headers: { ...HEADERS, Referer: SOURCE_URL, Origin: 'https://tvtvhd.com' },
-      connectTimeout: 4000,
-      readTimeout: 4000,
-    });
-    if (r2.status !== 200) return false;
-    const text = typeof r2.data === 'string' ? r2.data : String(r2.data);
-    return text.trimStart().startsWith('#EXTM3U');
-  } catch (_) {
-    return false;
+    const chans = await fetchChannels();
+    const live = new Set();
+    for (const c of chans) if (c.is_live) live.add(c.slug);
+    return live;
+  } catch (e) {
+    console.warn('[mobileScraper] health falló:', e.message || e);
+    return new Set();
   }
-}
-
-/** Devuelve un Set<string> con los slugs en vivo. Concurrency=8 (mobile-friendly). */
-export async function checkHealth(slugs, { concurrency = 8 } = {}) {
-  const live = new Set();
-  let i = 0;
-  async function worker() {
-    while (i < slugs.length) {
-      const idx = i++;
-      const slug = slugs[idx];
-      if (await probeOne(slug)) live.add(slug);
-    }
-  }
-  await Promise.all(Array.from({ length: concurrency }, () => worker()));
-  return live;
 }

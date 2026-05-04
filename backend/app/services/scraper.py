@@ -1,10 +1,27 @@
 """
 Scraper de canales de tvtvhd.com en Python puro.
-Reemplaza los scripts Node/Playwright originales: usa httpx para descargar el
-HTML y regex para extraer los parámetros `stream=` (no requiere JS — los enlaces
-están renderizados en el HTML inicial del sitio).
 
-Devuelve una lista de dicts: {name, slug, stream_param, stream_url}.
+Antes (v1) parseaba el HTML de la home con regex. tvtvhd cambió: ahora la
+home es una shell vacía y el contenido se inyecta vía JS desde
+`https://tvtvhd.com/status.json`. Ese JSON ya contiene la lista oficial de
+canales agrupados por región y el estado actual de cada uno
+("Activo"/"Inactivo"). Mucho más confiable y rápido que hacer probes
+paralelos a 100 streams.
+
+Estructura de status.json:
+{
+  "LATINOAMERICA": [
+    {"Canal": "ESPN", "Estado": "Activo",
+     "Link": "https://tvtvhd.com/vivo/canales.php?stream=espn"},
+    ...
+  ],
+  "ARGENTINA": [...],
+  "MEXICO": [...],
+  ...
+}
+
+Devuelve lista de ScrapedChannel: {name, slug, stream_param, stream_url,
+region, is_live}.
 """
 from __future__ import annotations
 
@@ -19,15 +36,16 @@ from app.models.channel import Channel
 from app.models.category import Category
 
 
-SOURCE_URL = "https://tvtvhd.com/"
+STATUS_URL = "https://tvtvhd.com/status.json"
 HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
         "AppleWebKit/537.36 (KHTML, like Gecko) "
         "Chrome/120.0.0.0 Safari/537.36"
     ),
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept": "application/json,text/javascript,*/*;q=0.9",
     "Accept-Language": "es-ES,es;q=0.9,en;q=0.8",
+    "Referer": "https://tvtvhd.com/",
 }
 
 
@@ -37,6 +55,8 @@ class ScrapedChannel:
     slug: str
     stream_param: str
     stream_url: str
+    region: str
+    is_live: bool
 
 
 def _slugify(text: str) -> str:
@@ -48,51 +68,58 @@ def _slugify(text: str) -> str:
     return text.strip("-") or "canal"
 
 
-def _extract_channels(html: str) -> list[ScrapedChannel]:
-    """Extrae canales del HTML buscando enlaces con `stream=` y su nombre asociado."""
-    # Patrones flexibles: links <a href="...stream=XXX..."> y onclick handlers
-    # capturamos también el contexto previo (~200 chars) para sacar el nombre.
-    pattern = re.compile(
-        r'(?:<a[^>]+href|onclick)\s*=\s*["\'][^"\']*?stream=([^"\'&)]+)[^"\']*?["\']'
-        r'[^>]*>(?P<inner>[\s\S]{0,200}?)</a>',
-        re.IGNORECASE,
-    )
+def _parse_link(link: str) -> str | None:
+    """Extrae el ?stream=XXX de la URL del canal en tvtvhd."""
+    m = re.search(r"stream=([^&\s\"']+)", link or "")
+    return m.group(1).strip() if m else None
 
+
+def _normalize_status(payload: dict) -> list[ScrapedChannel]:
+    """De la estructura región->lista, sacamos canales únicos por slug."""
     seen: dict[str, ScrapedChannel] = {}
-    for match in pattern.finditer(html):
-        stream_param = match.group(1).strip()
-        inner = match.group("inner")
-        # Limpiar etiquetas HTML del nombre
-        name = re.sub(r"<[^>]+>", " ", inner)
-        name = re.sub(r"\s+", " ", name).strip()
-        # Filtrar nombres-basura
-        if not name or len(name) < 2 or len(name) > 80:
+    for region, items in (payload or {}).items():
+        if not isinstance(items, list):
             continue
-        if re.match(r"^(Activo|Inactivo|Link|Ver)\b", name, re.IGNORECASE):
-            continue
-
-        slug = _slugify(name)
-        # Usar slug como clave de deduplicación (priorizar la primera ocurrencia)
-        if slug in seen:
-            continue
-        seen[slug] = ScrapedChannel(
-            name=name,
-            slug=slug,
-            stream_param=stream_param,
-            stream_url=f"https://tvtvhd.com/vivo/canales.php?stream={stream_param}",
-        )
-
+        for entry in items:
+            if not isinstance(entry, dict):
+                continue
+            name = (entry.get("Canal") or "").strip()
+            estado = (entry.get("Estado") or "").strip().lower()
+            link = entry.get("Link") or ""
+            stream_param = _parse_link(link)
+            if not name or not stream_param:
+                continue
+            slug = _slugify(name)
+            if slug in seen:
+                # Si ya está, preferimos el que esté Activo
+                if estado == "activo" and not seen[slug].is_live:
+                    seen[slug].is_live = True
+                continue
+            seen[slug] = ScrapedChannel(
+                name=name,
+                slug=slug,
+                stream_param=stream_param,
+                stream_url=f"https://tvtvhd.com/vivo/canales.php?stream={stream_param}",
+                region=region,
+                is_live=(estado == "activo"),
+            )
     return list(seen.values())
 
 
 async def fetch_channels() -> list[ScrapedChannel]:
-    """Descarga la home de tvtvhd.com y devuelve los canales encontrados."""
+    """Descarga status.json y devuelve los canales únicos encontrados."""
     async with httpx.AsyncClient(
-        headers=HEADERS, timeout=30.0, follow_redirects=True
+        headers=HEADERS, timeout=15.0, follow_redirects=True
     ) as client:
-        response = await client.get(SOURCE_URL)
-        response.raise_for_status()
-        return _extract_channels(response.text)
+        r = await client.get(STATUS_URL)
+        r.raise_for_status()
+        return _normalize_status(r.json())
+
+
+async def fetch_status() -> dict[str, bool]:
+    """Devuelve {slug: is_live} para health-check rápido (un solo fetch)."""
+    chans = await fetch_channels()
+    return {c.slug: c.is_live for c in chans}
 
 
 def upsert_channels(
@@ -104,8 +131,6 @@ def upsert_channels(
     Inserta canales nuevos y actualiza la stream_url de los existentes.
     No borra canales que ya estén en la BD pero no aparezcan en el scrape
     (por si el sitio devuelve subset distinto).
-
-    Devuelve: {created, updated, total_scraped}.
     """
     category = db.query(Category).filter(Category.slug == default_category_slug).first()
     if not category:

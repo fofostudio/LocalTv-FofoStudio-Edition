@@ -53,3 +53,41 @@ export async function streamPlaylistUrl(slug) {
   }
   return `/api/streams/${slug}/playlist.m3u8`;
 }
+
+/**
+ * URL absoluta del stream apta para Chromecast / AirPlay / otros
+ * dispositivos en la red. Tiene que ser una URL pública alcanzable
+ * por el dispositivo de cast — localhost no sirve.
+ *
+ * Web/desktop: pregunta a /api/network/info por la IP LAN.
+ * Mobile (Capacitor): pregunta al plugin HlsProxy por la IP LAN del celu.
+ */
+let _lanBaseCache = null;
+
+export async function lanStreamUrl(slug) {
+  const base = await ensureLanBase();
+  if (!base) return null;
+  if (isCapacitor()) return `${base}/stream/${slug}/playlist.m3u8`;
+  return `${base}/api/streams/${slug}/playlist.m3u8`;
+}
+
+async function ensureLanBase() {
+  if (_lanBaseCache) return _lanBaseCache;
+  try {
+    if (isCapacitor()) {
+      const HlsProxy = window.Capacitor?.Plugins?.HlsProxy;
+      if (!HlsProxy?.networkInfo) return null;
+      const info = await HlsProxy.networkInfo();
+      if (!info?.lanUrl) return null;
+      _lanBaseCache = info.lanUrl;
+      return _lanBaseCache;
+    }
+    const res = await fetch('/api/network/info');
+    if (!res.ok) return null;
+    const data = await res.json();
+    _lanBaseCache = data.lan_url;
+    return _lanBaseCache;
+  } catch (_) {
+    return null;
+  }
+}

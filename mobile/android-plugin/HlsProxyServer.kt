@@ -27,7 +27,7 @@ import java.util.regex.Pattern
  * desde una WebView normal no podés setearlo (es "forbidden header" del
  * fetch spec del browser). OkHttp en Kotlin sí puede.
  */
-class HlsProxyServer(port: Int) : NanoHTTPD("127.0.0.1", port) {
+class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
 
     companion object {
         private const val TAG = "HlsProxyServer"

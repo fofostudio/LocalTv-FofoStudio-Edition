@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from app.database import engine, Base
-from app.routers import channels, categories, streams, auth, admin, logos, updater
+from app.routers import channels, categories, streams, auth, admin, logos, updater, network
 from app.models.category import Category  # noqa: F401 (registra modelo)
 from app.models.channel import Channel    # noqa: F401
 from app.models.user import User          # noqa: F401
@@ -55,6 +55,7 @@ app.include_router(auth.router)
 app.include_router(admin.router)
 app.include_router(logos.router)
 app.include_router(updater.router)
+app.include_router(network.router)
 
 
 @app.get("/api/health")

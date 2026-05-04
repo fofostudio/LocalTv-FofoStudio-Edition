@@ -173,11 +173,15 @@ def run_server() -> None:
             "uvicorn.access": {"handlers": ["null"], "level": "WARNING", "propagate": False},
         },
     }
+    # 0.0.0.0 permite que dispositivos en la misma LAN (Chromecast, otros
+    # dispositivos) accedan a la app — sin esto, cast no funciona porque
+    # el ChromeCast no puede llegar a 127.0.0.1 del host.
+    bind_host = os.getenv("LOCALTV_BIND", "0.0.0.0")
     try:
-        log("uvicorn.run() iniciando...")
+        log(f"uvicorn.run() iniciando en {bind_host}:{PORT}...")
         uvicorn.run(
             app,
-            host="127.0.0.1",
+            host=bind_host,
             port=PORT,
             log_config=log_config,
             access_log=False,

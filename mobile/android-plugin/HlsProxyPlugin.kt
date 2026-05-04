@@ -69,6 +69,43 @@ class HlsProxyPlugin : Plugin() {
         call.resolve(ret)
     }
 
+    /**
+     * Devuelve la IP LAN del dispositivo (la que un Chromecast en la
+     * misma red puede alcanzar) y la URL base para casting.
+     */
+    @PluginMethod
+    fun networkInfo(call: PluginCall) {
+        val ip = lanIp()
+        val ret = JSObject().apply {
+            put("lanIp", ip)
+            put("port", port)
+            put("lanUrl", if (port > 0 && ip != null) "http://$ip:$port" else "")
+        }
+        call.resolve(ret)
+    }
+
+    /** Encuentra la IP IPv4 no-loopback de la interfaz Wi-Fi/Ethernet activa. */
+    private fun lanIp(): String? {
+        return try {
+            val ifaces = java.net.NetworkInterface.getNetworkInterfaces()
+            while (ifaces.hasMoreElements()) {
+                val iface = ifaces.nextElement()
+                if (iface.isLoopback || !iface.isUp) continue
+                val addrs = iface.inetAddresses
+                while (addrs.hasMoreElements()) {
+                    val addr = addrs.nextElement()
+                    if (addr is java.net.Inet4Address && !addr.isLoopbackAddress) {
+                        return addr.hostAddress
+                    }
+                }
+            }
+            null
+        } catch (e: Exception) {
+            Log.w(TAG, "lanIp failed: ${e.message}")
+            null
+        }
+    }
+
     override fun handleOnDestroy() {
         try { server?.stop() } catch (_: Exception) {}
         server = null

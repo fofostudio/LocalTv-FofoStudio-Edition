@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { ChannelContext } from '../../context/ChannelContext';
-import { streamPlaylistUrl, isCapacitor } from '../../services/platform';
+import { streamPlaylistUrl, lanStreamUrl, isCapacitor } from '../../services/platform';
 import CastButton from '../CastButton/CastButton';
 import styles from './VideoPlayer.module.css';
 
@@ -126,13 +126,65 @@ export default function VideoPlayer({ channel }) {
     if (next) setCurrentChannel(next);
   };
 
+  // ----- URL pública LAN para Chromecast (resuelta async) -----
+  const [castUrl, setCastUrl] = useState(null);
+  useEffect(() => {
+    if (!channel?.slug) { setCastUrl(null); return; }
+    let cancelled = false;
+    lanStreamUrl(channel.slug).then((u) => { if (!cancelled) setCastUrl(u); });
+    return () => { cancelled = true; };
+  }, [channel?.slug]);
+
+  // ----- Picture-in-Picture ("popup" flotante) -----
+  const [pipSupported, setPipSupported] = useState(false);
+  const [inPip, setInPip] = useState(false);
+  useEffect(() => {
+    setPipSupported(typeof document !== 'undefined' && document.pictureInPictureEnabled);
+    const onEnter = () => setInPip(true);
+    const onLeave = () => setInPip(false);
+    document.addEventListener('enterpictureinpicture', onEnter);
+    document.addEventListener('leavepictureinpicture', onLeave);
+    return () => {
+      document.removeEventListener('enterpictureinpicture', onEnter);
+      document.removeEventListener('leavepictureinpicture', onLeave);
+    };
+  }, []);
+
+  const togglePip = async () => {
+    try {
+      const videoEl = document.querySelector('#video-player video');
+      if (!videoEl) return;
+      if (document.pictureInPictureElement) {
+        await document.exitPictureInPicture();
+      } else {
+        await videoEl.requestPictureInPicture();
+      }
+    } catch (e) {
+      console.warn('PiP error:', e?.message || e);
+    }
+  };
+
   return (
     <div className={styles.playerWrapper}>
       <div id="video-player" ref={playerRef} className={styles.player} />
       {channel && (
         <div className={styles.controls}>
+          {pipSupported && (
+            <button
+              className={`${styles.pipButton} ${inPip ? styles.active : ''}`}
+              onClick={togglePip}
+              disabled={loading || error}
+              title={inPip ? 'Cerrar popup flotante' : 'Abrir en popup flotante'}
+              aria-label="Picture-in-Picture"
+            >
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="5" width="18" height="14" rx="2" ry="2"/>
+                <rect x="12" y="11" width="7" height="6" rx="1" ry="1" fill="currentColor"/>
+              </svg>
+            </button>
+          )}
           <CastButton
-            streamUrl={`${window.location.origin}${BASE_URL}/api/streams/${channel.slug}/playlist.m3u8`}
+            streamUrl={castUrl || `${window.location.origin}${BASE_URL}/api/streams/${channel.slug}/playlist.m3u8`}
             channelName={channel.name}
             logoUrl={channel.logo_url}
             loading={loading}
