@@ -207,18 +207,42 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
             }
             val ct = resp.header("Content-Type") ?: "application/octet-stream"
 
-            // Sub-manifest? Reescribir como el playlist principal.
+            // Sub-manifest? Reescribir como el playlist principal (con guard).
             val isManifest =
                 target.substringBefore('?').endsWith(".m3u8", ignoreCase = true) ||
                 ct.contains("mpegurl", ignoreCase = true)
             if (isManifest) {
                 val text = resp.body?.string().orEmpty()
+                if (ct.contains("html") || !text.trimStart().startsWith("#EXTM3U")) {
+                    return error502("Sub-manifest inválido: upstream devolvió HTML/no-HLS")
+                }
                 val rewritten = rewriteManifest(text, base = target, slug = slug)
                 return manifest(rewritten)
             }
 
-            // Binario (segmento .ts) — copiar bytes y headers de cache/range
+            // Binario (segmento .ts/mp4/aac) — validar antes de pasar a la
+            // WebView. Si dejamos pasar HTML/JSON disfrazado, hls.js tira
+            // demuxer-error: could not parse.
+            if (ct.contains("html")) {
+                return error502("Segmento inválido: upstream devolvió HTML")
+            }
+
             val bytes = resp.body?.bytes() ?: ByteArray(0)
+            if (bytes.size >= 8) {
+                val b0 = bytes[0].toInt() and 0xFF
+                val sig4 = String(bytes, 4, 4, Charsets.ISO_8859_1)
+                val looksTs  = b0 == 0x47
+                val looksMp4 = sig4 in listOf("ftyp", "moof", "styp", "sidx", "free")
+                val looksAac = (bytes[0].toInt() and 0xFF) == 0xFF &&
+                               (bytes[1].toInt() and 0xF0) == 0xF0
+                val looksId3 = String(bytes, 0, 3, Charsets.ISO_8859_1) == "ID3"
+                if (!(looksTs || looksMp4 || looksAac || looksId3)) {
+                    val preview = String(bytes, 0, minOf(200, bytes.size), Charsets.ISO_8859_1).lowercase()
+                    if (preview.contains("<html") || preview.contains("<!doctype") || preview.contains("<head")) {
+                        return error502("Segmento inválido: bytes parecen HTML")
+                    }
+                }
+            }
             val response = newFixedLengthResponse(
                 statusFromCode(resp.code), ct, bytes.inputStream(), bytes.size.toLong()
             )

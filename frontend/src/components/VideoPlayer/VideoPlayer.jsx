@@ -133,8 +133,12 @@ export default function VideoPlayer({ channel }) {
         enableWorker: true,
         lowLatencyMode: false,
         backBufferLength: 30,
-        manifestLoadingMaxRetry: 1,
-        fragLoadingMaxRetry: 2,
+        manifestLoadingMaxRetry: 2,
+        manifestLoadingRetryDelay: 800,
+        levelLoadingMaxRetry: 3,
+        levelLoadingRetryDelay: 800,
+        fragLoadingMaxRetry: 4,
+        fragLoadingRetryDelay: 600,
       });
       hlsRef.current = hls;
       hls.loadSource(proxyUrl);
@@ -143,14 +147,37 @@ export default function VideoPlayer({ channel }) {
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         video.play().catch(() => { /* autoplay bloqueado, el user le da play */ });
       });
+
+      // Recovery automático: cuando hls.js dice "fatal", primero
+      // intentamos recoverMediaError() / startLoad() según el tipo. Si
+      // después de 2 errores en una ventana corta sigue fallando,
+      // mostramos el panel de error y damos opción de saltar al próximo
+      // canal live.
+      let fatalCount = 0;
+      let fatalWindowStart = 0;
       hls.on(Hls.Events.ERROR, (_evt, data) => {
-        if (data.fatal) {
-          console.error('hls.js fatal:', data);
-          if (!cancelled) {
-            setError(describeError(data.details));
-            setLoading(false);
+        if (cancelled) return;
+        const now = Date.now();
+        // Reset de la ventana después de 8s sin errores
+        if (now - fatalWindowStart > 8000) { fatalWindowStart = now; fatalCount = 0; }
+
+        if (!data.fatal) return;
+        fatalCount += 1;
+        console.warn(`[hls] fatal ${fatalCount}: ${data.type} / ${data.details}`);
+
+        // Primer fatal: intentar recovery
+        if (fatalCount <= 1) {
+          if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+            try { hls.recoverMediaError(); return; } catch (_) {}
+          }
+          if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+            try { hls.startLoad(); return; } catch (_) {}
           }
         }
+
+        // Segundo fatal o no recuperable → mostrar panel
+        setError(describeError(data.details));
+        setLoading(false);
       });
     })();
 

@@ -296,6 +296,13 @@ async def proxy_segment(slug: str, u: str, request: Request):
 
         if _is_manifest(ct, u):
             text = head.text
+            # Validar manifest (mismo guard que en /playlist.m3u8)
+            if "html" in ct.lower() or not text.lstrip().startswith("#EXTM3U"):
+                await client.aclose()
+                raise HTTPException(
+                    status_code=502,
+                    detail="Sub-manifest inválido: el upstream no devolvió HLS",
+                )
             rewritten = _rewrite_manifest(text, base=u, slug=slug)
             await client.aclose()
             return Response(
@@ -307,8 +314,34 @@ async def proxy_segment(slug: str, u: str, request: Request):
                 },
             )
 
-        # Binario (segmento .ts típicamente). Devolver con Content-Type del upstream.
+        # Binario (segmento .ts típicamente). Validar que NO sea HTML — si lo
+        # es, el demuxer de hls.js explota con 'demuxer-error: could not parse'.
+        if "html" in ct.lower():
+            await client.aclose()
+            raise HTTPException(
+                status_code=502,
+                detail="Segmento inválido: el upstream devolvió HTML",
+            )
+
+        # Validación bytes: MPEG-TS empieza con sync byte 0x47 cada 188 bytes.
+        # fragmented MP4 empieza con 'ftyp' o 'moof' boxes (4 bytes en posición 4).
         body = head.content
+        if body and len(body) >= 8:
+            sig = body[:8]
+            looks_ts = body[0] == 0x47
+            looks_mp4 = sig[4:8] in (b"ftyp", b"moof", b"styp", b"sidx", b"free")
+            looks_aac = sig[:4] in (b"\xff\xf1", b"\xff\xf9") or sig[:3] == b"ID3"
+            # Accept ts/mp4/aac/(unknown empty para 206 partial). Si no es nada
+            # de eso y hay bytes, probablemente sea HTML/JSON disfrazado.
+            if not (looks_ts or looks_mp4 or looks_aac):
+                # Buscar "<html" o "<!DOCTYPE" en los primeros 200 bytes
+                preview = body[:200].lower()
+                if b"<html" in preview or b"<!doctype" in preview or b"<head" in preview:
+                    await client.aclose()
+                    raise HTTPException(
+                        status_code=502,
+                        detail="Segmento inválido: bytes parecen HTML",
+                    )
         await client.aclose()
 
         resp_headers = {
