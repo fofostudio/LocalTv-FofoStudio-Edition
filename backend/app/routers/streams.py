@@ -240,9 +240,15 @@ async def proxy_playlist(slug: str):
             timeout=15, headers=UPSTREAM_HEADERS, follow_redirects=True
         ) as client:
             r = await client.get(real_url)
-            r.raise_for_status()
             text = r.text
             ct = (r.headers.get("content-type") or "").lower()
+            # Aceptar solo 200. tvtvhd a veces responde 404 con
+            # Content-Type m3u8 y body "not found".
+            if r.status_code != 200:
+                raise HTTPException(
+                    status_code=502,
+                    detail=f"Upstream HTTP {r.status_code} para playlist",
+                )
     except httpx.HTTPError as e:
         raise HTTPException(status_code=502, detail=f"No se pudo descargar el manifest: {e}")
 
@@ -293,9 +299,20 @@ async def proxy_segment(slug: str, u: str, request: Request):
         head = await client.get(u, headers=forward_headers)
         ct = head.headers.get("content-type", "")
 
+        # CRÍTICO: chequear el status code primero. tvtvhd a veces
+        # responde 404 con Content-Type: application/vnd.apple.mpegurl
+        # y body "not found" (10 bytes). Sin este guard pasaba esos
+        # bytes al WebView y hls.js explotaba con demuxer-error.
+        # Aceptamos 200 (OK) y 206 (Partial Content para segmentos con Range).
+        if head.status_code not in (200, 206):
+            await client.aclose()
+            raise HTTPException(
+                status_code=502,
+                detail=f"Upstream HTTP {head.status_code} para segmento",
+            )
+
         if _is_manifest(ct, u):
             text = head.text
-            # Validar manifest (mismo guard que en /playlist.m3u8)
             if "html" in ct.lower() or not text.lstrip().startswith("#EXTM3U"):
                 await client.aclose()
                 raise HTTPException(
@@ -314,10 +331,7 @@ async def proxy_segment(slug: str, u: str, request: Request):
             )
 
         # Binario (segmento .ts/mp4/aac/m4s/CMAF/cifrado/...). Solo
-        # descartamos lo OBVIAMENTE roto: Content-Type=html. La validación
-        # agresiva de bytes (sync 0x47, magic ftyp, AAC ADTS, ID3) bloqueaba
-        # segmentos válidos pero con formatos inesperados (CMAF, encrypted,
-        # m4s) y producía demuxer-error en TODOS los canales.
+        # descartamos lo OBVIAMENTE roto: Content-Type=html.
         if "html" in ct.lower():
             await client.aclose()
             raise HTTPException(
@@ -325,6 +339,20 @@ async def proxy_segment(slug: str, u: str, request: Request):
                 detail="Segmento inválido: el upstream devolvió HTML",
             )
         body = head.content
+
+        # Sanity: si el body es muy chico (<32 bytes) y NO es "not found"
+        # pero tampoco bytes binarios, descartar. "not found" pasa por aquí.
+        if len(body) < 32:
+            try:
+                preview = body.decode("ascii", errors="ignore").strip().lower()
+                if preview in ("not found", "404", "404 not found", "forbidden", "unauthorized"):
+                    await client.aclose()
+                    raise HTTPException(
+                        status_code=502,
+                        detail=f"Segmento inválido: upstream respondió '{preview}'",
+                    )
+            except Exception:
+                pass
         await client.aclose()
 
         resp_headers = {

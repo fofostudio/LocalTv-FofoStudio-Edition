@@ -202,7 +202,11 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
 
         val req = builder.build()
         http.newCall(req).execute().use { resp ->
-            if (!resp.isSuccessful && resp.code !in 200..299 && resp.code != 206) {
+            // CRÍTICO: aceptar SOLO 200 OK y 206 Partial Content. tvtvhd
+            // a veces responde 404 con Content-Type m3u8 y body "not found"
+            // — sin este guard, ese 'not found' llegaba al player y
+            // disparaba el demuxer-error.
+            if (resp.code != 200 && resp.code != 206) {
                 return error502("Upstream HTTP ${resp.code}")
             }
             val ct = resp.header("Content-Type") ?: "application/octet-stream"
@@ -221,15 +225,20 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
             }
 
             // Binario (segmento .ts/mp4/aac/m4s/CMAF/cifrado/...).
-            // Solo descartamos lo OBVIAMENTE roto: Content-Type=html. El
-            // resto lo pasamos al player tal cual — la validación agresiva
-            // de bytes (sync 0x47, magic ftyp, etc) bloqueaba segmentos
-            // válidos pero con formatos inesperados (CMAF, encrypted, m4s)
-            // y resultaba en demuxer-error en TODOS los canales.
             if (ct.contains("html")) {
                 return error502("Segmento inválido: upstream devolvió HTML")
             }
             val bytes = resp.body?.bytes() ?: ByteArray(0)
+            // Sanity: si el body es muy chico, podría ser "not found" / "404"
+            // disfrazado con Content-Type binario.
+            if (bytes.size < 32) {
+                val preview = String(bytes, 0, bytes.size, Charsets.US_ASCII)
+                    .trim().lowercase()
+                if (preview in listOf("not found", "404", "404 not found",
+                                      "forbidden", "unauthorized")) {
+                    return error502("Segmento inválido: upstream respondió '$preview'")
+                }
+            }
             val response = newFixedLengthResponse(
                 statusFromCode(resp.code), ct, bytes.inputStream(), bytes.size.toLong()
             )
