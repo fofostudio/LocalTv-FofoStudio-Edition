@@ -19,10 +19,27 @@
 param(
     [switch]$SkipFrontend,
     [switch]$SkipInstaller,
-    [switch]$Clean
+    [switch]$Clean,
+    [string]$Version = ""
 )
 
 $ErrorActionPreference = "Stop"
+
+# Resolver version: -Version > $env:LOCALTV_VERSION > tag de git > "1.0.0"
+if (-not $Version) {
+    if ($env:LOCALTV_VERSION) {
+        $Version = $env:LOCALTV_VERSION
+    } else {
+        try {
+            $tag = (& git describe --tags --abbrev=0 2>$null).Trim()
+            if ($LASTEXITCODE -eq 0 -and $tag) {
+                $Version = $tag.TrimStart("v")
+            }
+        } catch { }
+        if (-not $Version) { $Version = "1.0.0" }
+    }
+}
+Write-Host "Build version: $Version" -ForegroundColor DarkCyan
 
 function Step($msg)  { Write-Host "`n==> $msg" -ForegroundColor Cyan }
 function OK($msg)    { Write-Host "[OK] $msg"  -ForegroundColor Green }
@@ -207,11 +224,11 @@ if (-not (Test-Path $exePath)) {
 OK "Generado $exePath"
 
 # ----------------------------------------------------------------------------
-# 8. Inno Setup → dist/LocalTv-Setup-1.0.0.exe
+# 8. Inno Setup → dist/LocalTv-Setup-{version}.exe
 # ----------------------------------------------------------------------------
 if (-not $SkipInstaller) {
-    Step "Compilando instalador con Inno Setup"
-    & $iscc (Join-Path $Root "installer\LocalTv.iss")
+    Step "Compilando instalador con Inno Setup (v$Version)"
+    & $iscc "/DMyAppVersion=$Version" (Join-Path $Root "installer\LocalTv.iss")
     if ($LASTEXITCODE -ne 0) { Err "Inno Setup falló"; exit 1 }
 
     $setupPath = Get-ChildItem (Join-Path $Root "dist") -Filter "LocalTv-Setup-*.exe" |
@@ -230,6 +247,6 @@ Write-Host ""
 Write-Host "Salidas:" -ForegroundColor White
 Write-Host "  - App portable: dist\LocalTv\LocalTv.exe"
 if (-not $SkipInstaller) {
-    Write-Host "  - Instalador:   dist\LocalTv-Setup-1.0.0.exe"
+    Write-Host "  - Instalador:   dist\LocalTv-Setup-$Version.exe"
 }
 Write-Host ""

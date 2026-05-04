@@ -25,11 +25,13 @@ cd "$ROOT"
 SKIP_FRONTEND=0
 SKIP_DMG=0
 CLEAN=0
+VERSION=""
 for arg in "$@"; do
   case "$arg" in
     --skip-frontend) SKIP_FRONTEND=1 ;;
     --skip-dmg)      SKIP_DMG=1 ;;
     --clean)         CLEAN=1 ;;
+    --version=*)     VERSION="${arg#--version=}" ;;
     -h|--help)
       sed -n '2,20p' "$0"
       exit 0
@@ -37,6 +39,17 @@ for arg in "$@"; do
     *) echo "[!] Argumento desconocido: $arg" >&2; exit 1 ;;
   esac
 done
+
+# Resolver versión: --version > $LOCALTV_VERSION > tag de git > "1.0.0"
+if [[ -z "$VERSION" ]]; then
+  VERSION="${LOCALTV_VERSION:-}"
+fi
+if [[ -z "$VERSION" ]]; then
+  if tag="$(git describe --tags --abbrev=0 2>/dev/null)"; then
+    VERSION="${tag#v}"
+  fi
+fi
+VERSION="${VERSION:-1.0.0}"
 
 # ---- helpers --------------------------------------------------------------
 step() { printf "\n\033[1;36m==> %s\033[0m\n" "$*"; }
@@ -158,8 +171,8 @@ if [[ ! -f "$ROOT/frontend/dist/index.html" ]]; then
 fi
 
 # ---- 7. PyInstaller → dist/LocalTv.app -------------------------------------
-step "Compilando con PyInstaller (.app bundle)"
-"$VENV_PYI" --noconfirm --clean "$ROOT/installer/LocalTv-mac.spec"
+step "Compilando con PyInstaller (.app bundle, v$VERSION)"
+LOCALTV_VERSION="$VERSION" "$VENV_PYI" --noconfirm --clean "$ROOT/installer/LocalTv-mac.spec"
 
 APP_PATH="$ROOT/dist/LocalTv.app"
 if [[ ! -d "$APP_PATH" ]]; then
@@ -170,8 +183,7 @@ ok "Generado $APP_PATH"
 
 # ---- 8. DMG con hdiutil ----------------------------------------------------
 if [[ $SKIP_DMG -eq 0 ]]; then
-  step "Empaquetando DMG con hdiutil"
-  VERSION="1.0.0"
+  step "Empaquetando DMG con hdiutil (v$VERSION)"
   DMG_PATH="$ROOT/dist/LocalTv-$VERSION.dmg"
   STAGE="$ROOT/dist/dmg-stage"
 
@@ -201,7 +213,7 @@ echo ""
 echo "Salidas:"
 echo "  - App bundle:  dist/LocalTv.app"
 if [[ $SKIP_DMG -eq 0 ]]; then
-  echo "  - Instalador:  dist/LocalTv-1.0.0.dmg"
+  echo "  - Instalador:  dist/LocalTv-$VERSION.dmg"
 fi
 echo ""
 echo "Para probar el .app sin instalar:"

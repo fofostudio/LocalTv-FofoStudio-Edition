@@ -44,9 +44,20 @@ jobs:
         # Choco viene preinstalado en windows-latest. Más confiable que winget en CI.
         run: choco install innosetup -y --no-progress
 
+      - name: Resolve version
+        id: ver
+        shell: pwsh
+        run: |
+          $ref = "${{ github.ref_name }}"
+          if ($ref -match '^v\d+\.\d+\.\d+') { $v = $ref.TrimStart('v') } else { $v = '1.0.0' }
+          "version=$v" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          Write-Host "Version: $v"
+
       - name: Build (.\build.ps1)
         shell: pwsh
-        run: .\build.ps1
+        env:
+          LOCALTV_VERSION: ${{ steps.ver.outputs.version }}
+        run: .\build.ps1 -Version $env:LOCALTV_VERSION
 
       - name: Upload installer artifact
         uses: actions/upload-artifact@v4
@@ -79,10 +90,24 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
+      - name: Resolve version
+        id: ver
+        run: |
+          ref="${{ github.ref_name }}"
+          if [[ "$ref" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+            v="${ref#v}"
+          else
+            v="1.0.0"
+          fi
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          echo "Version: $v"
+
       - name: Build (./build.sh)
+        env:
+          LOCALTV_VERSION: ${{ steps.ver.outputs.version }}
         run: |
           chmod +x build.sh
-          ./build.sh
+          ./build.sh --version="$LOCALTV_VERSION"
 
       - name: Upload installer artifact
         uses: actions/upload-artifact@v4

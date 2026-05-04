@@ -10,7 +10,10 @@
 ; ============================================================================
 
 #define MyAppName        "LocalTv"
-#define MyAppVersion     "1.0.0"
+; MyAppVersion lo pasa build.ps1 vía /DMyAppVersion=X.Y.Z. Default si no.
+#ifndef MyAppVersion
+  #define MyAppVersion   "1.0.0"
+#endif
 #define MyAppPublisher   "FofoStudio"
 #define MyAppURL         "https://github.com/fofostudio"
 #define MyAppExeName     "LocalTv.exe"

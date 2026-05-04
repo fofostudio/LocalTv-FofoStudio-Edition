@@ -10,6 +10,7 @@ Genera dist/LocalTv.app (bundle nativo) que incluye:
 - el frontend buildeado (frontend/dist) embebido
 - el ícono custom (.icns)
 """
+import os
 import sys
 from pathlib import Path
 
@@ -19,6 +20,9 @@ ROOT = Path(SPECPATH).parent.resolve()
 LAUNCHER = str(ROOT / "installer" / "launcher.py")
 ICON_ICNS = str(ROOT / "installer" / "icon.icns")
 ICON_PNG = str(ROOT / "installer" / "icon.png")
+
+# Versión: env var LOCALTV_VERSION (la pasa build.sh) > "1.0.0"
+APP_VERSION = os.environ.get("LOCALTV_VERSION", "1.0.0")
 
 DATAS = [
     (str(ROOT / "frontend" / "dist"), "frontend_dist"),
@@ -129,8 +133,8 @@ app = BUNDLE(
     info_plist={
         "CFBundleName": "LocalTv",
         "CFBundleDisplayName": "LocalTv",
-        "CFBundleShortVersionString": "1.0.0",
-        "CFBundleVersion": "1.0.0",
+        "CFBundleShortVersionString": APP_VERSION,
+        "CFBundleVersion": APP_VERSION,
         "CFBundleIdentifier": "com.fofostudio.localtv",
         "NSHighResolutionCapable": True,
         "LSMinimumSystemVersion": "11.0",
