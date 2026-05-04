@@ -125,17 +125,16 @@ mobile/
 | Health check | `GET /api/streams/health` | Probes paralelos JS con `CapacitorHttp` |
 | Reproductor | Clappr + hls.js (browser) | Clappr + hls.js (WebView) o ExoPlayer en futuro |
 
-## Limitaciones / TODO
+## Estado
 
-- [x] Plugin Kotlin proxy HLS con Referer
+- [x] Plugin Kotlin proxy HLS con Referer (HlsProxyServer + HlsProxyPlugin)
 - [x] Capacitor config + scaffolding
-- [ ] `install-plugin.mjs` — copia android-plugin/*.kt al proyecto generado y
-      registra el plugin en MainActivity
-- [ ] Reescribir `services/api.js` con rama `isCapacitor()` que use
-      `@capacitor-community/sqlite`
-- [ ] Reescribir scraper de tvtvhd en JS (lee HTML con CapacitorHttp y
-      regex equivalente al de `backend/app/services/scraper.py`)
-- [ ] Cargar `public-seed/channels.json` al primer arranque
+- [x] `install-plugin.mjs` — copia .kt + agrega deps Gradle + cleartext en Manifest
+- [x] `services/api.js` con rama `isCapacitor()` que usa
+      `@capacitor-community/sqlite` (lazy import)
+- [x] Scraper de tvtvhd en JS con `CapacitorHttp` (port directo del Python)
+- [x] Health check JS con probes paralelos (concurrency 8)
+- [x] Cargar `public-seed/channels.json` al primer arranque
 - [ ] CI: job en GitHub Actions con `runs-on: ubuntu-latest` + Android SDK
       action que produce APK debug y lo adjunta al Release
 - [ ] Considerar ExoPlayer nativo en lugar de hls.js para mejor calidad de

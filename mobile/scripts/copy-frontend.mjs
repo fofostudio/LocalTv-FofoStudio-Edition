@@ -21,6 +21,15 @@ if (fs.existsSync(DST)) {
 fs.mkdirSync(DST, { recursive: true });
 fs.cpSync(SRC, DST, { recursive: true });
 
+// También copiamos el seed al bundle (mobile/public/public-seed/) para que
+// el WebView pueda hacer `fetch('/public-seed/channels.json')` offline en
+// el primer arranque.
+const SEED_SRC = path.resolve(ROOT, 'public-seed');
+const SEED_DST = path.resolve(DST, 'public-seed');
+if (fs.existsSync(SEED_SRC)) {
+  fs.cpSync(SEED_SRC, SEED_DST, { recursive: true });
+}
+
 const count = (function countFiles(dir) {
   let n = 0;
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {

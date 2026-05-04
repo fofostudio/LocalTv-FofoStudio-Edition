@@ -13,5 +13,9 @@
     "react-dom": "^19.2.5",
     "react-router-dom": "^7.14.2",
     "vite": "^8.0.10"
+  },
+  "dependencies": {
+    "@capacitor-community/sqlite": "^6.0.0",
+    "@capacitor/core": "^6.1.0"
   }
 }
