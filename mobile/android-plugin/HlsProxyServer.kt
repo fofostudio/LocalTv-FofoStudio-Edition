@@ -220,29 +220,16 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
                 return manifest(rewritten)
             }
 
-            // Binario (segmento .ts/mp4/aac) — validar antes de pasar a la
-            // WebView. Si dejamos pasar HTML/JSON disfrazado, hls.js tira
-            // demuxer-error: could not parse.
+            // Binario (segmento .ts/mp4/aac/m4s/CMAF/cifrado/...).
+            // Solo descartamos lo OBVIAMENTE roto: Content-Type=html. El
+            // resto lo pasamos al player tal cual — la validación agresiva
+            // de bytes (sync 0x47, magic ftyp, etc) bloqueaba segmentos
+            // válidos pero con formatos inesperados (CMAF, encrypted, m4s)
+            // y resultaba en demuxer-error en TODOS los canales.
             if (ct.contains("html")) {
                 return error502("Segmento inválido: upstream devolvió HTML")
             }
-
             val bytes = resp.body?.bytes() ?: ByteArray(0)
-            if (bytes.size >= 8) {
-                val b0 = bytes[0].toInt() and 0xFF
-                val sig4 = String(bytes, 4, 4, Charsets.ISO_8859_1)
-                val looksTs  = b0 == 0x47
-                val looksMp4 = sig4 in listOf("ftyp", "moof", "styp", "sidx", "free")
-                val looksAac = (bytes[0].toInt() and 0xFF) == 0xFF &&
-                               (bytes[1].toInt() and 0xF0) == 0xF0
-                val looksId3 = String(bytes, 0, 3, Charsets.ISO_8859_1) == "ID3"
-                if (!(looksTs || looksMp4 || looksAac || looksId3)) {
-                    val preview = String(bytes, 0, minOf(200, bytes.size), Charsets.ISO_8859_1).lowercase()
-                    if (preview.contains("<html") || preview.contains("<!doctype") || preview.contains("<head")) {
-                        return error502("Segmento inválido: bytes parecen HTML")
-                    }
-                }
-            }
             val response = newFixedLengthResponse(
                 statusFromCode(resp.code), ct, bytes.inputStream(), bytes.size.toLong()
             )

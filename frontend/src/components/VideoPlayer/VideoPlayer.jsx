@@ -145,15 +145,24 @@ export default function VideoPlayer({ channel }) {
       }
 
       const hls = new Hls({
+        // enableWorker: hls.js usa un Web Worker para hacer el transmuxing
+        // MPEG-TS → fMP4 sin bloquear el main thread. CRÍTICO en Android
+        // WebView: sin esto, todos los streams TS dan demuxer-error porque
+        // Chrome no soporta MPEG-TS nativo en MediaSource.
         enableWorker: true,
         lowLatencyMode: false,
         backBufferLength: 30,
+        // Reintentos generosos para absorber baches transitorios del proxy
         manifestLoadingMaxRetry: 2,
         manifestLoadingRetryDelay: 800,
         levelLoadingMaxRetry: 3,
         levelLoadingRetryDelay: 800,
         fragLoadingMaxRetry: 4,
         fragLoadingRetryDelay: 600,
+        // En WebView Android, software AES garantiza que cifrado no falle
+        enableSoftwareAES: true,
+        // No abortar fragments que tarden poquito más
+        nudgeMaxRetry: 5,
       });
       hlsRef.current = hls;
       hls.loadSource(proxyUrl);
@@ -251,7 +260,6 @@ export default function VideoPlayer({ channel }) {
         // x-webkit-airplay habilita el botón AirPlay nativo en iOS/macOS Safari
         x-webkit-airplay="allow"
         poster={channel?.logo_url || undefined}
-        crossOrigin="anonymous"
       />
 
       {channel && (
