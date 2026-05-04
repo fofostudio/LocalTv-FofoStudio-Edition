@@ -197,6 +197,13 @@
 }
 
 @media (max-width: 768px) {
+  /* El scroll vive en .routesContainer; .appContainer queda fijo al
+     viewport para que el header no se mueva al scrollear. */
+  .routesContainer {
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
   .header {
     grid-template-columns: auto 1fr;
     height: auto;

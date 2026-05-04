@@ -165,13 +165,14 @@
   .rowGrid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
 }
 
-/* ====== Mobile: layout en una columna scrolleable ====== */
+/* ====== Mobile: layout en una columna scrolleable ======
+   El scroll lo maneja .routesContainer del App. Acá solo desactivamos
+   nuestro overflow:hidden propio y dejamos que el contenido fluya. */
 @media (max-width: 768px) {
   .home {
     height: auto;
     min-height: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: visible;
   }
   .mainContent {
     display: flex;
