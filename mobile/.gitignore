@@ -11,5 +11,10 @@ node_modules/
 *.apk
 *.aab
 *.jks
-*.keystore
 keystore.properties
+
+# Keystores: las propias del usuario quedan ignored, pero la fija
+# del proyecto (localtv.keystore) SÍ se versiona — necesaria para
+# que todas las builds firmen consistente y los updates funcionen.
+*.keystore
+!localtv.keystore
