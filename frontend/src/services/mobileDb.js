@@ -186,14 +186,25 @@ const sqliteBackend = {
         logo_url TEXT,
         category_id INTEGER NOT NULL,
         is_active INTEGER NOT NULL DEFAULT 1,
+        region TEXT,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
       );
       CREATE INDEX IF NOT EXISTS idx_channels_slug ON channels(slug);
       CREATE INDEX IF NOT EXISTS idx_channels_active ON channels(is_active);
+      CREATE INDEX IF NOT EXISTS idx_channels_region ON channels(region);
       CREATE TABLE IF NOT EXISTS favorites (
         slug TEXT PRIMARY KEY
       );
     `);
+    // Migración idempotente: si la BD existía sin la columna region, agregarla.
+    try {
+      const r = await db.query("PRAGMA table_info(channels)");
+      const cols = (r.values || []).map((row) => row.name);
+      if (!cols.includes('region')) {
+        await db.execute('ALTER TABLE channels ADD COLUMN region TEXT');
+        await db.execute('CREATE INDEX IF NOT EXISTS idx_channels_region ON channels(region)');
+      }
+    } catch (_) { /* ignore */ }
 
     const r = await db.query('SELECT COUNT(*) as n FROM channels');
     const n = r?.values?.[0]?.n ?? 0;
@@ -207,8 +218,8 @@ const sqliteBackend = {
     );
     const seed = await loadSeed();
     if (!seed?.channels?.length) return;
-    const STMT = `INSERT OR IGNORE INTO channels (name, slug, stream_url, logo_url, category_id, is_active)
-                  VALUES (?, ?, ?, ?, ?, ?)`;
+    const STMT = `INSERT OR IGNORE INTO channels (name, slug, stream_url, logo_url, category_id, is_active, region)
+                  VALUES (?, ?, ?, ?, ?, ?, ?)`;
     const set = seed.channels.map((c) => ({
       statement: STMT,
       values: [
@@ -218,6 +229,7 @@ const sqliteBackend = {
         c.logo_url || null,
         c.category_id || 1,
         c.is_active === false ? 0 : 1,
+        c.region || null,
       ],
     }));
     await db.executeSet(set);
@@ -226,7 +238,7 @@ const sqliteBackend = {
 
   async getChannels() {
     const r = await this._db.query(
-      `SELECT id, name, slug, stream_url, logo_url, category_id,
+      `SELECT id, name, slug, stream_url, logo_url, category_id, region,
               CASE WHEN is_active = 1 THEN 1 ELSE 0 END as is_active
        FROM channels ORDER BY name`,
     );
@@ -294,6 +306,7 @@ const localStorageBackend = {
         logo_url: c.logo_url || null,
         category_id: c.category_id || 1,
         is_active: c.is_active !== false,
+        region: c.region || null,
       }));
       localStorage.setItem(LS_CHANNELS, JSON.stringify(channels));
       console.log(`[localStorage] seed inicial: ${channels.length} canales`);

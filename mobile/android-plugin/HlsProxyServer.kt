@@ -171,7 +171,21 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
         val req = upstreamHeaders(Request.Builder().url(realUrl).get()).build()
         http.newCall(req).execute().use { resp ->
             if (!resp.isSuccessful) return error502("Upstream HTTP ${resp.code}")
+            val ct = (resp.header("Content-Type") ?: "").lowercase()
             val text = resp.body?.string().orEmpty()
+
+            // Evitar demuxer-error: el upstream a veces entrega HTML en
+            // lugar de m3u8 cuando el canal se cayó. Detectamos eso y
+            // devolvemos 502 limpio para que hls.js muestre "no disponible"
+            // en lugar de explotar parseando.
+            if (ct.contains("html")) return error502(
+                "Canal no disponible: upstream devolvió HTML"
+            )
+            val head = text.trimStart().take(32)
+            if (!head.startsWith("#EXTM3U")) return error502(
+                "Canal no disponible: manifest sin signature #EXTM3U"
+            )
+
             val rewritten = rewriteManifest(text, base = realUrl, slug = slug)
             return manifest(rewritten)
         }

@@ -9,6 +9,7 @@ class ChannelBase(BaseModel):
     logo_url: Optional[str] = None
     category_id: int
     is_active: bool = True
+    region: Optional[str] = None
 
 class ChannelCreate(ChannelBase):
     pass
@@ -20,6 +21,7 @@ class ChannelUpdate(BaseModel):
     logo_url: Optional[str] = None
     category_id: Optional[int] = None
     is_active: Optional[bool] = None
+    region: Optional[str] = None
 
 class ChannelRead(ChannelBase):
     id: int

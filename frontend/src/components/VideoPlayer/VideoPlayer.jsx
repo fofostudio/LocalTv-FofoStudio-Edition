@@ -20,7 +20,7 @@ import styles from './VideoPlayer.module.css';
 const BASE_URL = import.meta.env.VITE_API_URL || '';
 
 function describeError(detail) {
-  // hls.js error.details enums los más comunes
+  // hls.js error.details + casos del demuxer (mediaError) los más comunes
   const d = String(detail || '').toLowerCase();
   if (d.includes('manifestloaderror') || d.includes('manifestparsingerror')) {
     return {
@@ -36,11 +36,20 @@ function describeError(detail) {
       kind: 'network',
     };
   }
-  if (d.includes('levelloaderror')) {
+  if (d.includes('levelloaderror') || d.includes('levelparsingerror')) {
     return {
       title: 'Nivel de calidad no disponible',
       message: 'El stream no se pudo cargar.',
       kind: 'network',
+    };
+  }
+  // demuxer-error: could not parse — el contenido no es un m3u8 válido
+  // (típico cuando el upstream cae y devuelve HTML / página vacía).
+  if (d.includes('demuxer') || d.includes('parse') || d.includes('bufferappenderror')) {
+    return {
+      title: 'Stream corrupto o no disponible',
+      message: 'El servidor entregó un manifest inválido. Probá otro canal.',
+      kind: 'unavailable',
     };
   }
   return {

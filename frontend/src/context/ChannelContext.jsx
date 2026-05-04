@@ -3,11 +3,20 @@ import { api } from '../services/api';
 
 export const ChannelContext = createContext();
 
+/** Normaliza nombres: limpia HD/SD/FHD/4K, normaliza espacios. */
+function cleanName(name) {
+  return (name || '')
+    .replace(/\b(HD|SD|FHD|UHD|4K|FULL HD)\b/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export function ChannelProvider({ children }) {
   const [channels, setChannels] = useState([]);
   const [categories, setCategories] = useState([]);
   const [currentChannel, setCurrentChannelState] = useState(null);
   const [activeCategory, setActiveCategory] = useState('all');
+  const [activeRegion, setActiveRegion] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -39,7 +48,13 @@ export function ChannelProvider({ children }) {
   useEffect(() => {
     Promise.all([api.getChannels(), api.getCategories()])
       .then(([channelsData, categoriesData]) => {
-        setChannels(channelsData);
+        // Estandarizar nombres (quitar HD/SD/etc) sin perder el original
+        const cleaned = (channelsData || []).map((c) => ({
+          ...c,
+          name: cleanName(c.name),
+          _originalName: c.name,
+        }));
+        setChannels(cleaned);
         setCategories(categoriesData);
         setLoading(false);
       })
@@ -65,11 +80,21 @@ export function ChannelProvider({ children }) {
 
   const isLive = useCallback((slug) => liveSlugs.has(slug), [liveSlugs]);
 
-  // Filtrar canales por búsqueda + categoría
+  // Lista de regiones únicas, ordenadas (regions disponibles para el filtro UI)
+  const regions = useMemo(() => {
+    const set = new Set();
+    for (const c of channels) if (c.region) set.add(c.region);
+    return [...set].sort();
+  }, [channels]);
+
+  // Filtrar canales por búsqueda + categoría + región
   const filteredChannels = useMemo(() => {
     let list = channels;
     if (activeCategory !== 'all') {
       list = list.filter((ch) => ch.category_id === activeCategory);
+    }
+    if (activeRegion !== 'all') {
+      list = list.filter((ch) => ch.region === activeRegion);
     }
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
@@ -82,7 +107,7 @@ export function ChannelProvider({ children }) {
       if (al !== bl) return al - bl;
       return a.name.localeCompare(b.name);
     });
-  }, [channels, activeCategory, searchQuery, liveSlugs]);
+  }, [channels, activeCategory, activeRegion, searchQuery, liveSlugs]);
 
   // Próximo canal LIVE distinto al actual (para auto-skip cuando un canal falla)
   const nextLiveChannel = useCallback((excludeSlug) => {
@@ -100,6 +125,9 @@ export function ChannelProvider({ children }) {
     setCurrentChannel,
     activeCategory,
     setActiveCategory,
+    activeRegion,
+    setActiveRegion,
+    regions,
     searchQuery,
     setSearchQuery,
     filteredChannels,

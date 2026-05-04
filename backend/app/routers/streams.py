@@ -226,7 +226,14 @@ async def get_stream(slug: str):
 
 @router.get("/{slug}/playlist.m3u8")
 async def proxy_playlist(slug: str):
-    """Resuelve el slug, descarga el manifest, reescribe segmentos y lo devuelve."""
+    """Resuelve el slug, descarga el manifest, reescribe segmentos y lo devuelve.
+
+    Validaciones para evitar el bug 'demuxer-error: could not parse' que
+    aparece cuando el proxy entrega contenido que no es un m3u8 válido
+    (típicamente HTML cuando el upstream se cayó):
+      - Content-Type del upstream no debe ser text/html
+      - El body debe empezar con #EXTM3U (signature obligatoria del HLS)
+    """
     real_url = await get_stream_url(slug)
 
     try:
@@ -236,8 +243,23 @@ async def proxy_playlist(slug: str):
             r = await client.get(real_url)
             r.raise_for_status()
             text = r.text
+            ct = (r.headers.get("content-type") or "").lower()
     except httpx.HTTPError as e:
         raise HTTPException(status_code=502, detail=f"No se pudo descargar el manifest: {e}")
+
+    # Validación 1: el upstream tiró una página HTML (canal caído / paywall / error)
+    if "html" in ct:
+        raise HTTPException(
+            status_code=502,
+            detail="Canal no disponible: el upstream devolvió HTML, no un manifest HLS",
+        )
+    # Validación 2: el body no es un manifest HLS válido
+    head = (text or "").lstrip()[:32]
+    if not head.startswith("#EXTM3U"):
+        raise HTTPException(
+            status_code=502,
+            detail="Canal no disponible: el manifest no tiene signature #EXTM3U",
+        )
 
     rewritten = _rewrite_manifest(text, base=real_url, slug=slug)
     return Response(

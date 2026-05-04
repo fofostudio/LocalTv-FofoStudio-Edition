@@ -35,11 +35,35 @@ function findMatchingChannel(streamName, channels) {
   return contains || null;
 }
 
+// Banderas y nombres "amigables" para las regiones de tvtvhd.
+// Mantenemos las claves crudas tal como vienen del status.json.
+const REGION_LABEL = {
+  LATINOAMERICA:    { label: 'Latinoamérica', flag: '🌎' },
+  ARGENTINA:        { label: 'Argentina',     flag: '🇦🇷' },
+  'PERÚ':           { label: 'Perú',          flag: '🇵🇪' },
+  PERU:             { label: 'Perú',          flag: '🇵🇪' },
+  COLOMBIA:         { label: 'Colombia',      flag: '🇨🇴' },
+  'MÉXICO':         { label: 'México',        flag: '🇲🇽' },
+  MEXICO:           { label: 'México',        flag: '🇲🇽' },
+  USA:              { label: 'USA',           flag: '🇺🇸' },
+  CHILE:            { label: 'Chile',         flag: '🇨🇱' },
+  BRASIL:           { label: 'Brasil',        flag: '🇧🇷' },
+  PORTUGAL:         { label: 'Portugal',      flag: '🇵🇹' },
+  'ESPAÑA':         { label: 'España',        flag: '🇪🇸' },
+  ESPANA:           { label: 'España',        flag: '🇪🇸' },
+  MUNDO:            { label: 'Mundo',         flag: '🌐' },
+};
+
+function regionMeta(region) {
+  return REGION_LABEL[region] || { label: region, flag: '📺' };
+}
+
 export default function Home() {
   const navigate = useNavigate();
   const {
     currentChannel, loading, error, channels, setCurrentChannel,
     filteredChannels, searchQuery, isLive,
+    regions, activeRegion, setActiveRegion,
   } = useContext(ChannelContext);
   const { favorites, toggleFavorite, isFavorite } = useContext(FavoritesContext);
   const [streamFeedback, setStreamFeedback] = useState(null);
@@ -90,6 +114,39 @@ export default function Home() {
               <VideoPlayer channel={currentChannel} />
             </div>
           </div>
+
+          {/* Filtro por país (chips horizontales scrolleable) */}
+          {regions.length > 1 && (
+            <div className={styles.regionChips} role="tablist" aria-label="Filtrar por país">
+              <button
+                type="button"
+                className={`${styles.chip} ${activeRegion === 'all' ? styles.chipActive : ''}`}
+                onClick={() => setActiveRegion('all')}
+                aria-selected={activeRegion === 'all'}
+              >
+                <span className={styles.chipFlag}>📺</span>
+                Todos
+                <span className={styles.chipCount}>{channels.length}</span>
+              </button>
+              {regions.map((r) => {
+                const meta = regionMeta(r);
+                const count = channels.filter((c) => c.region === r).length;
+                return (
+                  <button
+                    key={r}
+                    type="button"
+                    className={`${styles.chip} ${activeRegion === r ? styles.chipActive : ''}`}
+                    onClick={() => setActiveRegion(r)}
+                    aria-selected={activeRegion === r}
+                  >
+                    <span className={styles.chipFlag}>{meta.flag}</span>
+                    {meta.label}
+                    <span className={styles.chipCount}>{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {/* Filas Netflix-style debajo del player */}
           <div className={styles.rowsArea}>

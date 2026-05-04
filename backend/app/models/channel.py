@@ -13,6 +13,7 @@ class Channel(Base):
     logo_url = Column(String(500), nullable=True)
     category_id = Column(Integer, ForeignKey("categories.id"), nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
+    region = Column(String(40), nullable=True, index=True)  # país/grupo
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     category = relationship("Category", back_populates="channels")

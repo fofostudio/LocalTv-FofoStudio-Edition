@@ -81,6 +81,61 @@
   position: relative;
 }
 
+/* ====== Chips de filtro por país ====== */
+.regionChips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 4px 2px 8px;
+  margin-top: -4px;
+  scrollbar-width: none;
+}
+.regionChips::-webkit-scrollbar { display: none; }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 0.83rem;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+.chip:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+  background: var(--bg-elevated);
+}
+.chipActive {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 4px 14px var(--accent-glow);
+}
+.chipActive:hover {
+  background: var(--accent-soft);
+  color: #fff;
+  border-color: var(--accent-soft);
+}
+.chipFlag { font-size: 0.95rem; line-height: 1; }
+.chipCount {
+  font-size: 0.7rem;
+  background: rgba(255,255,255,0.10);
+  padding: 1px 7px;
+  border-radius: 999px;
+  color: inherit;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.chipActive .chipCount { background: rgba(255,255,255,0.22); }
+
 /* ====== Filas estilo Netflix ====== */
 .rowsArea {
   display: flex;

@@ -129,7 +129,9 @@ def seed():
     db = SessionLocal()
     try:
         if db.query(Category).count() > 0:
-            return  # ya hay datos, idempotente
+            # Ya hay datos. Igual intentamos enriquecer con regiones si falta.
+            _enrich_regions_safe(db)
+            return
 
         deportes = Category(name="Deportes", slug="deportes", icon="fa-futbol")
         reality = Category(name="Reality", slug="reality", icon="fa-tv")
@@ -138,8 +140,36 @@ def seed():
 
         db.add_all(_channels_for(deportes.id))
         db.commit()
+
+        # Después del seed inicial, enriquecer con regiones desde status.json
+        _enrich_regions_safe(db)
     finally:
         db.close()
+
+
+def _enrich_regions_safe(db) -> None:
+    """Llena el campo `region` de cada canal usando tvtvhd status.json.
+    No bloquea ni hace ruido si falla (ej. sin red en primer arranque)."""
+    try:
+        import asyncio
+        from app.services.scraper import fetch_channels
+        scraped = asyncio.run(fetch_channels())
+    except Exception:
+        return
+    if not scraped:
+        return
+    by_slug = {c.slug: c.region for c in scraped if c.region}
+    if not by_slug:
+        return
+
+    updated = 0
+    for ch in db.query(Channel).all():
+        new_region = by_slug.get(ch.slug)
+        if new_region and ch.region != new_region:
+            ch.region = new_region
+            updated += 1
+    if updated:
+        db.commit()
 
 
 if __name__ == "__main__":

@@ -23,6 +23,22 @@ def _resource_dir() -> Path:
 
 # --- Inicializar BD + seed ---
 Base.metadata.create_all(bind=engine)
+
+
+def _migrate_add_region_column():
+    """Migración runtime: si la columna 'region' no existe, agregarla.
+    SQLite no soporta migraciones declarativas con SQLAlchemy, hacemos ALTER
+    manual idempotente."""
+    from sqlalchemy import text, inspect
+    inspector = inspect(engine)
+    cols = [c["name"] for c in inspector.get_columns("channels")]
+    if "region" not in cols:
+        with engine.begin() as conn:
+            conn.execute(text("ALTER TABLE channels ADD COLUMN region TEXT"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS ix_channels_region ON channels(region)"))
+
+
+_migrate_add_region_column()
 seed()
 
 
