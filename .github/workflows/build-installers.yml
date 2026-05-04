@@ -118,11 +118,117 @@ jobs:
           retention-days: 30
 
   # ---------------------------------------------------------------------------
-  # Release: solo en tags vX.Y.Z. Junta los dos artifacts y publica.
+  # Android: Capacitor + plugin Kotlin → mobile/android/app/build/outputs/apk/.../app-debug.apk
+  # ---------------------------------------------------------------------------
+  android:
+    name: Build Android (.apk)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Java 17 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Resolve version
+        id: ver
+        run: |
+          ref="${{ github.ref_name }}"
+          if [[ "$ref" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+            v="${ref#v}"
+          else
+            v="1.0.0"
+          fi
+          # versionCode debe ser entero monotónico — derivamos de los componentes
+          IFS='.' read -r maj min pat <<< "$v"
+          code=$(( maj*10000 + min*100 + pat ))
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "Version: $v (code $code)"
+
+      - name: Install frontend deps
+        working-directory: frontend
+        run: npm install --no-audit --no-fund
+
+      - name: Build frontend (Vite)
+        working-directory: frontend
+        run: npm run build
+
+      - name: Install mobile deps
+        working-directory: mobile
+        run: npm install --no-audit --no-fund
+
+      - name: Copy frontend dist + seed → mobile/public
+        working-directory: mobile
+        run: node scripts/copy-frontend.mjs
+
+      - name: Generate Android project (cap add android)
+        working-directory: mobile
+        run: npx cap add android
+
+      - name: Install Kotlin plugin into Android project
+        working-directory: mobile
+        run: node scripts/install-plugin.mjs
+
+      - name: Set versionName + versionCode
+        working-directory: mobile/android/app
+        env:
+          V: ${{ steps.ver.outputs.version }}
+          CODE: ${{ steps.ver.outputs.code }}
+        run: |
+          sed -i -E "s/versionName \"[^\"]*\"/versionName \"$V\"/" build.gradle
+          sed -i -E "s/versionCode [0-9]+/versionCode $CODE/" build.gradle
+          echo "Resultado:"
+          grep -E "versionName|versionCode" build.gradle || true
+
+      - name: Capacitor sync
+        working-directory: mobile
+        run: npx cap sync android
+
+      - name: Build debug APK
+        working-directory: mobile/android
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --no-daemon --warning-mode all
+
+      - name: Locate and rename APK
+        id: apk
+        run: |
+          src=$(find mobile/android/app/build/outputs/apk -name "*.apk" | head -1)
+          if [[ -z "$src" ]]; then
+            echo "::error::No se encontró APK"
+            exit 1
+          fi
+          mkdir -p dist
+          out="dist/LocalTv-${{ steps.ver.outputs.version }}.apk"
+          cp "$src" "$out"
+          ls -la "$out"
+          echo "path=$out" >> "$GITHUB_OUTPUT"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LocalTv-Android
+          path: dist/LocalTv-*.apk
+          if-no-files-found: error
+          retention-days: 30
+
+  # ---------------------------------------------------------------------------
+  # Release: solo en tags vX.Y.Z. Junta los tres artifacts y publica.
   # ---------------------------------------------------------------------------
   release:
     name: Publish GitHub Release
-    needs: [windows, macos]
+    needs: [windows, macos, android]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
@@ -138,6 +244,12 @@ jobs:
           name: LocalTv-macOS
           path: dist
 
+      - name: Download Android artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: LocalTv-Android
+          path: dist
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
@@ -146,6 +258,7 @@ jobs:
           files: |
             dist/LocalTv-Setup-*.exe
             dist/LocalTv-*.dmg
+            dist/LocalTv-*.apk
           body: |
             ## LocalTv ${{ github.ref_name }} — FofoStudio Edition
 
@@ -153,6 +266,15 @@ jobs:
 
             - **Windows 10/11** → `LocalTv-Setup-*.exe` (instalador per-user, sin admin)
             - **macOS 11+ (Intel & Apple Silicon)** → `LocalTv-*.dmg` (arrastra a Aplicaciones)
+            - **Android 7+** → `LocalTv-*.apk` (sideload, no requiere PC ni servidor)
+
+            ### Android — primera vez
+
+            El APK no está firmado con clave de producción. Para instalarlo:
+            1. Habilitá "Permitir apps de fuentes desconocidas" para tu navegador o el explorador de archivos.
+            2. Descargá el `.apk`, abrilo y permitilo.
+
+            La primera vez carga 96 canales pre-seeded en SQLite local. "Sincronizar canales" desde el panel admin actualiza la lista desde tvtvhd.com.
 
             ### macOS — primera vez
 
@@ -165,5 +287,6 @@ jobs:
             La BD SQLite con tus canales y favoritos vive en:
             - Windows: `%LOCALAPPDATA%\LocalTv\`
             - macOS:   `~/Library/Application Support/LocalTv/`
+            - Android: storage interno de la app (se borra al desinstalar)
 
             Sobrevive a actualizaciones de la app.
