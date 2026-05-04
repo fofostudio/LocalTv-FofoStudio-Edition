@@ -1,14 +1,16 @@
 # LocalTv — FofoStudio Edition
 
-Plataforma de streaming en vivo. Pensada para correr en local o en tu red, con una UI moderna estilo Netflix e instaladores nativos de un solo clic para **Windows** (`.exe`) y **macOS** (`.dmg`).
+Plataforma de streaming en vivo de canales deportivos. UI moderna estilo Netflix e instaladores nativos de un solo clic para **Windows** (`.exe`), **macOS** (`.dmg`) y **Android** (`.apk`).
 
 > **Repositorio:** https://github.com/FofoStudio/LocalTv-FofoStudio-Edition
+> **Releases:** https://github.com/FofoStudio/LocalTv-FofoStudio-Edition/releases/latest
+> **Landing:** https://fofostudio.github.io/LocalTv-FofoStudio-Edition/
 
 ## Hay dos formas de usar LocalTv
 
 | Eres... | Usa esto | Necesitas |
 |---------|----------|-----------|
-| **Usuario final** (solo quieres ver TV) | El instalador `.exe` / `.dmg` ↓ | Windows 10/11 o macOS 11+ |
+| **Usuario final** (solo quieres ver TV) | El instalador `.exe` / `.dmg` / `.apk` ↓ | Windows 10/11, macOS 11+, o Android 7+ |
 | **Desarrollador** (clonar, modificar, contribuir) | El flujo de desarrollo ↓ | Python 3.11–3.13, Node.js 18+ |
 
 ---
@@ -17,7 +19,7 @@ Plataforma de streaming en vivo. Pensada para correr en local o en tu red, con u
 
 ### Windows — `.exe`
 
-1. Descarga `LocalTv-Setup-1.0.0.exe` desde la sección **Releases** del repo.
+1. Descarga `LocalTv-Setup-*.exe` desde la sección **Releases** del repo.
 2. Doble clic. Sigue el asistente (no requiere admin).
 3. Aparece un acceso directo "**LocalTv**" en tu escritorio. Doble clic y listo.
 
@@ -25,13 +27,21 @@ App en `%LOCALAPPDATA%\Programs\LocalTv`, datos de usuario (BD SQLite, favoritos
 
 ### macOS — `.dmg`
 
-1. Descarga `LocalTv-1.0.0.dmg` desde **Releases**.
+1. Descarga `LocalTv-*.dmg` desde **Releases**.
 2. Doble clic, arrastra **LocalTv** a la carpeta **Aplicaciones**.
 3. Ábrelo desde Launchpad o Spotlight (la primera vez puede pedir confirmación de Gatekeeper porque la app no está firmada con un Developer ID — clic derecho → Abrir).
 
 Datos de usuario en `~/Library/Application Support/LocalTv/`. Para desinstalar, mueve `LocalTv.app` a la papelera.
 
-> **Para acceder desde la TV o el celular en la misma red:** abre LocalTv en la PC, mira la URL en la ventana de control, y úsala desde otros dispositivos cambiando `localhost` por la IP de tu PC.
+### Android — `.apk` (100% offline, sin PC)
+
+1. Descarga `LocalTv-*.apk` desde **Releases**.
+2. Habilita "Permitir apps de fuentes desconocidas" para tu navegador o explorador de archivos.
+3. Abre el `.apk` en el celu y permítelo. Si Play Protect te avisa: **"Más detalles"** → **"Instalar de todas formas"**.
+
+La app lleva todo adentro: lista de 96 canales en SQLite local, proxy HLS nativo en Kotlin (reemplaza el backend Python), reproductor en WebView. **No necesita PC ni servidor**, solo internet para la transmisión en sí. Probado desde Android 7.
+
+> **Nota desktop:** Para acceder desde la TV o el celular en la misma red, abre LocalTv en la PC, mira la URL en la ventana de control, y úsala desde otros dispositivos cambiando `localhost` por la IP de tu PC. Pero en Android **lo más práctico es directamente el APK** — corre solo, sin PC encendida.
 
 ---
 
@@ -238,4 +248,4 @@ Mantenido por [@FofoStudio](https://github.com/FofoStudio).
 
 ---
 
-**Versión:** 2.3.0 — FofoStudio Edition · Instaladores `.exe` (Windows) + `.dmg` (macOS) + UI Netflix
+**Versión:** 2.4.0 — FofoStudio Edition · Instaladores `.exe` (Windows) + `.dmg` (macOS) + `.apk` (Android, 100% offline) + UI Netflix
