@@ -39,9 +39,19 @@ export function ChannelProvider({ children }) {
     }
   }, []);
 
-  // Setter wrapping para que la selección actualice también el "current"
+  // Setter wrapping. Cuando el usuario elige un canal queremos que el
+  // reproductor quede a la vista — sobre todo en mobile donde la lista
+  // empuja al player fuera del viewport. La auto-selección inicial usa
+  // setCurrentChannelState directo y no dispara este scroll.
   const setCurrentChannel = useCallback((ch) => {
     setCurrentChannelState(ch);
+    if (typeof window !== 'undefined' && ch) {
+      try {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch (_) {
+        window.scrollTo(0, 0);
+      }
+    }
   }, []);
 
   // Fetch inicial: canales + categorías

@@ -8,8 +8,20 @@
  *   - ~30 KB de hls.js vs ~150 KB de Clappr.
  *   - Safari (iOS / macOS) reproduce HLS nativo sin lib extra.
  *
- * El Cast SDK (Chromecast) sigue siendo independiente y se monta encima
- * via CastButton.
+ * Cascada de recuperación multi-tier (clave para Android — ver
+ * mobile/android-plugin/HlsProxyServer.kt):
+ *
+ *   tier 0  carga hls.js limpia
+ *   tier 1  in-place: recoverMediaError() / startLoad()
+ *   tier 2  rebuild duro con cache-buster ?_t=<ts> (fuerza re-resolve
+ *           del manifest aguas arriba — los tokens de tvtvhd expiran
+ *           cada minuto, por eso el demuxer-error reaparece)
+ *   tier 3  fallback nativo: video.src = url. Chrome ≥ 100 en WebView
+ *           sabe digerir algunos HLS por sí mismo, especialmente fMP4.
+ *   tier 4  panel de error + auto-skip al próximo canal live.
+ *
+ * Cada tier resetea fatalCount, permitiendo soft-recovery local antes
+ * de escalar.
  */
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ChannelContext } from '../../context/ChannelContext';
@@ -18,9 +30,9 @@ import CastButton from '../CastButton/CastButton';
 import styles from './VideoPlayer.module.css';
 
 const BASE_URL = import.meta.env.VITE_API_URL || '';
+const MAX_TIER = 3; // 0..3 — al pasar de 3 mostramos el panel
 
 function describeError(detail) {
-  // hls.js error.details + casos del demuxer (mediaError) los más comunes
   const d = String(detail || '').toLowerCase();
   if (d.includes('manifestloaderror') || d.includes('manifestparsingerror')) {
     return {
@@ -43,8 +55,6 @@ function describeError(detail) {
       kind: 'network',
     };
   }
-  // demuxer-error: could not parse — el contenido no es un m3u8 válido
-  // (típico cuando el upstream cae y devuelve HTML / página vacía).
   if (d.includes('demuxer') || d.includes('parse') || d.includes('bufferappenderror')) {
     return {
       title: 'Stream corrupto o no disponible',
@@ -60,12 +70,15 @@ function describeError(detail) {
 }
 
 export default function VideoPlayer({ channel }) {
-  const { nextLiveChannel, setCurrentChannel, isLive, healthLoading } = useContext(ChannelContext);
+  const { nextLiveChannel, setCurrentChannel, healthLoading } = useContext(ChannelContext);
   const videoRef = useRef(null);
   const hlsRef = useRef(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [forcePlay, setForcePlay] = useState(false);
+
+  // Tier de recuperación — sube cuando un tier falla. Se resetea cuando
+  // el usuario cambia de canal o cuando el stream arranca a reproducir.
+  const [tier, setTier] = useState(0);
 
   // ----- URL pública LAN para Chromecast (resuelta async) -----
   const [castUrl, setCastUrl] = useState(null);
@@ -76,7 +89,13 @@ export default function VideoPlayer({ channel }) {
     return () => { cancelled = true; };
   }, [channel?.slug]);
 
-  // ----- Carga del stream cuando cambia el canal -----
+  // Reset de tier + error al cambiar de canal
+  useEffect(() => {
+    setTier(0);
+    setError(null);
+  }, [channel?.slug]);
+
+  // ----- Carga del stream (corre cuando cambia el canal o el tier) -----
   useEffect(() => {
     const cleanup = () => {
       if (hlsRef.current) {
@@ -90,19 +109,42 @@ export default function VideoPlayer({ channel }) {
       }
     };
     cleanup();
-    setError(null);
 
     if (!channel?.slug) return;
+    if (tier > MAX_TIER) {
+      // Llegamos al final — error panel ya está mostrado o se muestra
+      return;
+    }
     setLoading(true);
 
     let cancelled = false;
+    let fatalCount = 0;
+
+    // escalate() — bumpea el tier (rebuild) o muestra panel si ya no hay
+    // tier disponible. Se llama desde los handlers de error de hls.js
+    // y del <video> nativo.
+    const escalate = (detail) => {
+      if (cancelled) return;
+      console.warn(`[player] escalate tier=${tier} detail=${detail}`);
+      if (tier < MAX_TIER) {
+        setTier(tier + 1);
+      } else {
+        setError(describeError(detail));
+        setLoading(false);
+      }
+    };
+
     (async () => {
       let proxyUrl;
       try {
         proxyUrl = await streamPlaylistUrl(channel.slug);
       } catch (e) {
         if (!cancelled) {
-          setError({ title: 'No se pudo iniciar el proxy HLS', message: e.message, kind: 'generic' });
+          setError({
+            title: 'No se pudo iniciar el proxy HLS',
+            message: e.message,
+            kind: 'generic',
+          });
           setLoading(false);
         }
         return;
@@ -111,10 +153,17 @@ export default function VideoPlayer({ channel }) {
       const video = videoRef.current;
       if (!video) return;
 
-      // Safari (macOS/iOS) soporta HLS nativo. En el resto, usamos hls.js.
-      const isNativeHls = video.canPlayType('application/vnd.apple.mpegurl');
-      if (isNativeHls) {
-        video.src = proxyUrl;
+      // tier ≥ 2: cache-buster fuerza fetch nuevo (ignora 304/cache local
+      // del WebView) y por consecuencia re-resolve aguas arriba con
+      // tokens frescos.
+      const bustedUrl = tier >= 2
+        ? `${proxyUrl}${proxyUrl.includes('?') ? '&' : '?'}_t=${Date.now()}`
+        : proxyUrl;
+
+      // tier 3: native <video src>. Saltamos hls.js completamente.
+      const useNative = tier >= 3 || video.canPlayType('application/vnd.apple.mpegurl');
+      if (useNative) {
+        video.src = bustedUrl;
         video.play().catch(() => { /* autoplay puede ser bloqueado */ });
         return;
       }
@@ -145,57 +194,52 @@ export default function VideoPlayer({ channel }) {
         levelLoadingRetryDelay: 800,
         fragLoadingMaxRetry: 4,
         fragLoadingRetryDelay: 600,
-        // En WebView Android, software AES garantiza que cifrado no falle
         enableSoftwareAES: true,
-        // No abortar fragments que tarden poquito más
         nudgeMaxRetry: 5,
+        // En rebuild con cache-bust queremos partir desde cero — sin
+        // estado heredado del intento anterior.
+        startFragPrefetch: false,
       });
       hlsRef.current = hls;
-      hls.loadSource(proxyUrl);
+      hls.loadSource(bustedUrl);
       hls.attachMedia(video);
 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         video.play().catch(() => { /* autoplay bloqueado, el user le da play */ });
       });
 
-      // Recovery automático: cuando hls.js dice "fatal", primero
-      // intentamos recoverMediaError() / startLoad() según el tipo. Si
-      // después de 2 errores en una ventana corta sigue fallando,
-      // mostramos el panel de error y damos opción de saltar al próximo
-      // canal live.
-      let fatalCount = 0;
-      let fatalWindowStart = 0;
       hls.on(Hls.Events.ERROR, (_evt, data) => {
         if (cancelled) return;
-        const now = Date.now();
-        // Reset de la ventana después de 8s sin errores
-        if (now - fatalWindowStart > 8000) { fatalWindowStart = now; fatalCount = 0; }
-
         if (!data.fatal) return;
         fatalCount += 1;
-        console.warn(`[hls] fatal ${fatalCount}: ${data.type} / ${data.details}`);
+        console.warn(
+          `[hls] fatal #${fatalCount} tier=${tier} type=${data.type} detail=${data.details}`
+        );
 
-        // Primer fatal: intentar recovery
-        if (fatalCount <= 1) {
+        // Tier 0/1 con primer fatal recuperable: probamos in-place primero.
+        // Esto nos ahorra un rebuild completo cuando el bug es transitorio.
+        if (fatalCount === 1 && tier <= 1) {
           if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
             try { hls.recoverMediaError(); return; } catch (_) {}
           }
-          if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+          // NETWORK_ERROR de un fragmento (no del manifest) suele
+          // recuperarse con startLoad. Si es manifestLoadError mejor
+          // escalar directo: el manifest ya falló a fondo.
+          if (
+            data.type === Hls.ErrorTypes.NETWORK_ERROR &&
+            !String(data.details || '').toLowerCase().includes('manifest')
+          ) {
             try { hls.startLoad(); return; } catch (_) {}
           }
         }
 
-        // Segundo fatal o no recuperable → mostrar panel
-        setError(describeError(data.details));
-        setLoading(false);
+        // No recuperable in-place → escalamos al siguiente tier.
+        escalate(data.details);
       });
     })();
 
     return () => { cancelled = true; cleanup(); };
-  }, [channel?.slug, forcePlay, healthLoading]);
-
-  // Reset forcePlay cuando cambia el canal
-  useEffect(() => { setForcePlay(false); }, [channel?.slug]);
+  }, [channel?.slug, tier, healthLoading]);
 
   // ----- Listeners del <video> para sincronizar loading + errores -----
   useEffect(() => {
@@ -206,7 +250,13 @@ export default function VideoPlayer({ channel }) {
     const onError = () => {
       const code = v.error?.code;
       if (!code) return;
-      // 4 = MEDIA_ERR_SRC_NOT_SUPPORTED — típico de canal caído
+      // En tier nativo, error del <video> también escala. Si ya estamos
+      // en MAX_TIER, mostramos panel directo.
+      if (tier < MAX_TIER) {
+        console.warn(`[video.error] tier=${tier} code=${code} → escalate`);
+        setTier(tier + 1);
+        return;
+      }
       const kind = code === 4 ? 'unavailable' : 'network';
       setError({
         title: code === 4 ? 'Canal no disponible' : 'Error de reproducción',
@@ -223,11 +273,16 @@ export default function VideoPlayer({ channel }) {
       v.removeEventListener('waiting', onWaiting);
       v.removeEventListener('error', onError);
     };
-  }, [channel?.slug]);
+  }, [channel?.slug, tier]);
 
   const tryNextLive = () => {
     const next = nextLiveChannel(channel?.slug);
     if (next) setCurrentChannel(next);
+  };
+
+  const retry = () => {
+    setError(null);
+    setTier(0);
   };
 
   const finalCastUrl = useMemo(
@@ -243,7 +298,6 @@ export default function VideoPlayer({ channel }) {
         controls
         playsInline
         autoPlay
-        // x-webkit-airplay habilita el botón AirPlay nativo en iOS/macOS Safari
         x-webkit-airplay="allow"
         poster={channel?.logo_url || undefined}
       />
@@ -268,7 +322,7 @@ export default function VideoPlayer({ channel }) {
       {loading && channel && !error && (
         <div className={styles.overlay}>
           <div className={styles.spinner} />
-          <p>Cargando…</p>
+          <p>{tier === 0 ? 'Cargando…' : `Reintentando (método ${tier + 1})…`}</p>
         </div>
       )}
 
@@ -283,14 +337,9 @@ export default function VideoPlayer({ channel }) {
             <button className={styles.errorBtnPrimary} onClick={tryNextLive}>
               ▶ Probar otro canal disponible
             </button>
-            {error.canForce && (
-              <button
-                className={styles.errorBtnGhost}
-                onClick={() => { setError(null); setForcePlay(true); }}
-              >
-                Intentar igual
-              </button>
-            )}
+            <button className={styles.errorBtnGhost} onClick={retry}>
+              ↻ Reintentar
+            </button>
           </div>
         </div>
       )}
