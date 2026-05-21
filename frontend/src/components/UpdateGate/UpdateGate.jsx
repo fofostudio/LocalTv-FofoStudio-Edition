@@ -20,13 +20,16 @@ import styles from './UpdateGate.module.css';
 const REPO = 'fofostudio/LocalTv-FofoStudio-Edition';
 const CURRENT_VERSION = (import.meta.env.VITE_APP_VERSION || '0.0.0').replace(/^v/, '');
 
-// En desarrollo (vite dev) o corriendo en localhost no bloqueamos: la versión
-// local siempre va por detrás del último release publicado y no tiene sentido
-// pedir "actualizar" mientras se está desarrollando.
+// Solo desactivamos el gate bajo el dev server de Vite (import.meta.env.DEV).
+// OJO: NO usar window.location.hostname === 'localhost' como señal de "dev",
+// porque la app empaquetada (.exe/.dmg) sirve en http://localhost:8765 y el
+// APK de Capacitor en http://localhost — usar hostname apagaría el gate en
+// TODAS las instalaciones reales. import.meta.env.DEV es false en cualquier
+// build de producción (exe/dmg/apk) y true solo en `vite dev`.
+// Escape hatch opcional para QA: localStorage 'localtv_noupdate' = '1'.
 const IS_DEV =
   import.meta.env.DEV ||
-  (typeof window !== 'undefined' &&
-    /^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname));
+  (typeof localStorage !== 'undefined' && localStorage.getItem('localtv_noupdate') === '1');
 
 function compareVersions(a, b) {
   const pa = a.split('.').map((n) => parseInt(n, 10) || 0);
