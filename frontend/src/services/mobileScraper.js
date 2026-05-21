@@ -10,6 +10,10 @@
  */
 
 const STATUS_URL = 'https://tvtvhd.com/status.json';
+// Mirror de respaldo (el repo versiona un snapshot del seed) por si tvtvhd
+// está caído o bloqueado en la red del dispositivo.
+const FALLBACK_URL =
+  'https://raw.githubusercontent.com/fofostudio/LocalTv-FofoStudio-Edition/main/mobile/public-seed/channels.json';
 const HEADERS = {
   'User-Agent':
     'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) ' +
@@ -18,6 +22,13 @@ const HEADERS = {
   'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8',
   Referer: 'https://tvtvhd.com/',
 };
+
+// Caché en memoria del último status.json normalizado. La comparten el
+// health-check y el sync para no golpear la red en cada refresh.
+const CACHE_TTL_MS = 30_000;
+let _cache = { at: 0, data: null };
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 function slugify(text) {
   return (text || '')
@@ -66,23 +77,77 @@ function normalizeStatus(payload) {
   return [...seen.values()];
 }
 
-async function getJson() {
+// GET con CapacitorHttp (evita CORS y permite User-Agent de browser). Fallback
+// a fetch del WebView si el plugin no está. Reintenta una vez ante fallo.
+async function httpGetJson(url, { headers = HEADERS, retries = 1 } = {}) {
   const cap = window.Capacitor;
-  if (!cap?.Plugins?.CapacitorHttp) throw new Error('CapacitorHttp no disponible');
-  const { CapacitorHttp } = cap.Plugins;
-  const r = await CapacitorHttp.get({
-    url: STATUS_URL,
-    headers: HEADERS,
-    connectTimeout: 10000,
-    readTimeout: 15000,
-  });
-  if (r.status !== 200) throw new Error(`HTTP ${r.status}`);
-  return typeof r.data === 'string' ? JSON.parse(r.data) : r.data;
+  let lastErr;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      if (cap?.Plugins?.CapacitorHttp) {
+        const r = await cap.Plugins.CapacitorHttp.get({
+          url,
+          headers,
+          connectTimeout: 8000,
+          readTimeout: 12000,
+        });
+        if (r.status !== 200) throw new Error(`HTTP ${r.status}`);
+        return typeof r.data === 'string' ? JSON.parse(r.data) : r.data;
+      }
+      const res = await fetch(url, { headers: { Accept: headers.Accept } });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch (e) {
+      lastErr = e;
+      if (attempt < retries) await sleep(500 * (attempt + 1));
+    }
+  }
+  throw lastErr;
 }
 
-export async function fetchChannels() {
-  const data = await getJson();
-  return normalizeStatus(data);
+async function getJson() {
+  try {
+    return await httpGetJson(STATUS_URL);
+  } catch (e) {
+    // tvtvhd caído/bloqueado → intentamos el mirror del repo (formato seed).
+    console.warn('[mobileScraper] status.json falló, probando mirror:', e?.message || e);
+    return httpGetJson(FALLBACK_URL, { retries: 0 });
+  }
+}
+
+/**
+ * Devuelve los canales normalizados. Usa caché en memoria (TTL 30s) para que
+ * health-check y sync no disparen fetches repetidos. Si la red falla pero hay
+ * caché previa (aunque vencida), la devuelve para no romper la UI.
+ */
+export async function fetchChannels({ force = false } = {}) {
+  const now = Date.now();
+  if (!force && _cache.data && now - _cache.at < CACHE_TTL_MS) {
+    return _cache.data;
+  }
+  try {
+    const data = await getJson();
+    let chans = normalizeStatus(data);
+    // El mirror tiene forma de seed ({channels:[...]}), no de status.json.
+    if (!chans.length && Array.isArray(data?.channels)) {
+      chans = data.channels.map((c) => ({
+        name: c.name,
+        slug: c.slug,
+        stream_param: null,
+        stream_url: c.stream_url || `https://tvtvhd.com/vivo/canales.php?stream=${c.slug}`,
+        region: c.region || null,
+        is_live: c.is_active !== false,
+      }));
+    }
+    if (chans.length) _cache = { at: now, data: chans };
+    return chans.length ? chans : (_cache.data || []);
+  } catch (e) {
+    if (_cache.data) {
+      console.warn('[mobileScraper] usando caché previa tras fallo:', e?.message || e);
+      return _cache.data;
+    }
+    throw e;
+  }
 }
 
 /**

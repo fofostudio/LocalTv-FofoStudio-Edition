@@ -268,16 +268,22 @@ const sqliteBackend = {
   async upsertChannels(scraped) {
     let created = 0, updated = 0;
     for (const ch of scraped) {
-      const found = await this._db.query('SELECT id, stream_url FROM channels WHERE slug = ?', [ch.slug]);
+      const found = await this._db.query('SELECT id, stream_url, region FROM channels WHERE slug = ?', [ch.slug]);
       if (found.values?.length) {
-        if (found.values[0].stream_url !== ch.stream_url) {
-          await this._db.run('UPDATE channels SET stream_url = ? WHERE slug = ?', [ch.stream_url, ch.slug]);
+        const row = found.values[0];
+        const needsUrl = row.stream_url !== ch.stream_url;
+        const needsRegion = ch.region && !row.region;
+        if (needsUrl || needsRegion) {
+          await this._db.run(
+            'UPDATE channels SET stream_url = ?, region = COALESCE(?, region) WHERE slug = ?',
+            [ch.stream_url, ch.region || null, ch.slug],
+          );
           updated += 1;
         }
       } else {
         await this._db.run(
-          'INSERT INTO channels (name, slug, stream_url, category_id, is_active) VALUES (?, ?, ?, 1, 1)',
-          [ch.name, ch.slug, ch.stream_url],
+          'INSERT INTO channels (name, slug, stream_url, category_id, is_active, region) VALUES (?, ?, ?, 1, 1, ?)',
+          [ch.name, ch.slug, ch.stream_url, ch.region || null],
         );
         created += 1;
       }
@@ -357,10 +363,10 @@ const localStorageBackend = {
     for (const ch of scraped) {
       const existing = bySlug.get(ch.slug);
       if (existing) {
-        if (existing.stream_url !== ch.stream_url) {
-          existing.stream_url = ch.stream_url;
-          updated += 1;
-        }
+        let changed = false;
+        if (existing.stream_url !== ch.stream_url) { existing.stream_url = ch.stream_url; changed = true; }
+        if (ch.region && !existing.region) { existing.region = ch.region; changed = true; }
+        if (changed) updated += 1;
       } else {
         bySlug.set(ch.slug, {
           id: nextId++,
@@ -370,6 +376,7 @@ const localStorageBackend = {
           logo_url: null,
           category_id: 1,
           is_active: true,
+          region: ch.region || null,
         });
         created += 1;
       }

@@ -102,7 +102,7 @@ const mobileApi = {
       import('./mobileScraper'),
       import('./mobileDb'),
     ]);
-    const scraped = await fetchChannels();
+    const scraped = await fetchChannels({ force: true });
     return upsertChannels(scraped);
   },
 
