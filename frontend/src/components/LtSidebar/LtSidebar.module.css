@@ -1,0 +1,177 @@
+.sidebar {
+  background: var(--lt-panel);
+  border-right: 1px solid var(--lt-line);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid var(--lt-line);
+}
+.brandSub { font-size: 10px; color: var(--lt-mute); margin-top: 2px; }
+
+.sectionLabel {
+  padding: 14px 16px 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--lt-mute);
+  letter-spacing: 1.2px;
+}
+
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  margin: 0 8px;
+  border-radius: 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--lt-mute);
+  transition: background 0.12s, color 0.12s;
+}
+.navItem:hover { background: rgba(255, 255, 255, 0.04); color: #fff; }
+.navActive {
+  background: rgba(30, 123, 255, 0.18);
+  border-color: rgba(30, 123, 255, 0.45);
+  color: #fff;
+}
+.navActive:hover { background: rgba(30, 123, 255, 0.22); }
+.navBadge {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 800;
+  background: var(--lt-orange);
+  color: #fff;
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+
+.searchWrap { position: relative; padding: 12px 12px 8px; }
+.searchIcon {
+  position: absolute;
+  left: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  pointer-events: none;
+}
+.searchInput {
+  width: 100%;
+  background: var(--lt-panel2);
+  border: 1px solid var(--lt-line);
+  border-radius: 8px;
+  padding: 8px 12px 8px 32px;
+  font-size: 12px;
+  color: var(--lt-text);
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.searchInput::placeholder { color: var(--lt-mute); }
+.searchInput:focus { border-color: rgba(30, 123, 255, 0.5); }
+
+.section {
+  padding: 8px 18px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sectionTitle {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--lt-mute);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+}
+.sectionLive {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  color: var(--lt-mute);
+}
+
+.list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 0 8px;
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  margin: 0 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  text-align: left;
+  font-family: inherit;
+  transition: background 0.12s;
+}
+.row:hover { background: rgba(255, 255, 255, 0.04); }
+.rowActive {
+  background: rgba(30, 123, 255, 0.18);
+  border-color: rgba(30, 123, 255, 0.45);
+}
+.rowActive:hover { background: rgba(30, 123, 255, 0.22); }
+.rowText { flex: 1; min-width: 0; }
+.rowName {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--lt-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rowTag {
+  display: block;
+  font-size: 10.5px;
+  color: var(--lt-mute);
+  margin-top: 1px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.empty { padding: 16px; color: var(--lt-mute); font-size: 12px; text-align: center; }
+
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.dotLive { background: var(--lt-green); box-shadow: 0 0 0 3px rgba(31, 179, 107, 0.35); }
+
+.footer {
+  padding: 10px 16px;
+  border-top: 1px solid var(--lt-line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10.5px;
+  color: var(--lt-mute);
+  font-family: inherit;
+  width: 100%;
+  background: transparent;
+  transition: background 0.12s;
+}
+.footer:hover:not(:disabled) { background: rgba(255, 255, 255, 0.03); }
+.footer:disabled { opacity: 0.7; cursor: progress; }
+.footerLeft { display: inline-flex; align-items: center; gap: 6px; }
+.footerRight { display: inline-flex; align-items: center; gap: 5px; }
+.spinning .footerRight svg { animation: ltsb-spin 1s linear infinite; }
+@keyframes ltsb-spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 860px) {
+  .sidebar { display: none; }
+}

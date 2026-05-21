@@ -1,14 +1,26 @@
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { useContext } from 'react';
+import { useContext, lazy, Suspense } from 'react';
 import { ChannelProvider, ChannelContext } from './context/ChannelContext';
 import { FavoritesProvider } from './context/FavoritesContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
-import ChannelPage from './pages/ChannelPage';
-import AdminLogin from './pages/Admin/AdminLogin';
-import AdminDashboard from './pages/Admin/AdminDashboard';
+import LoadingSpinner from './components/LoadingSpinner/LoadingSpinner';
 import UpdateGate from './components/UpdateGate/UpdateGate';
+import PersistentPlayer from './components/PersistentPlayer/PersistentPlayer';
 import styles from './App.module.css';
+
+// Code-splitting: las pantallas secundarias se cargan bajo demanda para que el
+// arranque (Home) sea más liviano — clave en TVs y conexiones lentas.
+const Live = lazy(() => import('./pages/Live'));
+const Channels = lazy(() => import('./pages/Channels'));
+const Settings = lazy(() => import('./pages/Settings'));
+const ChannelPage = lazy(() => import('./pages/ChannelPage'));
+const AdminLogin = lazy(() => import('./pages/Admin/AdminLogin'));
+const AdminDashboard = lazy(() => import('./pages/Admin/AdminDashboard'));
+
+// Rutas con su propio shell (LtSidebar + tab bar móvil): ocultan el header/footer
+// global para no duplicar navegación.
+const FULLSCREEN_ROUTES = ['/', '/en-vivo', '/canales', '/favoritos', '/config'];
 
 function GlobalSearch() {
   const { searchQuery, setSearchQuery, channels } = useContext(ChannelContext);
@@ -57,6 +69,9 @@ function HealthRefreshButton() {
 function Header() {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
+  // Las pantallas con shell propio (Agenda, En vivo, Canales, etc.) ya traen
+  // marca, búsqueda y navegación, así que ocultamos el header global ahí.
+  if (FULLSCREEN_ROUTES.includes(location.pathname)) return null;
   return (
     <header className={styles.header}>
       <Link to="/" className={styles.brand}>
@@ -88,7 +103,10 @@ function Header() {
 }
 
 function Footer() {
+  const location = useLocation();
   const v = import.meta.env.VITE_APP_VERSION || '0.0.0';
+  // Las pantallas con shell propio incluyen su propio footer/estado.
+  if (FULLSCREEN_ROUTES.includes(location.pathname)) return null;
   return (
     <footer className={styles.footer}>
       <span className={styles.footerLeft}>
@@ -141,21 +159,28 @@ export default function App() {
             <div className={styles.appContainer}>
               <Header />
               <main className={styles.routesContainer}>
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/channel/:channelId" element={<ChannelPage />} />
-                  <Route path="/admin" element={<AdminLogin />} />
-                  <Route
-                    path="/admin/dashboard"
-                    element={
-                      <ProtectedRoute>
-                        <AdminDashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-                </Routes>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/en-vivo" element={<Live />} />
+                    <Route path="/canales" element={<Channels />} />
+                    <Route path="/favoritos" element={<Channels favoritesOnly />} />
+                    <Route path="/config" element={<Settings />} />
+                    <Route path="/channel/:channelId" element={<ChannelPage />} />
+                    <Route path="/admin" element={<AdminLogin />} />
+                    <Route
+                      path="/admin/dashboard"
+                      element={
+                        <ProtectedRoute>
+                          <AdminDashboard />
+                        </ProtectedRoute>
+                      }
+                    />
+                  </Routes>
+                </Suspense>
               </main>
               <Footer />
+              <PersistentPlayer />
             </div>
           </BrowserRouter>
         </ChannelProvider>

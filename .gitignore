@@ -41,6 +41,10 @@ wheels/
 # Claude Code local config
 .claude/
 
+# Bundles de diseño (Claude Design) — temporales, reproducibles
+.design_extract/
+.design_download.tar
+
 # Environment variables
 .env
 .env.local

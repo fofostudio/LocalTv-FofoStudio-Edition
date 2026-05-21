@@ -1,0 +1,107 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  align-content: start;
+}
+
+.card {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--lt-panel);
+  border: 1px solid var(--lt-line);
+  transition: transform 0.15s, border-color 0.15s;
+}
+.card:hover { transform: translateY(-2px); border-color: var(--lt-line2); }
+
+.cardOpen {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  color: #fff;
+  background: none;
+}
+
+.thumb {
+  aspect-ratio: 16 / 9;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.thumbImg { width: 64%; height: 64%; object-fit: contain; display: block; }
+.thumbCode {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  color: #fff;
+  letter-spacing: 1.4px;
+}
+
+.cardBody { padding: 8px 10px 10px; }
+.cardName {
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.15;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cardFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 3px;
+}
+.cardTag {
+  font-size: 10.5px;
+  color: var(--lt-mute);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.dotLive { background: var(--lt-green); box-shadow: 0 0 0 3px rgba(31, 179, 107, 0.35); }
+
+.star {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  transition: background 0.12s;
+}
+.star:hover { background: rgba(0, 0, 0, 0.65); }
+.starOn { background: var(--lt-orange); }
+
+.liveBadge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  background: var(--lt-orange);
+  border-radius: 4px;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #fff;
+  pointer-events: none;
+}
+.liveBadgeDot { width: 4px; height: 4px; border-radius: 50%; background: #fff; }
+
+@media (max-width: 1180px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 860px) { .grid { grid-template-columns: repeat(3, 1fr); gap: 10px; } }
+@media (max-width: 560px) { .grid { grid-template-columns: repeat(2, 1fr); } }

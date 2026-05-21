@@ -1,0 +1,34 @@
+.wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+/* logo claro: sin fondo, se ve directo sobre el panel oscuro */
+.wrap[data-tone='light'] { background: transparent; }
+/* logo oscuro: respaldo claro translúcido para que no se pierda */
+.wrap[data-tone='dark'] {
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+/* mientras detecta el tono: respaldo neutro sutil */
+.wrap[data-tone='pending'] { background: rgba(255, 255, 255, 0.08); }
+
+.img {
+  width: 80%;
+  height: 80%;
+  object-fit: contain;
+  display: block;
+}
+
+.fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+}

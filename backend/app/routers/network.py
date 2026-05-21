@@ -37,13 +37,17 @@ def _lan_ip() -> str:
 
 @router.get("/info")
 def info(request: Request):
-    port = int(os.getenv("LOCALTV_PORT", "8765"))
+    # El puerto real con el que el cliente llegó al server es más confiable que
+    # una env var fija: si el launcher tuvo que elegir otro puerto, o si se sirve
+    # detrás de un proxy, la URL compartida sigue siendo válida.
+    port = request.url.port or int(os.getenv("LOCALTV_PORT", "8765"))
     ip = _lan_ip()
     return {
         "lan_ip": ip,
         "hostname": socket.gethostname(),
         "port": port,
-        "lan_url": f"http://{ip}:{port}",
+        "scheme": request.url.scheme or "http",
+        "lan_url": f"{request.url.scheme or 'http'}://{ip}:{port}",
         # Útil para cuando el frontend está en file:// (capacitor) y necesita
         # resolver una URL absoluta
         "request_origin": str(request.base_url).rstrip("/"),

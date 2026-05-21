@@ -1,233 +1,237 @@
-import { useContext, useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useContext, useMemo, useState } from 'react';
 import { ChannelContext } from '../context/ChannelContext';
 import { FavoritesContext } from '../context/FavoritesContext';
-import VideoPlayer from '../components/VideoPlayer/VideoPlayer';
-import SidebarWithTabs from '../components/SidebarWithTabs/SidebarWithTabs';
 import LoadingSpinner from '../components/LoadingSpinner/LoadingSpinner';
-import ChannelCard from '../components/ChannelCard/ChannelCard';
+import { PLAYER_SLOT_ID } from '../components/PersistentPlayer/PersistentPlayer';
+import LtSidebar from '../components/LtSidebar/LtSidebar';
+import LtMobileTabs from '../components/LtMobileTabs/LtMobileTabs';
+import ChannelBadge from '../components/ChannelBadge/ChannelBadge';
+import ChannelLogo from '../components/ChannelLogo/ChannelLogo';
+import { useDiaryEvents } from '../hooks/useDiaryEvents';
+import { usePlayerEngine } from '../hooks/usePlayerEngine';
+import { LocalTvMark, LocalTvWordmark } from '../components/Brand/Brand';
+import { IconStar, IconPlay, IconBell, IconCalendar } from '../components/icons/Icons';
+import { regionLabel } from '../utils/channelDisplay';
+import { getLogoFor } from '../utils/channelLogos';
 import styles from './Home.module.css';
 
-const normalize = (s) =>
-  (s || '')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/\b(hd|sd|4k|fhd|uhd)\b/g, '')
-    .replace(/[^a-z0-9]+/g, '');
-
-function findMatchingChannel(streamName, channels) {
-  if (!streamName || !channels?.length) return null;
-  const target = normalize(streamName);
-  if (!target) return null;
-  const exact = channels.find(
-    (ch) => normalize(ch.name) === target || normalize(ch.slug) === target
-  );
-  if (exact) return exact;
-  const contains = channels.find((ch) => {
-    const n = normalize(ch.name);
-    const s = normalize(ch.slug);
-    return (
-      (n && (n.includes(target) || target.includes(n))) ||
-      (s && (s.includes(target) || target.includes(s)))
-    );
-  });
-  return contains || null;
-}
-
-// Banderas y nombres "amigables" para las regiones de tvtvhd.
-// Mantenemos las claves crudas tal como vienen del status.json.
-const REGION_LABEL = {
-  LATINOAMERICA:    { label: 'Latinoamérica', flag: '🌎' },
-  ARGENTINA:        { label: 'Argentina',     flag: '🇦🇷' },
-  'PERÚ':           { label: 'Perú',          flag: '🇵🇪' },
-  PERU:             { label: 'Perú',          flag: '🇵🇪' },
-  COLOMBIA:         { label: 'Colombia',      flag: '🇨🇴' },
-  'MÉXICO':         { label: 'México',        flag: '🇲🇽' },
-  MEXICO:           { label: 'México',        flag: '🇲🇽' },
-  USA:              { label: 'USA',           flag: '🇺🇸' },
-  CHILE:            { label: 'Chile',         flag: '🇨🇱' },
-  BRASIL:           { label: 'Brasil',        flag: '🇧🇷' },
-  PORTUGAL:         { label: 'Portugal',      flag: '🇵🇹' },
-  'ESPAÑA':         { label: 'España',        flag: '🇪🇸' },
-  ESPANA:           { label: 'España',        flag: '🇪🇸' },
-  MUNDO:            { label: 'Mundo',         flag: '🌐' },
-};
-
-function regionMeta(region) {
-  return REGION_LABEL[region] || { label: region, flag: '📺' };
-}
+const TODAY_LABEL = (() => {
+  try {
+    const s = new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric' });
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  } catch {
+    return 'Hoy';
+  }
+})();
 
 export default function Home() {
-  const navigate = useNavigate();
   const {
-    currentChannel, loading, error, channels, setCurrentChannel,
-    filteredChannels, searchQuery, isLive,
-    regions, activeRegion, setActiveRegion,
+    channels, currentChannel, setCurrentChannel,
+    filteredChannels, healthLoading, refreshHealth,
   } = useContext(ChannelContext);
-  const { favorites, toggleFavorite, isFavorite } = useContext(FavoritesContext);
-  const [streamFeedback, setStreamFeedback] = useState(null);
+  const { isFavorite, toggleFavorite } = useContext(FavoritesContext);
+  const { events, counts, loading: eventsLoading } = useDiaryEvents();
+  const playerEngine = usePlayerEngine();
 
-  useEffect(() => {
-    if (!streamFeedback) return;
-    const t = setTimeout(() => setStreamFeedback(null), 3000);
-    return () => clearTimeout(t);
-  }, [streamFeedback]);
+  const [agendaFilter, setAgendaFilter] = useState('live');
 
-  const handleStreamClick = (streamName) => {
-    const matched = findMatchingChannel(streamName, channels);
-    if (matched) {
-      setCurrentChannel(matched);
-      setStreamFeedback({ type: 'ok', text: `Cargando ${matched.name}` });
-    } else {
-      setStreamFeedback({ type: 'warn', text: `No hay canal local para "${streamName}"` });
-    }
+  const visibleEvents = useMemo(
+    () => events.filter((e) => e.status === agendaFilter),
+    [events, agendaFilter]
+  );
+
+  const otherChannels = useMemo(
+    () => filteredChannels.filter((c) => c.id !== currentChannel?.id).slice(0, 10),
+    [filteredChannels, currentChannel]
+  );
+
+  const playEvent = (ev) => {
+    const target = ev.streams.find((s) => s.channel);
+    if (target) setCurrentChannel(target.channel);
   };
 
-  const favoriteChannels = useMemo(
-    () => channels.filter((c) => favorites.includes(c.id)),
-    [channels, favorites]
-  );
+  if (eventsLoading && !channels.length) return <LoadingSpinner />;
 
-  if (loading) return <LoadingSpinner />;
-  if (error) return <div className={styles.error}>Error: {error}</div>;
+  const fav = currentChannel ? isFavorite(currentChannel.id) : false;
 
   return (
-    <div className={styles.home}>
-      <div className={styles.mainContent}>
-        <section className={styles.playerSection}>
-          <div className={styles.playerCard}>
-            <div className={styles.playerHeader}>
-              {currentChannel ? (
-                <>
-                  <h2 className={styles.channelTitle}>{currentChannel.name}</h2>
-                  <span className={`${styles.liveStatus} ${isLive(currentChannel.slug) ? styles.liveOn : styles.liveOff}`}>
-                    <span className={styles.liveDot} />
-                    {isLive(currentChannel.slug) ? 'EN VIVO' : 'OFFLINE'}
-                  </span>
-                </>
-              ) : (
-                <h2 className={styles.channelTitle}>Selecciona un canal</h2>
-              )}
-            </div>
-            <div className={styles.videoContainer}>
-              <VideoPlayer channel={currentChannel} />
-            </div>
-          </div>
+    <div className={styles.shell}>
+      {/* ===== LEFT SIDEBAR (compartido) ===== */}
+      <LtSidebar />
 
-          {/* Filtro por país (chips horizontales scrolleable) */}
-          {regions.length > 1 && (
-            <div className={styles.regionChips} role="tablist" aria-label="Filtrar por país">
+      {/* ===== MAIN ===== */}
+      <main className={styles.main}>
+        {/* mobile top bar */}
+        <div className={styles.mobileBar}>
+          <div className={styles.brand}>
+            <LocalTvMark size={26} radius={7} />
+            <LocalTvWordmark size={15} />
+          </div>
+          <button
+            type="button"
+            className={styles.mobileHealth}
+            onClick={refreshHealth}
+            disabled={healthLoading}
+          >
+            <span className={`${styles.dot} ${styles.dotLive}`} />
+            {healthLoading ? '…' : 'En vivo'}
+          </button>
+        </div>
+
+        {/* mobile channel strip */}
+        <div className={styles.chStrip}>
+          {filteredChannels.slice(0, 30).map((ch) => {
+            const selected = currentChannel?.id === ch.id;
+            return (
               <button
+                key={ch.id}
                 type="button"
-                className={`${styles.chip} ${activeRegion === 'all' ? styles.chipActive : ''}`}
-                onClick={() => setActiveRegion('all')}
-                aria-selected={activeRegion === 'all'}
+                className={`${styles.chip} ${selected ? styles.chipActive : ''}`}
+                onClick={() => setCurrentChannel(ch)}
               >
-                <span className={styles.chipFlag}>📺</span>
-                Todos
-                <span className={styles.chipCount}>{channels.length}</span>
+                <ChannelBadge ch={ch} size={22} radius={5} />
+                <span className={styles.chipName}>{ch.name}</span>
+                <span className={`${styles.dot} ${styles.dotLive}`} />
               </button>
-              {regions.map((r) => {
-                const meta = regionMeta(r);
-                const count = channels.filter((c) => c.region === r).length;
-                return (
-                  <button
-                    key={r}
-                    type="button"
-                    className={`${styles.chip} ${activeRegion === r ? styles.chipActive : ''}`}
-                    onClick={() => setActiveRegion(r)}
-                    aria-selected={activeRegion === r}
-                  >
-                    <span className={styles.chipFlag}>{meta.flag}</span>
-                    {meta.label}
-                    <span className={styles.chipCount}>{count}</span>
-                  </button>
-                );
-              })}
+            );
+          })}
+        </div>
+
+        {/* topbar */}
+        <div className={styles.topbar}>
+          <div className={styles.pills}>
+            <button
+              className={`${styles.pill} ${agendaFilter === 'live' ? styles.pillActive : ''}`}
+              onClick={() => setAgendaFilter('live')}
+            >En vivo · {counts.live}</button>
+            <button
+              className={`${styles.pill} ${agendaFilter === 'upcoming' ? styles.pillActive : ''}`}
+              onClick={() => setAgendaFilter('upcoming')}
+            >Próximos · {counts.upcoming}</button>
+            <button
+              className={`${styles.pill} ${agendaFilter === 'finished' ? styles.pillActive : ''}`}
+              onClick={() => setAgendaFilter('finished')}
+            >Finalizados · {counts.finished}</button>
+          </div>
+        </div>
+
+        {/* player slot — el <video> persistente se posiciona aquí (ver PersistentPlayer) */}
+        <div id={PLAYER_SLOT_ID} className={styles.playerBlock} />
+
+        {/* agenda heading */}
+        <div className={styles.agendaHead}>
+          <div>
+            <h3 className={styles.agendaTitle}>Agenda · {TODAY_LABEL}</h3>
+            <div className={styles.agendaSub}>Sincronización en tiempo real · clic en un evento para reproducir</div>
+          </div>
+        </div>
+
+        {/* agenda rows */}
+        <div className={styles.agendaList}>
+          {visibleEvents.map((ev) => {
+            const playable = ev.streams.some((s) => s.channel);
+            const live = ev.status === 'live';
+            const evLogo = ev.streams.find((s) => s.channel)?.logo || null;
+            return (
+              <div key={ev.id} className={`${styles.match} ${live ? styles.matchLive : ''}`}>
+                {evLogo && <img className={styles.matchBg} src={evLogo} alt="" aria-hidden="true" loading="lazy" />}
+                <div className={`${styles.matchTime} ${live ? styles.matchTimeLive : ''}`}>
+                  {live ? (
+                    <span className={styles.matchLiveTag}>
+                      <span className={styles.matchLiveDot} /> EN VIVO
+                    </span>
+                  ) : ev.status === 'finished' ? 'FIN' : ev.hour}
+                </div>
+                <div className={styles.matchBody}>
+                  <div className={styles.matchTitle}>{ev.title}</div>
+                  <div className={styles.matchMeta}>
+                    {ev.competition}
+                    {ev.relTime ? ` · ${ev.relTime}` : ''}
+                    {ev.streams.length ? ` · ${ev.streams.length} canal${ev.streams.length > 1 ? 'es' : ''}` : ''}
+                  </div>
+                </div>
+                <button
+                  className={`${styles.matchBtn} ${live ? styles.matchBtnLive : ''}`}
+                  disabled={!playable}
+                  onClick={() => playEvent(ev)}
+                >
+                  {live ? <><IconPlay size={11} /> Ver</> : <><IconBell size={12} /> {playable ? 'Ver' : '—'}</>}
+                </button>
+              </div>
+            );
+          })}
+          {!visibleEvents.length && (
+            <div className={styles.emptyAgenda}>
+              <IconCalendar size={28} color="rgba(255,255,255,0.25)" />
+              <p>
+                {agendaFilter === 'live' && 'No hay eventos en vivo ahora mismo.'}
+                {agendaFilter === 'upcoming' && 'No hay próximos eventos hoy.'}
+                {agendaFilter === 'finished' && 'Aún no hay eventos finalizados.'}
+              </p>
             </div>
           )}
-
-          {/* Filas Netflix-style debajo del player */}
-          <div className={styles.rowsArea}>
-            {searchQuery ? (
-              <ChannelRow
-                title={`Resultados (${filteredChannels.length})`}
-                channels={filteredChannels}
-                currentChannel={currentChannel}
-                onSelect={(c) => setCurrentChannel(c)}
-                isFavorite={isFavorite}
-                toggleFavorite={toggleFavorite}
-              />
-            ) : (
-              <>
-                {favoriteChannels.length > 0 && (
-                  <ChannelRow
-                    title="Tus favoritos"
-                    accent
-                    channels={favoriteChannels}
-                    currentChannel={currentChannel}
-                    onSelect={(c) => setCurrentChannel(c)}
-                    isFavorite={isFavorite}
-                    toggleFavorite={toggleFavorite}
-                  />
-                )}
-                <ChannelRow
-                  title="Todos los canales"
-                  channels={filteredChannels}
-                  currentChannel={currentChannel}
-                  onSelect={(c) => setCurrentChannel(c)}
-                  isFavorite={isFavorite}
-                  toggleFavorite={toggleFavorite}
-                />
-              </>
-            )}
-          </div>
-        </section>
-
-        <SidebarWithTabs onStreamClick={handleStreamClick} />
-      </div>
-
-      {streamFeedback && (
-        <div
-          className={`${styles.toast} ${
-            streamFeedback.type === 'ok' ? styles.toastOk : styles.toastWarn
-          }`}
-          role="status"
-        >
-          {streamFeedback.text}
         </div>
-      )}
-    </div>
-  );
-}
+      </main>
 
-function ChannelRow({ title, channels, currentChannel, onSelect, isFavorite, toggleFavorite, accent = false }) {
-  if (!channels.length) {
-    return (
-      <div className={styles.row}>
-        <h3 className={`${styles.rowTitle} ${accent ? styles.rowTitleAccent : ''}`}>{title}</h3>
-        <p className={styles.rowEmpty}>Sin canales para mostrar.</p>
-      </div>
-    );
-  }
-  return (
-    <div className={styles.row}>
-      <h3 className={`${styles.rowTitle} ${accent ? styles.rowTitleAccent : ''}`}>
-        {title} <span className={styles.rowCount}>{channels.length}</span>
-      </h3>
-      <div className={styles.rowGrid}>
-        {channels.map((ch) => (
-          <ChannelCard
-            key={ch.id}
-            channel={ch}
-            isSelected={currentChannel?.id === ch.id}
-            onSelect={() => onSelect(ch)}
-            isFavorite={isFavorite(ch.id)}
-            onToggleFavorite={toggleFavorite}
-          />
-        ))}
-      </div>
+      {/* ===== RIGHT DETAIL PANEL (rediseñado) ===== */}
+      <aside className={styles.detail}>
+        <div className={`${styles.detailGlow} lt-glow`} aria-hidden="true" />
+        <div className={styles.detailInner}>
+          <div className={styles.detailHead}>
+            <span className={styles.detailEyebrow}>Reproduciendo</span>
+            <span className={styles.detailLive}>
+              <span className={styles.matchLiveDot} /> EN VIVO
+            </span>
+          </div>
+
+          {currentChannel ? (
+            <div className={styles.hero}>
+              {getLogoFor(currentChannel) && (
+                <img className={styles.heroBg} src={getLogoFor(currentChannel)} alt="" aria-hidden="true" />
+              )}
+              <div className={styles.heroLogo}>
+                <ChannelLogo ch={currentChannel} size={76} radius={22} />
+              </div>
+              <div className={styles.heroName}>{currentChannel.name}</div>
+              <div className={styles.heroMeta}>{regionLabel(currentChannel.region)}</div>
+              <button
+                type="button"
+                className={`${styles.heroFav} ${fav ? styles.heroFavOn : ''}`}
+                onClick={() => toggleFavorite(currentChannel.id)}
+              >
+                <IconStar size={15} color="currentColor" fill={fav ? 'currentColor' : 'none'} />
+                {fav ? 'En favoritos' : 'Agregar a favoritos'}
+              </button>
+            </div>
+          ) : (
+            <div className={styles.curEmpty}>Selecciona un canal</div>
+          )}
+
+          <div className={styles.detailSectionLabel}>Más canales</div>
+          <div className={styles.detailList}>
+            {otherChannels.map((ch) => (
+              <button key={ch.id} type="button" className={styles.detailRow} onClick={() => setCurrentChannel(ch)}>
+                <ChannelLogo ch={ch} size={38} radius={12} />
+                <span className={styles.detailRowText}>
+                  <span className={styles.detailRowName}>{ch.name}</span>
+                  <span className={styles.detailRowTag}>{regionLabel(ch.region)}</span>
+                </span>
+                <svg className={styles.detailGo} width="7" height="12" viewBox="0 0 7 12" aria-hidden="true">
+                  <path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            ))}
+            {!otherChannels.length && <p className={styles.emptyMini}>No hay otros canales.</p>}
+          </div>
+
+          <div className={styles.detailFooter}>
+            <span>Reproductor: {playerEngine}</span>
+            <span className={styles.statusOk}>● en vivo</span>
+          </div>
+        </div>
+      </aside>
+
+      <LtMobileTabs />
     </div>
   );
 }

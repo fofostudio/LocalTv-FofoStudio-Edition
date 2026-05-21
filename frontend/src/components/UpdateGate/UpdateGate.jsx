@@ -20,6 +20,14 @@ import styles from './UpdateGate.module.css';
 const REPO = 'fofostudio/LocalTv-FofoStudio-Edition';
 const CURRENT_VERSION = (import.meta.env.VITE_APP_VERSION || '0.0.0').replace(/^v/, '');
 
+// En desarrollo (vite dev) o corriendo en localhost no bloqueamos: la versión
+// local siempre va por detrás del último release publicado y no tiene sentido
+// pedir "actualizar" mientras se está desarrollando.
+const IS_DEV =
+  import.meta.env.DEV ||
+  (typeof window !== 'undefined' &&
+    /^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname));
+
 function compareVersions(a, b) {
   const pa = a.split('.').map((n) => parseInt(n, 10) || 0);
   const pb = b.split('.').map((n) => parseInt(n, 10) || 0);
@@ -79,9 +87,10 @@ async function tryAutoUpdate(url, assetName) {
 }
 
 export default function UpdateGate({ children }) {
-  const [state, setState] = useState({ status: 'checking' });
+  const [state, setState] = useState(IS_DEV ? { status: 'ok' } : { status: 'checking' });
 
   useEffect(() => {
+    if (IS_DEV) return; // dev/localhost: nunca bloquear
     let cancelled = false;
     const platform = detectPlatform();
 

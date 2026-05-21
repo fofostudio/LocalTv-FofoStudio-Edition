@@ -54,6 +54,8 @@ const webApi = {
 
   getStreamHealth: () => jsonFetch('/api/streams/health'),
 
+  getNetworkInfo: () => jsonFetch('/api/network/info'),
+
   getDiaryEvents: async () => {
     const res = await fetch('https://pltvhd.com/diaries.json');
     if (!res.ok) throw new Error('Failed to fetch diary events');
@@ -115,6 +117,21 @@ const mobileApi = {
       live: [...live].sort(),
       total: live.size,
       cached_age_s: 0,
+    };
+  },
+
+  // En móvil no hay backend FastAPI; el plugin HlsProxy expone la IP LAN del celu.
+  async getNetworkInfo() {
+    const HlsProxy = window.Capacitor?.Plugins?.HlsProxy;
+    if (!HlsProxy?.networkInfo) return null;
+    const info = await HlsProxy.networkInfo();
+    if (!info?.lanUrl) return null;
+    const m = /^https?:\/\/([^:/]+)(?::(\d+))?/.exec(info.lanUrl);
+    return {
+      lan_ip: m?.[1] || '',
+      port: m?.[2] ? Number(m[2]) : null,
+      lan_url: info.lanUrl,
+      hostname: info.hostname || '',
     };
   },
 

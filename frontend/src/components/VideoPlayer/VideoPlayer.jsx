@@ -1,35 +1,64 @@
 /**
- * Reproductor HLS nativo: <video controls> + hls.js.
+ * Reproductor HLS multi-motor: <video> + cascada de motores y recuperación.
  *
- * Cascada de recuperación con 6 métodos distintos + auto-skip:
- *
+ * Motores (se prueban en orden, escalando tier a tier):
  *   tier 0  hls.js fresh — config standard
  *   tier 1  hls.js + soft recovery in-place (recoverMediaError / startLoad)
- *   tier 2  hls.js + cache-bust ?_t=<ts> + buffers chicos (recovery rápido)
- *   tier 3  hls.js + cache-bust + WORKER DESACTIVADO
- *           (transmux MPEG-TS→fMP4 corre en main thread; distinto code path
- *           que el worker, a veces evita demuxer-error específico)
- *   tier 4  hls.js + cache-bust + capLevelToPlayerSize + startLevel=0
- *           (fuerza la variante de menor bitrate — codecs más comunes,
- *           menos chances de codec exótico que rompa el demuxer)
- *   tier 5  native <video src> directo, sin hls.js
- *           (Chrome ≥100 en WebView puede usar su stack de media nativo
- *           y digerir HLS donde hls.js falla)
- *   tier 6+ AUTO-SKIP silencioso al próximo canal live (sin mostrar panel
- *           de error). Solo si fallan 3 canales seguidos mostramos panel.
+ *   tier 2  hls.js + cache-bust ?_t=<ts> + buffers chicos
+ *   tier 3  hls.js + cache-bust + WORKER DESACTIVADO (otro code path de demux)
+ *   tier 4  hls.js + cache-bust + capLevelToPlayerSize + startLevel=0 (menor bitrate)
+ *   tier 5  SHAKA-PLAYER (lazy desde CDN) — parser/demuxer independiente de
+ *           hls.js; reproduce HLS donde hls.js falla y es muy compatible con
+ *           Smart TVs / WebViews.
+ *   tier 6  <video src> NATIVO directo, sin librería (Safari/iOS/algunas TV
+ *           digieren HLS nativo donde todo lo demás falla).
+ *   tier 7+ AUTO-SKIP silencioso al próximo canal live.
  *
- * Cada cambio de canal resetea el tier. Cuando el stream finalmente arranca
- * (evento `playing`), también reseteamos el contador de auto-skips.
+ * En navegadores con HLS nativo (Safari/iOS/varias TV) usamos el motor nativo
+ * de entrada y solo escalamos a hls.js/shaka si falla.
  */
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ChannelContext } from '../../context/ChannelContext';
 import { streamPlaylistUrl, lanStreamUrl } from '../../services/platform';
+import { setPlayerEngine } from '../../hooks/usePlayerEngine';
+import { isLite } from '../../utils/device';
 import CastButton from '../CastButton/CastButton';
 import styles from './VideoPlayer.module.css';
 
 const BASE_URL = import.meta.env.VITE_API_URL || '';
-const MAX_TIER = 5;        // tiers 0..5 — pasar 5 dispara auto-skip
-const MAX_AUTO_SKIPS = 3;  // tras 3 canales saltados sin éxito, mostramos panel
+const MAX_AUTO_SKIPS = 3;
+
+const SHAKA_URL = 'https://cdn.jsdelivr.net/npm/shaka-player@4.11.2/dist/shaka-player.compiled.js';
+
+/**
+ * Orden de motores según el dispositivo. Cada paso es {e:'hls'|'shaka'|'native', t?}.
+ *  - Safari/iOS/TV con HLS nativo  → nativo primero (lo digieren mejor que MSE).
+ *  - TV / modo ligero              → nativo y shaka antes que hls.js (MSE es
+ *                                    pesado/inestable en muchos navegadores de TV).
+ *  - PC (Chrome/Edge/Firefox)      → hls.js primero (lo más fiable en desktop),
+ *                                    luego shaka y nativo como respaldo.
+ */
+function enginePlan(lite, nativeCapable) {
+  if (nativeCapable) return [{ e: 'native' }, { e: 'shaka' }, { e: 'hls', t: 0 }, { e: 'hls', t: 2 }, { e: 'hls', t: 3 }];
+  if (lite) return [{ e: 'native' }, { e: 'shaka' }, { e: 'hls', t: 0 }, { e: 'hls', t: 2 }, { e: 'hls', t: 4 }];
+  return [{ e: 'hls', t: 0 }, { e: 'hls', t: 1 }, { e: 'hls', t: 2 }, { e: 'hls', t: 3 }, { e: 'hls', t: 4 }, { e: 'shaka' }, { e: 'native' }];
+}
+
+// Carga perezosa de un <script> CDN (una sola vez por URL).
+const _scriptPromises = new Map();
+function loadScript(src) {
+  if (_scriptPromises.has(src)) return _scriptPromises.get(src);
+  const p = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = src;
+    s.async = true;
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error(`No se pudo cargar ${src}`));
+    document.head.appendChild(s);
+  });
+  _scriptPromises.set(src, p);
+  return p;
+}
 
 function describeError(detail) {
   const d = String(detail || '').toLowerCase();
@@ -77,16 +106,12 @@ function hlsConfigForTier(tier) {
   };
   if (tier <= 1) return base;
   if (tier === 2) {
-    // Buffers chicos: si está corrupto, lo descubrimos rápido y reciclamos
     return { ...base, maxBufferLength: 10, maxMaxBufferLength: 30, backBufferLength: 10 };
   }
   if (tier === 3) {
-    // Worker OFF: distinto path de transmux (a veces demuxer del worker
-    // y del main thread tienen bugs distintos)
     return { ...base, enableWorker: false };
   }
   if (tier === 4) {
-    // Force lowest variant: menos chances de codec exótico
     return {
       ...base,
       enableWorker: false,
@@ -102,15 +127,22 @@ export default function VideoPlayer({ channel }) {
   const { nextLiveChannel, setCurrentChannel, healthLoading } = useContext(ChannelContext);
   const videoRef = useRef(null);
   const hlsRef = useRef(null);
+  const shakaRef = useRef(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [tier, setTier] = useState(0);
 
-  // Contador de auto-skips. Se resetea cuando un canal arranca a reproducir
-  // o cuando el usuario elige manualmente un canal.
   const skipCountRef = useRef(0);
 
-  // ----- URL pública LAN para Chromecast (resuelta async) -----
+  // Plan de motores según dispositivo (estable durante la sesión).
+  const nativeCapable = useMemo(() => {
+    try { return !!document.createElement('video').canPlayType('application/vnd.apple.mpegurl'); }
+    catch { return false; }
+  }, []);
+  const plan = useMemo(() => enginePlan(isLite(), nativeCapable), [nativeCapable]);
+  const maxTier = plan.length - 1;
+
+  // ----- URL pública LAN para Chromecast -----
   const [castUrl, setCastUrl] = useState(null);
   useEffect(() => {
     if (!channel?.slug) { setCastUrl(null); return; }
@@ -125,9 +157,9 @@ export default function VideoPlayer({ channel }) {
     setError(null);
   }, [channel?.slug]);
 
-  // ----- Auto-skip cuando se acaban los métodos -----
+  // ----- Auto-skip cuando se acaban los motores -----
   useEffect(() => {
-    if (tier <= MAX_TIER) return;
+    if (tier <= maxTier) return;
     if (!channel?.slug) return;
 
     if (skipCountRef.current >= MAX_AUTO_SKIPS) {
@@ -155,11 +187,9 @@ export default function VideoPlayer({ channel }) {
     }
 
     skipCountRef.current += 1;
-    console.warn(
-      `[player] auto-skip #${skipCountRef.current}: ${channel.slug} → ${next.slug}`
-    );
+    console.warn(`[player] auto-skip #${skipCountRef.current}: ${channel.slug} → ${next.slug}`);
     setCurrentChannel(next);
-  }, [tier, channel?.slug, nextLiveChannel, setCurrentChannel]);
+  }, [tier, maxTier, channel?.slug, nextLiveChannel, setCurrentChannel]);
 
   // ----- Carga del stream (corre cuando cambia el canal o el tier) -----
   useEffect(() => {
@@ -167,6 +197,10 @@ export default function VideoPlayer({ channel }) {
       if (hlsRef.current) {
         try { hlsRef.current.destroy(); } catch (_) { /* ignore */ }
         hlsRef.current = null;
+      }
+      if (shakaRef.current) {
+        try { shakaRef.current.destroy(); } catch (_) { /* ignore */ }
+        shakaRef.current = null;
       }
       const video = videoRef.current;
       if (video) {
@@ -177,7 +211,7 @@ export default function VideoPlayer({ channel }) {
     cleanup();
 
     if (!channel?.slug) return;
-    if (tier > MAX_TIER) return; // el effect de auto-skip se encarga
+    if (tier > maxTier) return; // el effect de auto-skip se encarga
     setLoading(true);
 
     let cancelled = false;
@@ -195,11 +229,7 @@ export default function VideoPlayer({ channel }) {
         proxyUrl = await streamPlaylistUrl(channel.slug);
       } catch (e) {
         if (!cancelled) {
-          setError({
-            title: 'No se pudo iniciar el proxy HLS',
-            message: e.message,
-            kind: 'generic',
-          });
+          setError({ title: 'No se pudo iniciar el proxy HLS', message: e.message, kind: 'generic' });
           setLoading(false);
         }
         return;
@@ -208,38 +238,67 @@ export default function VideoPlayer({ channel }) {
       const video = videoRef.current;
       if (!video) return;
 
-      // tier ≥ 2 → cache-buster fuerza re-resolve aguas arriba con tokens frescos
-      const bustedUrl = tier >= 2
+      // En cualquier reintento pedimos tokens frescos aguas arriba.
+      const bustedUrl = tier >= 1
         ? `${proxyUrl}${proxyUrl.includes('?') ? '&' : '?'}_t=${Date.now()}`
         : proxyUrl;
 
-      // tier 5 → native <video src> sin hls.js. También aplicamos en Safari nativo.
-      const useNative = tier >= 5 || video.canPlayType('application/vnd.apple.mpegurl');
-      if (useNative) {
+      const step = plan[tier] || { e: 'native' };
+
+      // ----- Motor NATIVO -----
+      if (step.e === 'native') {
+        setPlayerEngine('nativo');
         video.src = bustedUrl;
-        video.play().catch(() => { /* autoplay puede bloqueado */ });
+        video.play().catch(() => { /* autoplay bloqueado */ });
         return;
       }
 
+      // ----- Motor SHAKA-PLAYER -----
+      if (step.e === 'shaka') {
+        setPlayerEngine('shaka');
+        try {
+          await loadScript(SHAKA_URL);
+          if (cancelled) return;
+          const shaka = window.shaka;
+          if (!shaka?.Player) { escalate('shaka-missing'); return; }
+          if (shaka.Player.isBrowserSupported && !shaka.Player.isBrowserSupported()) {
+            escalate('shaka-unsupported'); return;
+          }
+          try { shaka.polyfill.installAll(); } catch (_) {}
+          const player = new shaka.Player();
+          shakaRef.current = player;
+          await player.attach(video);
+          if (cancelled) return;
+          player.addEventListener('error', (ev) => {
+            if (cancelled) return;
+            console.warn('[shaka] error', ev?.detail);
+            escalate(`shaka:${ev?.detail?.code || 'err'}`);
+          });
+          await player.load(bustedUrl);
+          if (cancelled) return;
+          video.play().catch(() => { /* autoplay bloqueado */ });
+        } catch (e) {
+          if (!cancelled) escalate(`shaka-init:${e?.message || e}`);
+        }
+        return;
+      }
+
+      // ----- Motor hls.js -----
       const Hls = window.Hls;
       if (!Hls?.isSupported?.()) {
-        setError({
-          title: 'Player no compatible',
-          message: 'Este navegador no soporta HLS. Usá Chrome, Edge, Firefox o Safari.',
-          kind: 'generic',
-        });
-        setLoading(false);
+        escalate('hls-unsupported');
         return;
       }
 
-      const hls = new Hls(hlsConfigForTier(tier));
+      const hlsTier = step.t || 0;
+      setPlayerEngine('hls.js');
+      const hls = new Hls(hlsConfigForTier(hlsTier));
       hlsRef.current = hls;
       hls.loadSource(bustedUrl);
       hls.attachMedia(video);
 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        // En tier 4 forzamos el primer level (lowest bitrate)
-        if (tier === 4 && hls.levels?.length) {
+        if (hlsTier === 4 && hls.levels?.length) {
           try { hls.currentLevel = 0; } catch (_) {}
         }
         video.play().catch(() => { /* autoplay bloqueado */ });
@@ -249,13 +308,9 @@ export default function VideoPlayer({ channel }) {
         if (cancelled) return;
         if (!data.fatal) return;
         fatalCount += 1;
-        console.warn(
-          `[hls] fatal #${fatalCount} tier=${tier} type=${data.type} detail=${data.details}`
-        );
+        console.warn(`[hls] fatal #${fatalCount} tier=${tier} hlsTier=${hlsTier} type=${data.type} detail=${data.details}`);
 
-        // Tier 0/1: primer fatal recuperable → soft recovery in-place.
-        // Esto nos ahorra un rebuild completo cuando el bug es transitorio.
-        if (fatalCount === 1 && tier <= 1) {
+        if (fatalCount === 1 && hlsTier <= 1) {
           if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
             try { hls.recoverMediaError(); return; } catch (_) {}
           }
@@ -266,7 +321,6 @@ export default function VideoPlayer({ channel }) {
             try { hls.startLoad(); return; } catch (_) {}
           }
         }
-
         escalate(data.details);
       });
     })();
@@ -274,26 +328,21 @@ export default function VideoPlayer({ channel }) {
     return () => { cancelled = true; cleanup(); };
   }, [channel?.slug, tier, healthLoading]);
 
-  // ----- Listeners del <video> para sincronizar loading + errores -----
+  // ----- Listeners del <video> -----
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
     const onPlaying = () => {
       setLoading(false);
       setError(null);
-      // El stream arrancó: reseteamos el contador de saltos automáticos
       skipCountRef.current = 0;
     };
     const onWaiting = () => setLoading(true);
     const onError = () => {
       const code = v.error?.code;
       if (!code) return;
-      // Code 3 = MEDIA_ERR_DECODE (demuxer en native). Code 4 = unsupported.
-      // Ambos son fatales del path nativo → escalamos al siguiente tier.
-      if (tier <= MAX_TIER) {
-        console.warn(
-          `[video.error] ${channel?.slug} tier=${tier} code=${code} msg=${v.error?.message} → escalate`
-        );
+      if (tier <= maxTier) {
+        console.warn(`[video.error] ${channel?.slug} tier=${tier} code=${code} → escalate`);
         setTier((t) => t + 1);
       }
     };
@@ -306,16 +355,6 @@ export default function VideoPlayer({ channel }) {
       v.removeEventListener('error', onError);
     };
   }, [channel?.slug, tier]);
-
-  // Reset de skip count cuando el usuario elige un canal manualmente.
-  // Detectamos "elección manual" por cambio de slug + tier === 0.
-  // (Si el cambio fue por auto-skip, el efecto de auto-skip ya incrementó
-  // skipCountRef antes de que tier se resetee a 0.)
-  useEffect(() => {
-    // Cuando un canal arranca a reproducir, onPlaying ya resetea.
-    // Acá solo cuidamos un caso: si el user toca el botón "Reintentar"
-    // explícitamente (lo cual setea tier = 0).
-  }, [channel?.slug]);
 
   const tryNextLive = () => {
     skipCountRef.current = 0;
@@ -334,14 +373,16 @@ export default function VideoPlayer({ channel }) {
     [castUrl, channel?.slug],
   );
 
-  // Texto de progreso para el overlay
   const overlayText = (() => {
     if (tier === 0) return 'Cargando…';
-    if (tier > MAX_TIER) {
+    if (tier > maxTier) {
       const n = skipCountRef.current + 1;
       return `Saltando al próximo canal (${n}/${MAX_AUTO_SKIPS + 1})…`;
     }
-    return `Reintentando (método ${tier + 1}/${MAX_TIER + 1})…`;
+    const step = plan[tier];
+    if (step?.e === 'shaka') return 'Probando motor alternativo (shaka)…';
+    if (step?.e === 'native') return 'Probando reproductor nativo…';
+    return `Reintentando (método ${tier + 1}/${maxTier + 1})…`;
   })();
 
   return (
