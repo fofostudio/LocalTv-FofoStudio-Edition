@@ -1,93 +1,71 @@
 // Cliente VOD (descubrimiento TMDB).
-//  - Web/desktop: usa el proxy del backend (/api/vod/*), que guarda el token.
-//  - Móvil (Capacitor): pega directo a TMDB con el token guardado en localStorage
-//    (vía CapacitorHttp para evitar CORS).
+//
+// El token se resuelve así: token local (Ajustes) → token horneado en build
+// (VITE_TMDB_TOKEN, desde un GitHub Secret). Las llamadas van directo a TMDB
+// (que soporta CORS) tanto en web/exe como en APK, así el token horneado sirve
+// en todas las plataformas sin depender del backend.
 
-import { isCapacitor } from './platform';
-
-const BASE = import.meta.env.VITE_API_URL || '';
 const TMDB = 'https://api.themoviedb.org/3';
 const TOKEN_KEY = 'localtv_tmdb_token';
+const BAKED_TOKEN = import.meta.env.VITE_TMDB_TOKEN || '';
 
 function localToken() {
   try { return localStorage.getItem(TOKEN_KEY) || ''; } catch { return ''; }
 }
+function token() {
+  return localToken() || BAKED_TOKEN;
+}
+// v4 = JWT (eyJ...), v3 = api key hex de 32.
+function isV4(t) {
+  return t.startsWith('eyJ') || t.split('.').length === 3 || t.length > 45;
+}
 
 async function tmdbDirect(path, params = {}) {
-  const token = localToken();
-  if (!token) throw new Error('Configurá tu token de TMDB en Ajustes');
+  const t = token();
+  if (!t) throw new Error('Configurá tu token de TMDB en Ajustes');
   const url = new URL(TMDB + path);
   url.searchParams.set('language', 'es-ES');
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+  const headers = { Accept: 'application/json' };
+  if (isV4(t)) headers.Authorization = `Bearer ${t}`;
+  else url.searchParams.set('api_key', t);
+
   const cap = window.Capacitor;
   if (cap?.Plugins?.CapacitorHttp) {
-    const r = await cap.Plugins.CapacitorHttp.get({
-      url: url.toString(),
-      headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
-    });
-    if (r.status !== 200) throw new Error(`TMDB ${r.status}`);
+    const r = await cap.Plugins.CapacitorHttp.get({ url: url.toString(), headers });
+    if (r.status < 200 || r.status >= 300) throw new Error(`TMDB ${r.status}`);
     return typeof r.data === 'string' ? JSON.parse(r.data) : r.data;
   }
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+  const res = await fetch(url, { headers });
   if (!res.ok) throw new Error(`TMDB ${res.status}`);
   return res.json();
 }
 
-async function backend(path) {
-  const res = await fetch(`${BASE}/api/vod${path}`);
-  if (!res.ok) {
-    let detail = '';
-    try { detail = (await res.json()).detail || ''; } catch { /* ignore */ }
-    const err = new Error(detail || `HTTP ${res.status}`);
-    err.status = res.status;
-    throw err;
-  }
-  return res.json();
-}
+const DEMO_OFF = { sources: [], detail: 'No hay ninguna fuente conectada.' };
 
 export const vod = {
   async getConfig() {
-    if (isCapacitor()) return { has_token: !!localToken() };
-    return backend('/config');
+    return { has_token: !!token(), baked: !!BAKED_TOKEN && !localToken() };
   },
-  async setToken(token) {
-    if (isCapacitor()) {
-      try { localStorage.setItem(TOKEN_KEY, token || ''); } catch { /* ignore */ }
-      return { has_token: !!token };
-    }
-    const res = await fetch(`${BASE}/api/vod/config`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token }),
-    });
-    return res.json();
+  async setToken(tok) {
+    try { localStorage.setItem(TOKEN_KEY, tok || ''); } catch { /* ignore */ }
+    return { has_token: !!token() };
   },
-  async trending(type = 'movie') {
-    if (isCapacitor()) return tmdbDirect(`/trending/${type === 'tv' ? 'tv' : 'movie'}/week`);
-    return backend(`/trending?type=${type === 'tv' ? 'tv' : 'movie'}`);
+  trending(type = 'movie') {
+    return tmdbDirect(`/trending/${type === 'tv' ? 'tv' : 'movie'}/week`);
   },
-  async search(q) {
-    if (isCapacitor()) return tmdbDirect('/search/multi', { query: q, include_adult: 'false' });
-    return backend(`/search?q=${encodeURIComponent(q)}`);
+  search(q) {
+    return tmdbDirect('/search/multi', { query: q, include_adult: 'false' });
   },
-  async detail(type, id) {
-    if (isCapacitor()) return tmdbDirect(`/${type}/${id}`, { append_to_response: 'credits,videos' });
-    return backend(`/${type}/${id}`);
+  detail(type, id) {
+    return tmdbDirect(`/${type}/${id}`, { append_to_response: 'credits,videos' });
   },
-  // Punto de extensión: devuelve fuentes reproducibles si hay un resolver
-  // conectado (autorizado). Por defecto no hay ninguna.
-  async resolve({ media_type, tmdb_id, season, episode }) {
-    if (isCapacitor()) {
-      // Sin backend y sin fuentes conectadas: conectá aquí fuentes autorizadas.
-      return { sources: [], detail: 'No hay ninguna fuente conectada.' };
-    }
-    const res = await fetch(`${BASE}/api/vod/resolve`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ media_type, tmdb_id, season, episode }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+  season(tvId, n) {
+    return tmdbDirect(`/tv/${tvId}/season/${n}`);
+  },
+  async resolve() {
+    // Punto de extensión: conectá aquí fuentes que estés autorizado a usar.
+    return DEMO_OFF;
   },
 };
 

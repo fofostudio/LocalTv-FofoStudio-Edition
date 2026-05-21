@@ -57,6 +57,7 @@ jobs:
         shell: pwsh
         env:
           LOCALTV_VERSION: ${{ steps.ver.outputs.version }}
+          VITE_TMDB_TOKEN: ${{ secrets.TMDB_TOKEN }}
         run: .\build.ps1 -Version $env:LOCALTV_VERSION
 
       - name: Upload installer artifact
@@ -105,6 +106,7 @@ jobs:
       - name: Build (./build.sh)
         env:
           LOCALTV_VERSION: ${{ steps.ver.outputs.version }}
+          VITE_TMDB_TOKEN: ${{ secrets.TMDB_TOKEN }}
         run: |
           chmod +x build.sh
           ./build.sh --version="$LOCALTV_VERSION"
@@ -164,6 +166,7 @@ jobs:
         working-directory: frontend
         env:
           LOCALTV_VERSION: ${{ steps.ver.outputs.version }}
+          VITE_TMDB_TOKEN: ${{ secrets.TMDB_TOKEN }}
         run: npm run build
 
       - name: Install mobile deps
