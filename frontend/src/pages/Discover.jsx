@@ -5,15 +5,18 @@ import LtMobileTabs from '../components/LtMobileTabs/LtMobileTabs';
 import LoadingSpinner from '../components/LoadingSpinner/LoadingSpinner';
 import PosterCard from '../components/PosterCard/PosterCard';
 import { LocalTvMark, LocalTvWordmark } from '../components/Brand/Brand';
-import { IconSearch, IconPlay, IconClose } from '../components/icons/Icons';
+import { IconSearch, IconPlay, IconClose, IconStar } from '../components/icons/Icons';
 import { vod, tmdbImg } from '../services/vodApi';
+import { useVodLibrary } from '../hooks/useVodLibrary';
 import shell from '../components/LtScreen/ltShell.module.css';
 import styles from './Discover.module.css';
 
 function DetailModal({ item, kind, onClose }) {
+  const lib = useVodLibrary();
   const [data, setData] = useState(null);
   const [resolving, setResolving] = useState(false);
   const [playMsg, setPlayMsg] = useState(null);
+  const inList = lib.inList(kind, item.id);
 
   useEffect(() => {
     let cancelled = false;
@@ -66,6 +69,9 @@ function DetailModal({ item, kind, onClose }) {
           <div className={styles.modalActions}>
             <button className={styles.playBtn} onClick={tryPlay} disabled={resolving}>
               <IconPlay size={14} color="currentColor" /> {resolving ? 'Buscando fuente…' : 'Reproducir'}
+            </button>
+            <button className={styles.listBtn} onClick={() => lib.toggle({ ...d, media_type: kind })}>
+              <IconStar size={14} color="currentColor" fill={inList ? 'currentColor' : 'none'} /> {inList ? 'En mi lista' : 'Mi lista'}
             </button>
           </div>
           {playMsg && (

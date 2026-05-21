@@ -19,7 +19,9 @@ const NAV = [
   { to: '/canales', label: 'Canales', Icon: IconTv },
   { to: '/peliculas', label: 'Películas', Icon: IconMovie },
   { to: '/series', label: 'Series', Icon: IconFilm },
-  { to: '/favoritos', label: 'Favoritos', Icon: IconStar },
+  { to: '/anime', label: 'Anime', Icon: IconFilm },
+  { to: '/mi-lista', label: 'Mi Lista', Icon: IconStar },
+  { to: '/favoritos', label: 'Canales fav.', Icon: IconStar },
   { to: '/config', label: 'Configuración', Icon: IconSettings },
 ];
 

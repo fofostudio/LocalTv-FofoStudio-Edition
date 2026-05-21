@@ -8,8 +8,11 @@ function PosterCard({ item, onOpen }) {
   const date = item.release_date || item.first_air_date || '';
   const year = date ? date.slice(0, 4) : '';
   const rating = item.vote_average ? item.vote_average.toFixed(1) : null;
-  const poster = tmdbImg(item.poster_path, 'w342');
-  const kind = item.media_type === 'tv' || item.name ? 'tv' : 'movie';
+  const poster = item._posterUrl || tmdbImg(item.poster_path, 'w342');
+  const kind = item.media_type === 'anime'
+    ? 'anime'
+    : (item.media_type === 'tv' || item.name ? 'tv' : 'movie');
+  const kindLabel = kind === 'anime' ? 'Anime' : kind === 'tv' ? 'Serie' : 'Película';
 
   return (
     <button type="button" className={styles.card} onClick={() => onOpen?.(item, kind)}>
@@ -20,7 +23,7 @@ function PosterCard({ item, onOpen }) {
           <div className={styles.posterFallback}>{title}</div>
         )}
         {rating && <span className={styles.rating}>★ {rating}</span>}
-        <span className={styles.kind}>{kind === 'tv' ? 'Serie' : 'Película'}</span>
+        <span className={styles.kind}>{kindLabel}</span>
       </div>
       <div className={styles.meta}>
         <div className={styles.title}>{title}</div>

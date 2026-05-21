@@ -14,6 +14,8 @@ import styles from './App.module.css';
 const Live = lazy(() => import('./pages/Live'));
 const Channels = lazy(() => import('./pages/Channels'));
 const Discover = lazy(() => import('./pages/Discover'));
+const Anime = lazy(() => import('./pages/Anime'));
+const Library = lazy(() => import('./pages/Library'));
 const Settings = lazy(() => import('./pages/Settings'));
 const ChannelPage = lazy(() => import('./pages/ChannelPage'));
 const AdminLogin = lazy(() => import('./pages/Admin/AdminLogin'));
@@ -21,7 +23,7 @@ const AdminDashboard = lazy(() => import('./pages/Admin/AdminDashboard'));
 
 // Rutas con su propio shell (LtSidebar + tab bar móvil): ocultan el header/footer
 // global para no duplicar navegación.
-const FULLSCREEN_ROUTES = ['/', '/en-vivo', '/canales', '/favoritos', '/peliculas', '/series', '/config'];
+const FULLSCREEN_ROUTES = ['/', '/en-vivo', '/canales', '/favoritos', '/peliculas', '/series', '/anime', '/mi-lista', '/config'];
 
 function GlobalSearch() {
   const { searchQuery, setSearchQuery, channels } = useContext(ChannelContext);
@@ -168,6 +170,8 @@ export default function App() {
                     <Route path="/favoritos" element={<Channels favoritesOnly />} />
                     <Route path="/peliculas" element={<Discover defaultKind="movie" />} />
                     <Route path="/series" element={<Discover defaultKind="tv" />} />
+                    <Route path="/anime" element={<Anime />} />
+                    <Route path="/mi-lista" element={<Library />} />
                     <Route path="/config" element={<Settings />} />
                     <Route path="/channel/:channelId" element={<ChannelPage />} />
                     <Route path="/admin" element={<AdminLogin />} />
