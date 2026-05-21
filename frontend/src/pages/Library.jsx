@@ -6,19 +6,21 @@ import { LocalTvMark, LocalTvWordmark } from '../components/Brand/Brand';
 import { IconClose, IconPlay, IconStar } from '../components/icons/Icons';
 import { useVodLibrary } from '../hooks/useVodLibrary';
 import { vod } from '../services/vodApi';
+import VodPlayer from '../components/VodPlayer/VodPlayer';
 import shell from '../components/LtScreen/ltShell.module.css';
 import styles from './Discover.module.css';
 
 function LibModal({ item, lib, onClose }) {
   const [resolving, setResolving] = useState(false);
   const [msg, setMsg] = useState(null);
+  const [playing, setPlaying] = useState(null);
+  const saved = lib.getProgress(item.media_type, item.id);
   const tryPlay = async () => {
     setResolving(true); setMsg(null);
     try {
       const r = await vod.resolve({ media_type: item.media_type, tmdb_id: item.id });
-      setMsg(r.sources?.length
-        ? { ok: true, text: `${r.sources.length} fuente(s) disponible(s).` }
-        : { ok: false, text: 'No hay ninguna fuente conectada para reproducir.' });
+      if (r.sources?.length) setPlaying(r.sources[0]);
+      else setMsg({ ok: false, text: 'No hay ninguna fuente conectada para reproducir.' });
     } catch (e) { setMsg({ ok: false, text: e.message }); } finally { setResolving(false); }
   };
   return (
@@ -42,6 +44,15 @@ function LibModal({ item, lib, onClose }) {
           {msg && <p className={`${styles.playMsg} ${msg.ok ? styles.playOk : styles.playWarn}`}>{msg.text}</p>}
         </div>
       </div>
+      {playing && (
+        <VodPlayer
+          source={playing}
+          title={item.title}
+          startAt={saved?.position || 0}
+          onProgress={(pos, dur) => lib.setProgress(item.media_type, item.id, pos, dur)}
+          onClose={() => setPlaying(null)}
+        />
+      )}
     </div>
   );
 }

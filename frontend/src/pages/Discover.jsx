@@ -8,6 +8,7 @@ import { LocalTvMark, LocalTvWordmark } from '../components/Brand/Brand';
 import { IconSearch, IconPlay, IconClose, IconStar } from '../components/icons/Icons';
 import { vod, tmdbImg } from '../services/vodApi';
 import { useVodLibrary } from '../hooks/useVodLibrary';
+import VodPlayer from '../components/VodPlayer/VodPlayer';
 import shell from '../components/LtScreen/ltShell.module.css';
 import styles from './Discover.module.css';
 
@@ -16,7 +17,9 @@ function DetailModal({ item, kind, onClose }) {
   const [data, setData] = useState(null);
   const [resolving, setResolving] = useState(false);
   const [playMsg, setPlayMsg] = useState(null);
+  const [playing, setPlaying] = useState(null);
   const inList = lib.inList(kind, item.id);
+  const saved = lib.getProgress(kind, item.id);
 
   useEffect(() => {
     let cancelled = false;
@@ -30,8 +33,7 @@ function DetailModal({ item, kind, onClose }) {
     try {
       const r = await vod.resolve({ media_type: kind, tmdb_id: item.id });
       if (r.sources?.length) {
-        setPlayMsg({ ok: true, text: `${r.sources.length} fuente(s) disponible(s).` });
-        // Aquí se enviaría la fuente al reproductor (cuando haya un resolver conectado).
+        setPlaying(r.sources[0]);
       } else {
         setPlayMsg({ ok: false, text: 'No hay ninguna fuente conectada para reproducir este título.' });
       }
@@ -79,6 +81,15 @@ function DetailModal({ item, kind, onClose }) {
           )}
         </div>
       </div>
+      {playing && (
+        <VodPlayer
+          source={playing}
+          title={title}
+          startAt={saved?.position || 0}
+          onProgress={(pos, dur) => lib.setProgress(kind, item.id, pos, dur)}
+          onClose={() => setPlaying(null)}
+        />
+      )}
     </div>
   );
 }

@@ -82,6 +82,14 @@ def get_season(tv_id: int, number: int):
         raise HTTPException(status_code=502, detail=f"TMDB: {e}")
 
 
+# Stream de prueba público (Apple BipBop) con licencia libre — sirve solo para
+# validar el pipeline de reproducción de punta a punta SIN contenido infractor.
+DEMO_HLS = (
+    "https://devstreaming-cdn.apple.com/videos/streaming/examples/"
+    "bipbop_16x9/bipbop_16x9_variant.m3u8"
+)
+
+
 @router.post("/resolve")
 def resolve(_: ResolvePayload):
     """
@@ -89,11 +97,14 @@ def resolve(_: ResolvePayload):
     p.ej. {"sources": [{"url": "...", "kind": "hls|mp4", "quality": "1080p",
     "headers": {...}}]}.
 
-    Por defecto no hay ninguna fuente conectada. Conectá aquí únicamente
-    proveedores que estés autorizado a usar (tu propio contenido, dominio
-    público, APIs con licencia, etc.).
+    NO incluye ningún scraper de proveedores con copyright. Devuelve una fuente
+    de DEMOSTRACIÓN con licencia libre para que se vea el reproductor funcionando.
+    Conectá aquí únicamente fuentes que estés autorizado a usar (tu propio
+    contenido, dominio público, APIs con licencia, etc.).
     """
     return {
-        "sources": [],
-        "detail": "No hay ningún resolver de fuentes configurado.",
+        "sources": [
+            {"url": DEMO_HLS, "kind": "hls", "quality": "auto", "demo": True,
+             "label": "Demo HLS (Apple BipBop · libre)"}
+        ],
     }

@@ -8,6 +8,7 @@ import { IconSearch, IconPlay, IconClose, IconStar } from '../components/icons/I
 import { anilist } from '../services/anilistApi';
 import { vod } from '../services/vodApi';
 import { useVodLibrary } from '../hooks/useVodLibrary';
+import VodPlayer from '../components/VodPlayer/VodPlayer';
 import shell from '../components/LtScreen/ltShell.module.css';
 import styles from './Discover.module.css';
 
@@ -15,15 +16,16 @@ function AnimeModal({ item, onClose }) {
   const lib = useVodLibrary();
   const [resolving, setResolving] = useState(false);
   const [msg, setMsg] = useState(null);
+  const [playing, setPlaying] = useState(null);
   const inList = lib.inList('anime', item.id);
+  const saved = lib.getProgress('anime', item.id);
 
   const tryPlay = async () => {
     setResolving(true); setMsg(null);
     try {
       const r = await vod.resolve({ media_type: 'anime', tmdb_id: item.id });
-      setMsg(r.sources?.length
-        ? { ok: true, text: `${r.sources.length} fuente(s) disponible(s).` }
-        : { ok: false, text: 'No hay ninguna fuente conectada para reproducir.' });
+      if (r.sources?.length) setPlaying(r.sources[0]);
+      else setMsg({ ok: false, text: 'No hay ninguna fuente conectada para reproducir.' });
     } catch (e) {
       setMsg({ ok: false, text: e.message });
     } finally { setResolving(false); }
@@ -55,6 +57,15 @@ function AnimeModal({ item, onClose }) {
           {msg && <p className={`${styles.playMsg} ${msg.ok ? styles.playOk : styles.playWarn}`}>{msg.text}</p>}
         </div>
       </div>
+      {playing && (
+        <VodPlayer
+          source={playing}
+          title={item.title}
+          startAt={saved?.position || 0}
+          onProgress={(pos, dur) => lib.setProgress('anime', item.id, pos, dur)}
+          onClose={() => setPlaying(null)}
+        />
+      )}
     </div>
   );
 }
