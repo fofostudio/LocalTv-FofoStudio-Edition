@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import LtSidebar from '../components/LtSidebar/LtSidebar';
 import LtMobileTabs from '../components/LtMobileTabs/LtMobileTabs';
 import LoadingSpinner from '../components/LoadingSpinner/LoadingSpinner';
@@ -105,6 +106,9 @@ export default function Anime() {
           <div className={shell.headTop}><h2 className={shell.title}>Anime</h2></div>
           <div className={shell.sub}>Descubrí anime · datos de AniList</div>
           <div className={shell.filterRow}>
+            <Link to="/peliculas" className={shell.pill}>Películas</Link>
+            <Link to="/series" className={shell.pill}>Series</Link>
+            <span className={`${shell.pill} ${shell.pillActive}`}>Anime</span>
             <div className={shell.search}>
               <IconSearch size={13} color="var(--lt-mute)" />
               <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar anime..." aria-label="Buscar" />

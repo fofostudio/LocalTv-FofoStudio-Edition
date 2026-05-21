@@ -154,6 +154,7 @@ export default function Discover({ defaultKind = 'movie' }) {
           <div className={shell.filterRow}>
             <button className={`${shell.pill} ${kind === 'movie' ? shell.pillActive : ''}`} onClick={() => setKind('movie')}>Películas</button>
             <button className={`${shell.pill} ${kind === 'tv' ? shell.pillActive : ''}`} onClick={() => setKind('tv')}>Series</button>
+            <Link to="/anime" className={shell.pill}>Anime</Link>
             <div className={shell.search}>
               <IconSearch size={13} color="var(--lt-mute)" />
               <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar título..." aria-label="Buscar" />
