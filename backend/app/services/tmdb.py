@@ -60,25 +60,32 @@ def has_token() -> bool:
     return bool(get_token())
 
 
-def _client() -> httpx.Client:
-    token = get_token()
-    if not token:
-        raise RuntimeError("TMDB token no configurado")
-    return httpx.Client(
-        base_url=TMDB_BASE,
-        headers={"Authorization": f"Bearer {token}", "Accept": "application/json"},
-        timeout=12.0,
-    )
+def _is_v4(token: str) -> bool:
+    # El read access token v4 es un JWT (eyJ... con 2 puntos); la API key v3
+    # es un hex de 32 chars.
+    return token.startswith("eyJ") or token.count(".") == 2 or len(token) > 45
 
 
 def _get(path: str, params: dict | None = None) -> dict:
+    token = get_token()
+    if not token:
+        raise RuntimeError("TMDB token no configurado")
+
     key = f"{path}?{json.dumps(params or {}, sort_keys=True)}"
     hit = _cache.get(key)
     now = time.time()
     if hit and now - hit[0] < _CACHE_TTL:
         return hit[1]
-    with _client() as c:
-        r = c.get(path, params={"language": "es-ES", **(params or {})})
+
+    headers = {"Accept": "application/json"}
+    query = {"language": "es-ES", **(params or {})}
+    if _is_v4(token):
+        headers["Authorization"] = f"Bearer {token}"
+    else:
+        query["api_key"] = token  # API key v3
+
+    with httpx.Client(base_url=TMDB_BASE, timeout=12.0) as c:
+        r = c.get(path, params=query, headers=headers)
         r.raise_for_status()
         data = r.json()
     _cache[key] = (now, data)
