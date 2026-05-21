@@ -78,13 +78,8 @@ export const vod = {
   // conectado (autorizado). Por defecto no hay ninguna.
   async resolve({ media_type, tmdb_id, season, episode }) {
     if (isCapacitor()) {
-      // Sin backend: misma fuente de demostración con licencia libre.
-      return {
-        sources: [{
-          url: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8',
-          kind: 'hls', quality: 'auto', demo: true, label: 'Demo HLS (libre)',
-        }],
-      };
+      // Sin backend y sin fuentes conectadas: conectá aquí fuentes autorizadas.
+      return { sources: [], detail: 'No hay ninguna fuente conectada.' };
     }
     const res = await fetch(`${BASE}/api/vod/resolve`, {
       method: 'POST',
