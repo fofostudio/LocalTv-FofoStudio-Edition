@@ -5,6 +5,7 @@ import { LocalTvMark, LocalTvWordmark } from '../Brand/Brand';
 import ChannelBadge from '../ChannelBadge/ChannelBadge';
 import {
   IconCalendar, IconLive, IconTv, IconStar, IconSettings, IconSearch, IconRefresh,
+  IconMovie, IconFilm,
 } from '../icons/Icons';
 import { regionLabel } from '../../utils/channelDisplay';
 import { isLite } from '../../utils/device';
@@ -16,6 +17,8 @@ const NAV = [
   { to: '/', label: 'Agenda', Icon: IconCalendar, end: true },
   { to: '/en-vivo', label: 'En vivo', Icon: IconLive, live: true },
   { to: '/canales', label: 'Canales', Icon: IconTv },
+  { to: '/peliculas', label: 'Películas', Icon: IconMovie },
+  { to: '/series', label: 'Series', Icon: IconFilm },
   { to: '/favoritos', label: 'Favoritos', Icon: IconStar },
   { to: '/config', label: 'Configuración', Icon: IconSettings },
 ];

@@ -260,6 +260,20 @@
 .segOn { background: var(--lt-blue); color: #fff; }
 .segOn:hover { color: #fff; }
 
+.input {
+  flex: 1;
+  min-width: 0;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--lt-line2);
+  border-radius: 9px;
+  padding: 10px 12px;
+  color: #fff;
+  font-size: 13px;
+  font-family: 'Roboto Mono', ui-monospace, monospace;
+  outline: none;
+}
+.input:focus { border-color: rgba(30, 123, 255, 0.6); }
+
 .prefGrid { display: grid; grid-template-columns: 1fr 1fr; }
 .pref {
   padding: 14px 18px;

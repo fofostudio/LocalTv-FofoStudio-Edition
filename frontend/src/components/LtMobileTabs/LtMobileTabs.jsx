@@ -1,11 +1,12 @@
 import { NavLink } from 'react-router-dom';
-import { IconHome, IconLive, IconTv, IconUser } from '../icons/Icons';
+import { IconHome, IconLive, IconTv, IconUser, IconMovie } from '../icons/Icons';
 import styles from './LtMobileTabs.module.css';
 
 const TABS = [
   { to: '/', label: 'Inicio', Icon: IconHome, end: true },
   { to: '/en-vivo', label: 'En vivo', Icon: IconLive },
   { to: '/canales', label: 'Canales', Icon: IconTv },
+  { to: '/peliculas', label: 'Cine', Icon: IconMovie },
   { to: '/config', label: 'Perfil', Icon: IconUser },
 ];
 

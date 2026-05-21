@@ -43,3 +43,5 @@ export const IconMore = (p) => <Icon {...p} fill="currentColor" stroke="none"><c
 export const IconCheck = (p) => <Icon {...p}><path d="M4 10l4 4 8-8" /></Icon>;
 export const IconBolt = (p) => <Icon {...p} fill="currentColor" stroke="none"><path d="M11 1L3 11h5l-1 8 8-10h-5l1-8z" /></Icon>;
 export const IconRefresh = (p) => <Icon {...p}><path d="M16 6a7 7 0 101.5 4.5" /><path d="M17 3v4h-4" /></Icon>;
+export const IconFilm = (p) => <Icon {...p}><rect x="3" y="4" width="14" height="12" rx="2" /><path d="M3 8h14M3 12h14M7 4v12M13 4v12" /></Icon>;
+export const IconMovie = (p) => <Icon {...p}><rect x="2.5" y="6" width="15" height="9" rx="1.5" /><path d="M5 6l2-2.5M9 6l2-2.5M13 6l2-2.5" /></Icon>;
