@@ -38,6 +38,7 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
         private const val ORIGIN = "https://tvtvhd.com"
         private const val UPSTREAM_TEMPLATE =
             "https://tvtvhd.com/vivo/canales.php?stream=%s"
+        private const val RESOLVE_TTL_MS = 45_000L
 
         private val M3U8_PATTERNS = listOf(
             Pattern.compile(
@@ -99,18 +100,121 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
     @Throws(IOException::class)
     private fun resolveStreamUrl(slug: String): String {
         val upstream = String.format(UPSTREAM_TEMPLATE, slug)
-        val req = upstreamHeaders(Request.Builder().url(upstream).get()).build()
-        http.newCall(req).execute().use { resp ->
-            if (!resp.isSuccessful) throw IOException("Upstream HTTP ${resp.code}")
-            val html = resp.body?.string() ?: throw IOException("Empty upstream body")
-            for (pat in M3U8_PATTERNS) {
-                val m = pat.matcher(html)
-                if (m.find()) {
-                    val url = m.group(1)?.trim().orEmpty()
-                    if (url.startsWith("http")) return url
+        var lastErr: Exception? = null
+        for (attempt in 0 until 3) {
+            try {
+                val req = upstreamHeaders(Request.Builder().url(upstream).get()).build()
+                http.newCall(req).execute().use { resp ->
+                    if (resp.isSuccessful) {
+                        val html = resp.body?.string() ?: ""
+                        for (pat in M3U8_PATTERNS) {
+                            val m = pat.matcher(html)
+                            if (m.find()) {
+                                val url = m.group(1)?.trim().orEmpty()
+                                if (url.startsWith("http")) return url
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                lastErr = e
+            }
+            try { Thread.sleep(400L * (attempt + 1)) } catch (_: InterruptedException) {}
+        }
+        throw IOException("Resolve falló para slug=$slug: ${lastErr?.message ?: "sin m3u8"}")
+    }
+
+    /** GET con reintentos ante errores transitorios (5xx/timeout/red). 4xx no se reintenta. */
+    @Throws(IOException::class)
+    private fun getWithRetry(url: String, range: String? = null, tries: Int = 3): okhttp3.Response {
+        var lastResp: okhttp3.Response? = null
+        var lastErr: Exception? = null
+        for (attempt in 0 until tries) {
+            try {
+                val b = upstreamHeaders(Request.Builder().url(url).get())
+                if (range != null) b.header("Range", range)
+                val resp = http.newCall(b.build()).execute()
+                if (resp.code == 200 || resp.code == 206) return resp
+                if (resp.code < 500 && resp.code != 429) return resp  // 4xx definitivo
+                lastResp?.close()
+                lastResp = resp                                       // 5xx → reintentar
+            } catch (e: Exception) {
+                lastErr = e
+            }
+            try { Thread.sleep(300L * (attempt + 1)) } catch (_: InterruptedException) {}
+        }
+        lastResp?.let { return it }
+        throw IOException("Upstream sin respuesta: ${lastErr?.message ?: ""}")
+    }
+
+    private fun isMaster(text: String): Boolean = text.contains("#EXT-X-STREAM-INF")
+
+    /** De un master playlist, elige la variante de mayor BANDWIDTH. */
+    private fun selectVariant(text: String, base: String): String? {
+        val lines = text.lines()
+        var bestUrl: String? = null
+        var bestBw = -1
+        var i = 0
+        while (i < lines.size) {
+            val l = lines[i].trim()
+            if (l.startsWith("#EXT-X-STREAM-INF")) {
+                val m = Pattern.compile("""BANDWIDTH=(\d+)""").matcher(l)
+                val bw = if (m.find()) (m.group(1)?.toIntOrNull() ?: 0) else 0
+                var j = i + 1
+                while (j < lines.size) {
+                    val u = lines[j].trim()
+                    if (u.isNotEmpty() && !u.startsWith("#")) {
+                        if (bw > bestBw) { bestBw = bw; bestUrl = resolveUrl(base, u) }
+                        break
+                    }
+                    j++
                 }
             }
-            throw IOException("Manifest .m3u8 no encontrado en upstream para slug=$slug")
+            i++
+        }
+        return bestUrl
+    }
+
+    private data class Resolved(val ts: Long, val master: String)
+    private val resolveCache = java.util.concurrent.ConcurrentHashMap<String, Resolved>()
+
+    /**
+     * Devuelve (texto_media_playlist, base). Si el upstream es un master playlist,
+     * baja la variante de mayor calidad (aplanado) para que el player refresque
+     * /playlist.m3u8 (que re-resuelve) en vez de una URL con token que se vence.
+     */
+    @Throws(IOException::class)
+    private fun resolveMediaPlaylist(slug: String, force: Boolean): Pair<String, String> {
+        val now = System.currentTimeMillis()
+        val cached = resolveCache[slug]
+        val master = if (!force && cached != null && now - cached.ts < RESOLVE_TTL_MS)
+            cached.master else resolveStreamUrl(slug)
+
+        getWithRetry(master).use { resp ->
+            if (resp.code != 200 && resp.code != 206) throw IOException("Upstream HTTP ${resp.code}")
+            val ct = (resp.header("Content-Type") ?: "").lowercase()
+            val text = resp.body?.string().orEmpty()
+            if (ct.contains("html") || !text.trimStart().startsWith("#EXTM3U"))
+                throw IOException("manifest inválido")
+
+            var outText = text
+            var base = master
+            if (isMaster(text)) {
+                val variant = selectVariant(text, master)
+                if (variant != null) {
+                    getWithRetry(variant).use { rv ->
+                        if (rv.code == 200 || rv.code == 206) {
+                            val vct = (rv.header("Content-Type") ?: "").lowercase()
+                            val vt = rv.body?.string().orEmpty()
+                            if (!vct.contains("html") && vt.trimStart().startsWith("#EXTM3U")) {
+                                outText = vt; base = variant
+                            }
+                        }
+                    }
+                }
+            }
+            resolveCache[slug] = Resolved(now, master)
+            return Pair(outText, base)
         }
     }
 
@@ -165,30 +269,21 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
     // 3. Handlers
     // ----------------------------------------------------------------------
     private fun handlePlaylist(slug: String): Response {
-        val realUrl = try { resolveStreamUrl(slug) } catch (e: IOException) {
-            return error502("Resolve failed: ${e.message}")
+        // Resolución resiliente: reintentos + aplanado master→variante. Si falla,
+        // forzamos re-scrape fresco de tvtvhd y reintentamos una vez (cubre el
+        // token/URL vencidos durante la reproducción en vivo).
+        val pair = try {
+            resolveMediaPlaylist(slug, false)
+        } catch (e: Exception) {
+            resolveCache.remove(slug)
+            try {
+                resolveMediaPlaylist(slug, true)
+            } catch (e2: Exception) {
+                return error502("Canal no disponible: ${e2.message}")
+            }
         }
-        val req = upstreamHeaders(Request.Builder().url(realUrl).get()).build()
-        http.newCall(req).execute().use { resp ->
-            if (!resp.isSuccessful) return error502("Upstream HTTP ${resp.code}")
-            val ct = (resp.header("Content-Type") ?: "").lowercase()
-            val text = resp.body?.string().orEmpty()
-
-            // Evitar demuxer-error: el upstream a veces entrega HTML en
-            // lugar de m3u8 cuando el canal se cayó. Detectamos eso y
-            // devolvemos 502 limpio para que hls.js muestre "no disponible"
-            // en lugar de explotar parseando.
-            if (ct.contains("html")) return error502(
-                "Canal no disponible: upstream devolvió HTML"
-            )
-            val head = text.trimStart().take(32)
-            if (!head.startsWith("#EXTM3U")) return error502(
-                "Canal no disponible: manifest sin signature #EXTM3U"
-            )
-
-            val rewritten = rewriteManifest(text, base = realUrl, slug = slug)
-            return manifest(rewritten)
-        }
+        val rewritten = rewriteManifest(pair.first, base = pair.second, slug = slug)
+        return manifest(rewritten)
     }
 
     private fun handleSegment(slug: String, u: String?, session: IHTTPSession): Response {
@@ -196,12 +291,14 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
         val target = try { URLDecoder.decode(u, "UTF-8") } catch (_: Exception) { u }
         if (!target.startsWith("http")) return badRequest("Bad URL")
 
-        val builder = upstreamHeaders(Request.Builder().url(target).get())
-        // Forward Range si el WebView lo manda (seek + buffering)
-        session.headers["range"]?.let { builder.header("Range", it) }
-
-        val req = builder.build()
-        http.newCall(req).execute().use { resp ->
+        // GET con reintentos: un blip transitorio del upstream no debe cortar
+        // la reproducción en vivo.
+        val resp = try {
+            getWithRetry(target, session.headers["range"])
+        } catch (e: Exception) {
+            return error502("Upstream segment error: ${e.message}")
+        }
+        resp.use { _ ->
             // CRÍTICO: aceptar SOLO 200 OK y 206 Partial Content. tvtvhd
             // a veces responde 404 con Content-Type m3u8 y body "not found"
             // — sin este guard, ese 'not found' llegaba al player y
