@@ -48,24 +48,31 @@ _PATTERNS = [
 
 
 async def get_stream_url(channel_slug: str) -> str:
-    """Resuelve el slug → URL real del manifest .m3u8 (scrape de tvtvhd)."""
-    upstream = f"https://tvtvhd.com/vivo/canales.php?stream={channel_slug}"
-    try:
-        async with httpx.AsyncClient(
-            timeout=10, headers=UPSTREAM_HEADERS, follow_redirects=True
-        ) as client:
-            r = await client.get(upstream)
-            html = r.text
-    except httpx.HTTPError as e:
-        raise HTTPException(status_code=502, detail=f"Upstream error: {e}")
+    """Resuelve el slug → URL real del manifest .m3u8 (scrape de tvtvhd).
 
-    for pat in _PATTERNS:
-        m = pat.search(html)
-        if m:
-            url = m.group(1).strip()
-            if url.startswith("http"):
-                return url
-    raise HTTPException(status_code=404, detail="Manifest .m3u8 no encontrado en upstream")
+    Reintenta ante fallos transitorios del upstream (tvtvhd a veces tira 5xx
+    o timeouts esporádicos que rompían la reproducción en vivo).
+    """
+    upstream = f"https://tvtvhd.com/vivo/canales.php?stream={channel_slug}"
+    last_err: Exception | None = None
+    for attempt in range(3):
+        try:
+            async with httpx.AsyncClient(
+                timeout=10, headers=UPSTREAM_HEADERS, follow_redirects=True
+            ) as client:
+                r = await client.get(upstream)
+                html = r.text
+            for pat in _PATTERNS:
+                m = pat.search(html)
+                if m:
+                    url = m.group(1).strip()
+                    if url.startswith("http"):
+                        return url
+            last_err = HTTPException(status_code=404, detail="Manifest .m3u8 no encontrado")
+        except httpx.HTTPError as e:
+            last_err = HTTPException(status_code=502, detail=f"Upstream error: {e}")
+        await asyncio.sleep(0.4 * (attempt + 1))
+    raise last_err or HTTPException(status_code=502, detail="No se pudo resolver el stream")
 
 
 # ---------------------------------------------------------------------------
@@ -108,6 +115,90 @@ def _is_manifest(content_type: str | None, url: str) -> bool:
     if content_type and ("mpegurl" in content_type.lower()):
         return True
     return False
+
+
+def _is_master_playlist(text: str) -> bool:
+    return "#EXT-X-STREAM-INF" in (text or "")
+
+
+def _select_variant(text: str, base: str) -> str | None:
+    """De un master playlist, elige la variante de mayor BANDWIDTH (mejor calidad)."""
+    lines = text.splitlines()
+    best_url, best_bw = None, -1
+    for i, raw in enumerate(lines):
+        if raw.strip().startswith("#EXT-X-STREAM-INF"):
+            m = re.search(r"BANDWIDTH=(\d+)", raw)
+            bw = int(m.group(1)) if m else 0
+            for j in range(i + 1, len(lines)):
+                u = lines[j].strip()
+                if u and not u.startswith("#"):
+                    if bw > best_bw:
+                        best_bw, best_url = bw, urljoin(base, u)
+                    break
+    return best_url
+
+
+async def _get_retry(client: httpx.AsyncClient, url: str, tries: int = 3):
+    """GET con reintentos ante errores transitorios (5xx/timeout/conexión).
+    Los 4xx no se reintentan (no van a mejorar)."""
+    last: Exception | None = None
+    for attempt in range(tries):
+        try:
+            r = await client.get(url)
+            if r.status_code in (200, 206):
+                return r
+            last = HTTPException(status_code=502, detail=f"Upstream HTTP {r.status_code}")
+            if r.status_code < 500 and r.status_code != 429:
+                break  # 4xx definitivo
+        except httpx.HTTPError as e:
+            last = HTTPException(status_code=502, detail=f"Upstream error: {e}")
+        await asyncio.sleep(0.35 * (attempt + 1))
+    raise last or HTTPException(status_code=502, detail="Upstream sin respuesta")
+
+
+# Caché corta de la URL de manifest resuelta por slug, para no re-scrapear
+# tvtvhd en cada refresh del playlist en vivo (cada ~6s) pero igual mantenerlo
+# fresco. La variante (media playlist) sí se re-baja siempre para traer
+# segmentos nuevos.
+_RESOLVE_TTL = 45.0
+_resolve_cache: dict[str, dict] = {}
+
+
+async def _resolve_media_playlist(slug: str, force: bool = False) -> tuple[str, str]:
+    """
+    Devuelve (texto_media_playlist, base_url). Si el upstream entrega un master
+    playlist, baja la variante de mayor calidad y devuelve ESA (aplanado), así
+    el player refresca /playlist.m3u8 (que re-resuelve) en vez de una URL de
+    variante con token que se vuelve inválida → se cortaba la transmisión.
+    """
+    now = time.time()
+    cached = _resolve_cache.get(slug)
+    async with httpx.AsyncClient(
+        timeout=15, headers=UPSTREAM_HEADERS, follow_redirects=True
+    ) as client:
+        if not force and cached and now - cached["ts"] < _RESOLVE_TTL:
+            master = cached["master"]
+        else:
+            master = await get_stream_url(slug)
+
+        r = await _get_retry(client, master)
+        text = r.text
+        ct = (r.headers.get("content-type") or "").lower()
+        if "html" in ct or not (text or "").lstrip().startswith("#EXTM3U"):
+            raise HTTPException(status_code=502, detail="Canal no disponible (manifest inválido)")
+
+        base = master
+        if _is_master_playlist(text):
+            variant = _select_variant(text, master)
+            if variant:
+                rv = await _get_retry(client, variant)
+                vt = rv.text
+                vct = (rv.headers.get("content-type") or "").lower()
+                if "html" not in vct and (vt or "").lstrip().startswith("#EXTM3U"):
+                    text, base = vt, variant
+
+        _resolve_cache[slug] = {"ts": now, "master": master}
+        return text, base
 
 
 # ---------------------------------------------------------------------------
@@ -233,40 +324,16 @@ async def proxy_playlist(slug: str):
       - Content-Type del upstream no debe ser text/html
       - El body debe empezar con #EXTM3U (signature obligatoria del HLS)
     """
-    real_url = await get_stream_url(slug)
-
+    # Resolvemos con reintentos + aplanado master→variante. Si falla, forzamos
+    # un re-scrape fresco de tvtvhd y reintentamos una vez más (cubre el caso de
+    # token/URL vencidos durante la reproducción en vivo).
     try:
-        async with httpx.AsyncClient(
-            timeout=15, headers=UPSTREAM_HEADERS, follow_redirects=True
-        ) as client:
-            r = await client.get(real_url)
-            text = r.text
-            ct = (r.headers.get("content-type") or "").lower()
-            # Aceptar solo 200. tvtvhd a veces responde 404 con
-            # Content-Type m3u8 y body "not found".
-            if r.status_code != 200:
-                raise HTTPException(
-                    status_code=502,
-                    detail=f"Upstream HTTP {r.status_code} para playlist",
-                )
-    except httpx.HTTPError as e:
-        raise HTTPException(status_code=502, detail=f"No se pudo descargar el manifest: {e}")
+        text, base = await _resolve_media_playlist(slug)
+    except HTTPException:
+        _resolve_cache.pop(slug, None)
+        text, base = await _resolve_media_playlist(slug, force=True)
 
-    # Validación 1: el upstream tiró una página HTML (canal caído / paywall / error)
-    if "html" in ct:
-        raise HTTPException(
-            status_code=502,
-            detail="Canal no disponible: el upstream devolvió HTML, no un manifest HLS",
-        )
-    # Validación 2: el body no es un manifest HLS válido
-    head = (text or "").lstrip()[:32]
-    if not head.startswith("#EXTM3U"):
-        raise HTTPException(
-            status_code=502,
-            detail="Canal no disponible: el manifest no tiene signature #EXTM3U",
-        )
-
-    rewritten = _rewrite_manifest(text, base=real_url, slug=slug)
+    rewritten = _rewrite_manifest(text, base=base, slug=slug)
     return Response(
         content=rewritten,
         media_type="application/vnd.apple.mpegurl",
@@ -295,21 +362,29 @@ async def proxy_segment(slug: str, u: str, request: Request):
 
     client = httpx.AsyncClient(timeout=30, follow_redirects=True)
     try:
-        # Probe rápido para saber si es manifest o binario
-        head = await client.get(u, headers=forward_headers)
-        ct = head.headers.get("content-type", "")
+        # GET con reintentos: un blip transitorio del upstream (5xx/timeout)
+        # no debe cortar la reproducción — reintentamos antes de rendirnos.
+        head = None
+        last_status = None
+        for attempt in range(3):
+            try:
+                head = await client.get(u, headers=forward_headers)
+                last_status = head.status_code
+                if head.status_code in (200, 206):
+                    break
+                if head.status_code < 500 and head.status_code != 429:
+                    break  # 4xx definitivo, no reintentar
+            except httpx.HTTPError:
+                head = None
+            await asyncio.sleep(0.3 * (attempt + 1))
 
-        # CRÍTICO: chequear el status code primero. tvtvhd a veces
-        # responde 404 con Content-Type: application/vnd.apple.mpegurl
-        # y body "not found" (10 bytes). Sin este guard pasaba esos
-        # bytes al WebView y hls.js explotaba con demuxer-error.
-        # Aceptamos 200 (OK) y 206 (Partial Content para segmentos con Range).
-        if head.status_code not in (200, 206):
+        if head is None or head.status_code not in (200, 206):
             await client.aclose()
             raise HTTPException(
                 status_code=502,
-                detail=f"Upstream HTTP {head.status_code} para segmento",
+                detail=f"Upstream HTTP {last_status} para segmento",
             )
+        ct = head.headers.get("content-type", "")
 
         if _is_manifest(ct, u):
             text = head.text
