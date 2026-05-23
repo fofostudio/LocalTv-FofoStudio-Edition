@@ -57,9 +57,16 @@ const webApi = {
   getNetworkInfo: () => jsonFetch('/api/network/info'),
 
   getDiaryEvents: async () => {
-    const res = await fetch('https://pltvhd.com/diaries.json');
-    if (!res.ok) throw new Error('Failed to fetch diary events');
-    return res.json();
+    // Timeout para que la agenda no quede colgada si pltvhd está lento/caído.
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 8000);
+    try {
+      const res = await fetch('https://pltvhd.com/diaries.json', { signal: ctrl.signal });
+      if (!res.ok) throw new Error('Failed to fetch diary events');
+      return await res.json();
+    } finally {
+      clearTimeout(t);
+    }
   },
 };
 
@@ -138,7 +145,11 @@ const mobileApi = {
   async getDiaryEvents() {
     const cap = window.Capacitor;
     const { CapacitorHttp } = cap.Plugins;
-    const r = await CapacitorHttp.get({ url: 'https://pltvhd.com/diaries.json' });
+    const r = await CapacitorHttp.get({
+      url: 'https://pltvhd.com/diaries.json',
+      connectTimeout: 8000,
+      readTimeout: 8000,
+    });
     if (r.status !== 200) throw new Error('Failed to fetch diary events');
     return typeof r.data === 'string' ? JSON.parse(r.data) : r.data;
   },

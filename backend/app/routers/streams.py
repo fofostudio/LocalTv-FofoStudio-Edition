@@ -39,6 +39,31 @@ UPSTREAM_HEADERS = {
     "Accept":  "*/*",
 }
 
+# Cliente HTTP compartido con keep-alive/pooling. Crear uno por request (como
+# antes) abría una conexión TLS nueva cada vez — carísimo en vivo, donde el
+# player pide un segmento cada pocos segundos + refresca el playlist. Reutilizar
+# conexiones baja latencia y CPU notablemente.
+_shared_client: httpx.AsyncClient | None = None
+
+
+def _client() -> httpx.AsyncClient:
+    global _shared_client
+    if _shared_client is None or _shared_client.is_closed:
+        _shared_client = httpx.AsyncClient(
+            timeout=httpx.Timeout(20.0, connect=8.0),
+            headers=UPSTREAM_HEADERS,
+            follow_redirects=True,
+            limits=httpx.Limits(max_connections=100, max_keepalive_connections=30),
+        )
+    return _shared_client
+
+
+async def close_shared_client() -> None:
+    global _shared_client
+    if _shared_client is not None and not _shared_client.is_closed:
+        await _shared_client.aclose()
+    _shared_client = None
+
 # Patrones para extraer la URL real del .m3u8 desde el HTML del player
 _PATTERNS = [
     re.compile(r'playbackURL\s*[=:]\s*["\']?([^"\'<>\s]+\.m3u8[^"\'<>\s]*)', re.IGNORECASE),
@@ -57,11 +82,8 @@ async def get_stream_url(channel_slug: str) -> str:
     last_err: Exception | None = None
     for attempt in range(3):
         try:
-            async with httpx.AsyncClient(
-                timeout=10, headers=UPSTREAM_HEADERS, follow_redirects=True
-            ) as client:
-                r = await client.get(upstream)
-                html = r.text
+            r = await _client().get(upstream)
+            html = r.text
             for pat in _PATTERNS:
                 m = pat.search(html)
                 if m:
@@ -138,13 +160,13 @@ def _select_variant(text: str, base: str) -> str | None:
     return best_url
 
 
-async def _get_retry(client: httpx.AsyncClient, url: str, tries: int = 3):
-    """GET con reintentos ante errores transitorios (5xx/timeout/conexión).
-    Los 4xx no se reintentan (no van a mejorar)."""
+async def _get_retry(url: str, tries: int = 3):
+    """GET (cliente compartido) con reintentos ante errores transitorios
+    (5xx/timeout/conexión). Los 4xx no se reintentan (no van a mejorar)."""
     last: Exception | None = None
     for attempt in range(tries):
         try:
-            r = await client.get(url)
+            r = await _client().get(url)
             if r.status_code in (200, 206):
                 return r
             last = HTTPException(status_code=502, detail=f"Upstream HTTP {r.status_code}")
@@ -173,32 +195,29 @@ async def _resolve_media_playlist(slug: str, force: bool = False) -> tuple[str, 
     """
     now = time.time()
     cached = _resolve_cache.get(slug)
-    async with httpx.AsyncClient(
-        timeout=15, headers=UPSTREAM_HEADERS, follow_redirects=True
-    ) as client:
-        if not force and cached and now - cached["ts"] < _RESOLVE_TTL:
-            master = cached["master"]
-        else:
-            master = await get_stream_url(slug)
+    if not force and cached and now - cached["ts"] < _RESOLVE_TTL:
+        master = cached["master"]
+    else:
+        master = await get_stream_url(slug)
 
-        r = await _get_retry(client, master)
-        text = r.text
-        ct = (r.headers.get("content-type") or "").lower()
-        if "html" in ct or not (text or "").lstrip().startswith("#EXTM3U"):
-            raise HTTPException(status_code=502, detail="Canal no disponible (manifest inválido)")
+    r = await _get_retry(master)
+    text = r.text
+    ct = (r.headers.get("content-type") or "").lower()
+    if "html" in ct or not (text or "").lstrip().startswith("#EXTM3U"):
+        raise HTTPException(status_code=502, detail="Canal no disponible (manifest inválido)")
 
-        base = master
-        if _is_master_playlist(text):
-            variant = _select_variant(text, master)
-            if variant:
-                rv = await _get_retry(client, variant)
-                vt = rv.text
-                vct = (rv.headers.get("content-type") or "").lower()
-                if "html" not in vct and (vt or "").lstrip().startswith("#EXTM3U"):
-                    text, base = vt, variant
+    base = master
+    if _is_master_playlist(text):
+        variant = _select_variant(text, master)
+        if variant:
+            rv = await _get_retry(variant)
+            vt = rv.text
+            vct = (rv.headers.get("content-type") or "").lower()
+            if "html" not in vct and (vt or "").lstrip().startswith("#EXTM3U"):
+                text, base = vt, variant
 
-        _resolve_cache[slug] = {"ts": now, "master": master}
-        return text, base
+    _resolve_cache[slug] = {"ts": now, "master": master}
+    return text, base
 
 
 # ---------------------------------------------------------------------------
@@ -355,97 +374,88 @@ async def proxy_segment(slug: str, u: str, request: Request):
         raise HTTPException(status_code=400, detail="URL inválida")
 
     # Reenviar Range si el cliente lo manda (importante para seek y buffering)
-    forward_headers = dict(UPSTREAM_HEADERS)
+    forward_headers = {}
     range_header = request.headers.get("range")
     if range_header:
         forward_headers["Range"] = range_header
 
-    client = httpx.AsyncClient(timeout=30, follow_redirects=True)
-    try:
-        # GET con reintentos: un blip transitorio del upstream (5xx/timeout)
-        # no debe cortar la reproducción — reintentamos antes de rendirnos.
-        head = None
-        last_status = None
-        for attempt in range(3):
-            try:
-                head = await client.get(u, headers=forward_headers)
-                last_status = head.status_code
-                if head.status_code in (200, 206):
-                    break
-                if head.status_code < 500 and head.status_code != 429:
-                    break  # 4xx definitivo, no reintentar
-            except httpx.HTTPError:
-                head = None
-            await asyncio.sleep(0.3 * (attempt + 1))
+    # Cliente compartido (keep-alive). GET con reintentos: un blip transitorio
+    # del upstream (5xx/timeout) no debe cortar la reproducción.
+    head = None
+    last_status = None
+    for attempt in range(3):
+        try:
+            head = await _client().get(u, headers=forward_headers)
+            last_status = head.status_code
+            if head.status_code in (200, 206):
+                break
+            if head.status_code < 500 and head.status_code != 429:
+                break  # 4xx definitivo, no reintentar
+        except httpx.HTTPError:
+            head = None
+        await asyncio.sleep(0.3 * (attempt + 1))
 
-        if head is None or head.status_code not in (200, 206):
-            await client.aclose()
+    if head is None or head.status_code not in (200, 206):
+        raise HTTPException(
+            status_code=502,
+            detail=f"Upstream HTTP {last_status} para segmento",
+        )
+    ct = head.headers.get("content-type", "")
+
+    if _is_manifest(ct, u):
+        text = head.text
+        if "html" in ct.lower() or not text.lstrip().startswith("#EXTM3U"):
             raise HTTPException(
                 status_code=502,
-                detail=f"Upstream HTTP {last_status} para segmento",
+                detail="Sub-manifest inválido: el upstream no devolvió HLS",
             )
-        ct = head.headers.get("content-type", "")
+        rewritten = _rewrite_manifest(text, base=u, slug=slug)
+        return Response(
+            content=rewritten,
+            media_type="application/vnd.apple.mpegurl",
+            headers={
+                "Cache-Control": "no-store",
+                "Access-Control-Allow-Origin": "*",
+            },
+        )
 
-        if _is_manifest(ct, u):
-            text = head.text
-            if "html" in ct.lower() or not text.lstrip().startswith("#EXTM3U"):
-                await client.aclose()
+    # Binario (segmento .ts/mp4/aac/m4s/CMAF/cifrado/...). Solo
+    # descartamos lo OBVIAMENTE roto: Content-Type=html.
+    if "html" in ct.lower():
+        raise HTTPException(
+            status_code=502,
+            detail="Segmento inválido: el upstream devolvió HTML",
+        )
+    body = head.content
+
+    # Sanity: si el body es muy chico (<32 bytes) y NO es "not found"
+    # pero tampoco bytes binarios, descartar. "not found" pasa por aquí.
+    if len(body) < 32:
+        try:
+            preview = body.decode("ascii", errors="ignore").strip().lower()
+            if preview in ("not found", "404", "404 not found", "forbidden", "unauthorized"):
                 raise HTTPException(
                     status_code=502,
-                    detail="Sub-manifest inválido: el upstream no devolvió HLS",
+                    detail=f"Segmento inválido: upstream respondió '{preview}'",
                 )
-            rewritten = _rewrite_manifest(text, base=u, slug=slug)
-            await client.aclose()
-            return Response(
-                content=rewritten,
-                media_type="application/vnd.apple.mpegurl",
-                headers={
-                    "Cache-Control": "no-store",
-                    "Access-Control-Allow-Origin": "*",
-                },
-            )
+        except HTTPException:
+            raise
+        except Exception:
+            pass
 
-        # Binario (segmento .ts/mp4/aac/m4s/CMAF/cifrado/...). Solo
-        # descartamos lo OBVIAMENTE roto: Content-Type=html.
-        if "html" in ct.lower():
-            await client.aclose()
-            raise HTTPException(
-                status_code=502,
-                detail="Segmento inválido: el upstream devolvió HTML",
-            )
-        body = head.content
+    resp_headers = {
+        "Access-Control-Allow-Origin": "*",
+        "Cache-Control": "public, max-age=10",
+    }
+    # Pasar Content-Range si vino (respuesta 206)
+    if "content-range" in head.headers:
+        resp_headers["Content-Range"] = head.headers["content-range"]
+    if "accept-ranges" in head.headers:
+        resp_headers["Accept-Ranges"] = head.headers["accept-ranges"]
 
-        # Sanity: si el body es muy chico (<32 bytes) y NO es "not found"
-        # pero tampoco bytes binarios, descartar. "not found" pasa por aquí.
-        if len(body) < 32:
-            try:
-                preview = body.decode("ascii", errors="ignore").strip().lower()
-                if preview in ("not found", "404", "404 not found", "forbidden", "unauthorized"):
-                    await client.aclose()
-                    raise HTTPException(
-                        status_code=502,
-                        detail=f"Segmento inválido: upstream respondió '{preview}'",
-                    )
-            except Exception:
-                pass
-        await client.aclose()
-
-        resp_headers = {
-            "Access-Control-Allow-Origin": "*",
-            "Cache-Control": "public, max-age=10",
-        }
-        # Pasar Content-Range si vino (respuesta 206)
-        if "content-range" in head.headers:
-            resp_headers["Content-Range"] = head.headers["content-range"]
-        if "accept-ranges" in head.headers:
-            resp_headers["Accept-Ranges"] = head.headers["accept-ranges"]
-
-        return Response(
-            content=body,
-            status_code=head.status_code,
-            media_type=ct or "video/mp2t",
-            headers=resp_headers,
-        )
-    except httpx.HTTPError as e:
-        await client.aclose()
-        raise HTTPException(status_code=502, detail=f"Upstream segment error: {e}")
+    return Response(
+        content=body,
+        status_code=head.status_code,
+        media_type=ct or "video/mp2t",
+        headers=resp_headers,
+    )
