@@ -243,6 +243,56 @@ fs.writeFileSync(
 );
 console.log('[install-plugin] generado res/xml/file_paths.xml');
 
+// ---- 5) Icono de launcher propio (reemplaza el default de Capacitor).
+//      mobile/android/ se regenera en CI con `cap add android`, así que el
+//      icono debe inyectarse acá desde mobile/icon/ (commiteado). Sobrescribimos
+//      los PNGs legacy + el foreground adaptive y definimos el adaptive-icon con
+//      recursos propios (color dedicado) para no chocar con el template.
+const ICON_SRC = path.resolve(ROOT, 'icon');
+const RES_DIR = path.resolve(APP_SRC, 'res');
+const DENSITIES = ['mdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi'];
+
+if (fs.existsSync(ICON_SRC)) {
+  for (const dens of DENSITIES) {
+    const srcDir = path.join(ICON_SRC, dens);
+    const dstDir = path.join(RES_DIR, `mipmap-${dens}`);
+    if (!fs.existsSync(srcDir)) continue;
+    fs.mkdirSync(dstDir, { recursive: true });
+    for (const f of ['ic_launcher.png', 'ic_launcher_round.png', 'ic_launcher_foreground.png']) {
+      const s = path.join(srcDir, f);
+      if (fs.existsSync(s)) fs.copyFileSync(s, path.join(dstDir, f));
+    }
+  }
+
+  // Color de fondo del adaptive-icon (nombre propio para no pisar el template).
+  const valuesDir = path.join(RES_DIR, 'values');
+  fs.mkdirSync(valuesDir, { recursive: true });
+  fs.writeFileSync(
+    path.join(valuesDir, 'localtv_icon_bg.xml'),
+    `<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="localtv_icon_bg">#14102a</color>
+</resources>
+`,
+  );
+
+  // Adaptive-icon (API 26+): fondo = color propio, foreground = nuestro PNG.
+  const anydpiDir = path.join(RES_DIR, 'mipmap-anydpi-v26');
+  fs.mkdirSync(anydpiDir, { recursive: true });
+  const adaptiveXml = `<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/localtv_icon_bg" />
+    <foreground android:drawable="@mipmap/ic_launcher_foreground" />
+</adaptive-icon>
+`;
+  fs.writeFileSync(path.join(anydpiDir, 'ic_launcher.xml'), adaptiveXml);
+  fs.writeFileSync(path.join(anydpiDir, 'ic_launcher_round.xml'), adaptiveXml);
+
+  console.log('[install-plugin] icono de launcher LocalTv inyectado (5 densidades + adaptive)');
+} else {
+  console.warn(`[install-plugin] WARN: no existe ${ICON_SRC}, se mantiene el icono default`);
+}
+
 console.log('\n[install-plugin] OK. Próximos pasos:');
 console.log('  npx cap sync android');
 console.log('  npx cap open android   # abre Android Studio para buildear');

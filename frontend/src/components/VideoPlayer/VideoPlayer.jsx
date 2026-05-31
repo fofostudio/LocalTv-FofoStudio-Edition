@@ -95,14 +95,27 @@ function hlsConfigForTier(tier) {
     enableWorker: true,
     lowLatencyMode: false,
     backBufferLength: 30,
-    manifestLoadingMaxRetry: 2,
-    manifestLoadingRetryDelay: 800,
-    levelLoadingMaxRetry: 3,
-    levelLoadingRetryDelay: 800,
-    fragLoadingMaxRetry: 4,
+    // Buffers acotados: en vivo no sirve bufferear minutos (default 600s ⇒
+    // memoria + lag al recuperar). 30s da margen contra cortes sin inflar RAM.
+    maxBufferLength: 30,
+    maxMaxBufferLength: 60,
+    // Reintentos más generosos: el upstream (tvtvhd vía proxy) tiene blips
+    // transitorios; abandonar a la 2da rompía la transmisión en vivo.
+    manifestLoadingMaxRetry: 4,
+    manifestLoadingRetryDelay: 700,
+    manifestLoadingMaxRetryTimeout: 8000,
+    levelLoadingMaxRetry: 4,
+    levelLoadingRetryDelay: 700,
+    fragLoadingMaxRetry: 6,
     fragLoadingRetryDelay: 600,
+    fragLoadingMaxRetryTimeout: 8000,
+    // Tratar el stream como live infinito y resincronizar si el player se
+    // queda atrás del live edge (evita freezes prolongados).
+    liveDurationInfinity: true,
+    liveSyncDurationCount: 3,
+    liveMaxLatencyDurationCount: 10,
     enableSoftwareAES: true,
-    nudgeMaxRetry: 5,
+    nudgeMaxRetry: 8,
   };
   if (tier <= 1) return base;
   if (tier === 2) {
