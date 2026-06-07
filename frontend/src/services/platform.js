@@ -68,6 +68,34 @@ export function resetHlsProxy() {
  * Web:    /api/streams/{slug}/playlist.m3u8                    (mismo origen)
  * Mobile: http://127.0.0.1:<puerto>/stream/{slug}/playlist.m3u8 (plugin nativo)
  */
+/**
+ * Diagnóstico del proxy nativo (Android), para depurar "no carga el stream":
+ * dice si el plugin está registrado, qué baseUrl devolvió y si responde /health.
+ * Se muestra en el panel de error del reproductor en móvil.
+ */
+export async function getProxyDiagnostics() {
+  const diag = { platform: platform() };
+  if (!isCapacitor()) return diag;
+  try {
+    const HlsProxy = window.Capacitor?.Plugins?.HlsProxy;
+    diag.plugin = !!HlsProxy;
+    if (!HlsProxy) return diag;
+    const base = await ensureHlsProxy();
+    diag.base = base || '(vacío)';
+    if (base) {
+      try {
+        const r = await fetch(`${base}/health`, { cache: 'no-store' });
+        diag.health = r.status;
+      } catch (e) {
+        diag.health = `err:${e?.message || e}`;
+      }
+    }
+  } catch (e) {
+    diag.error = String(e?.message || e);
+  }
+  return diag;
+}
+
 export async function streamPlaylistUrl(slug) {
   if (isCapacitor()) {
     const base = await ensureHlsProxy();

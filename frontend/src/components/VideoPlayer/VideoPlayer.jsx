@@ -19,7 +19,7 @@
  */
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ChannelContext } from '../../context/ChannelContext';
-import { streamPlaylistUrl, lanStreamUrl, resetHlsProxy } from '../../services/platform';
+import { streamPlaylistUrl, lanStreamUrl, resetHlsProxy, isCapacitor, getProxyDiagnostics } from '../../services/platform';
 import { setPlayerEngine } from '../../hooks/usePlayerEngine';
 import { isLite } from '../../utils/device';
 import CastButton from '../CastButton/CastButton';
@@ -37,7 +37,14 @@ const SHAKA_URL = 'https://cdn.jsdelivr.net/npm/shaka-player@4.11.2/dist/shaka-p
  *  - PC (Chrome/Edge/Firefox)      → hls.js primero (lo más fiable en desktop),
  *                                    luego shaka y nativo como respaldo.
  */
-function enginePlan(lite, nativeCapable) {
+function enginePlan(lite, nativeCapable, capacitor) {
+  // Android WebView (Capacitor): NO tiene HLS nativo, así que el <video> nativo
+  // no sirve (no lo incluimos). El motor real es hls.js (empaquetado) y shaka
+  // (también empaquetado) como respaldo. Probamos el worker de hls.js activado
+  // y desactivado: en varias WebViews el worker falla y sin worker anda.
+  if (capacitor) {
+    return [{ e: 'hls', t: 0 }, { e: 'hls', t: 3 }, { e: 'hls', t: 4 }, { e: 'shaka' }];
+  }
   if (nativeCapable) return [{ e: 'native' }, { e: 'shaka' }, { e: 'hls', t: 0 }, { e: 'hls', t: 2 }, { e: 'hls', t: 3 }];
   if (lite) return [{ e: 'native' }, { e: 'shaka' }, { e: 'hls', t: 0 }, { e: 'hls', t: 2 }, { e: 'hls', t: 4 }];
   return [{ e: 'hls', t: 0 }, { e: 'hls', t: 1 }, { e: 'hls', t: 2 }, { e: 'hls', t: 3 }, { e: 'hls', t: 4 }, { e: 'shaka' }, { e: 'native' }];
@@ -57,6 +64,24 @@ function loadScript(src) {
   });
   _scriptPromises.set(src, p);
   return p;
+}
+
+// shaka-player EMPAQUETADO (lazy chunk) en vez de sólo-CDN. Igual que hls.js,
+// el CDN no cargaba en Android/redes lentas y dejaba el respaldo inútil. Local
+// primero, CDN como último recurso.
+let _shakaPromise = null;
+function loadShaka() {
+  if (_shakaPromise) return _shakaPromise;
+  _shakaPromise = (async () => {
+    try {
+      const mod = await import('shaka-player/dist/shaka-player.compiled.js');
+      return mod?.default || window.shaka;
+    } catch (_) {
+      await loadScript(SHAKA_URL);
+      return window.shaka;
+    }
+  })();
+  return _shakaPromise;
 }
 
 function describeError(detail) {
@@ -143,15 +168,25 @@ export default function VideoPlayer({ channel }) {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [tier, setTier] = useState(0);
+  const [diag, setDiag] = useState(null);
 
   const skipCountRef = useRef(0);
+
+  // Diagnóstico del proxy nativo cuando hay error en móvil (para ver dónde
+  // falla: plugin ausente, baseUrl vacío o /health caído).
+  useEffect(() => {
+    if (!error || !isCapacitor()) { setDiag(null); return; }
+    let alive = true;
+    getProxyDiagnostics().then((d) => { if (alive) setDiag(d); }).catch(() => {});
+    return () => { alive = false; };
+  }, [error]);
 
   // Plan de motores según dispositivo (estable durante la sesión).
   const nativeCapable = useMemo(() => {
     try { return !!document.createElement('video').canPlayType('application/vnd.apple.mpegurl'); }
     catch { return false; }
   }, []);
-  const plan = useMemo(() => enginePlan(isLite(), nativeCapable), [nativeCapable]);
+  const plan = useMemo(() => enginePlan(isLite(), nativeCapable, isCapacitor()), [nativeCapable]);
   const maxTier = plan.length - 1;
 
   // ----- URL pública LAN para Chromecast -----
@@ -240,6 +275,7 @@ export default function VideoPlayer({ channel }) {
       let proxyUrl;
       try {
         proxyUrl = await streamPlaylistUrl(channel.slug);
+        if (isCapacitor()) console.info(`[player] proxyUrl=${proxyUrl} engine=${plan[tier]?.e} t=${plan[tier]?.t ?? ''}`);
       } catch (e) {
         if (!cancelled) {
           setError({ title: 'No se pudo iniciar el proxy HLS', message: e.message, kind: 'generic' });
@@ -270,9 +306,8 @@ export default function VideoPlayer({ channel }) {
       if (step.e === 'shaka') {
         setPlayerEngine('shaka');
         try {
-          await loadScript(SHAKA_URL);
+          const shaka = await loadShaka();
           if (cancelled) return;
-          const shaka = window.shaka;
           if (!shaka?.Player) { escalate('shaka-missing'); return; }
           if (shaka.Player.isBrowserSupported && !shaka.Player.isBrowserSupported()) {
             escalate('shaka-unsupported'); return;
@@ -449,6 +484,14 @@ export default function VideoPlayer({ channel }) {
           </div>
           <h3 className={styles.errorTitle}>{error.title}</h3>
           <p className={styles.errorMsg}>{error.message}</p>
+          {diag && (
+            <p style={{ fontSize: '11px', opacity: 0.65, margin: '4px 0 8px', fontFamily: 'monospace' }}>
+              {diag.plugin === false
+                ? '⚠ proxy nativo NO registrado'
+                : `proxy ${diag.base || '—'} · health ${String(diag.health ?? '—')}`}
+              {diag.error ? ` · ${diag.error}` : ''}
+            </p>
+          )}
           <div className={styles.errorActions}>
             <button className={styles.errorBtnPrimary} onClick={tryNextLive}>
               ▶ Probar otro canal disponible

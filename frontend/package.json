@@ -1,6 +1,6 @@
 {
   "name": "bustatv-frontend",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "type": "module",
   "scripts": {
     "dev": "vite --host",
@@ -17,6 +17,7 @@
   "dependencies": {
     "@capacitor-community/sqlite": "^6.0.0",
     "@capacitor/core": "^6.1.0",
-    "hls.js": "^1.5.17"
+    "hls.js": "^1.5.17",
+    "shaka-player": "^4.11.2"
   }
 }

@@ -291,7 +291,11 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
 
     private fun handleSegment(slug: String, u: String?, session: IHTTPSession): Response {
         if (u.isNullOrEmpty()) return badRequest("Missing ?u=")
-        val target = try { URLDecoder.decode(u, "UTF-8") } catch (_: Exception) { u }
+        // NanoHTTPD YA percent-decodea los query params. NO volver a decodificar:
+        // un segundo URLDecoder.decode convertía '+' (muy común en los tokens
+        // base64 de tvtvhd) en ESPACIO y corrompía la URL del segmento → 404 →
+        // el stream NO CARGABA en Android. Este era el bug principal de móvil.
+        val target = u
         if (!target.startsWith("http")) return badRequest("Bad URL")
 
         // GET con reintentos: un blip transitorio del upstream no debe cortar
