@@ -22,7 +22,9 @@ function isV4(t) {
 
 async function tmdbDirect(path, params = {}) {
   const t = token();
-  if (!t) throw new Error('Configurá tu token de TMDB en Ajustes');
+  // El token va horneado en el build (mismo para todos); nunca se le pide al
+  // usuario. Si faltara, mostramos un error genérico sin mencionar el token.
+  if (!t) throw new Error('Cine no disponible por ahora');
   const url = new URL(TMDB + path);
   url.searchParams.set('language', 'es-ES');
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);

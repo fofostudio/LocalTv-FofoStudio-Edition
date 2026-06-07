@@ -20,7 +20,7 @@ from urllib.parse import urljoin, urlparse, quote
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import Response, StreamingResponse
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -421,110 +421,62 @@ async def proxy_segment(slug: str, u: str, request: Request):
     if range_header:
         forward_headers["Range"] = range_header
 
-    # GET en modo streaming con reintentos: un blip transitorio del upstream
-    # (5xx/timeout) no debe cortar la reproducción. Streaming evita bufferear
-    # el segmento entero (2-10 MB) en RAM por cada request.
-    client = _client()
-    resp = None
+    # GET (cliente compartido, keep-alive) con reintentos: un blip transitorio
+    # del upstream (5xx/timeout) no debe cortar la reproducción. Buffereamos el
+    # segmento (uno a la vez en RAM, intrascendente en desktop) — más simple y
+    # robusto que streamear, y consistente con el proxy nativo de Android.
+    head = None
     last_status = None
     for attempt in range(3):
         try:
-            req = client.build_request("GET", u, headers=forward_headers)
-            r = await client.send(req, stream=True)
-            last_status = r.status_code
-            if r.status_code in (200, 206):
-                resp = r
+            head = await _client().get(u, headers=forward_headers)
+            last_status = head.status_code
+            if head.status_code in (200, 206):
                 break
-            await r.aclose()
-            if r.status_code < 500 and r.status_code != 429:
+            if head.status_code < 500 and head.status_code != 429:
                 break  # 4xx definitivo, no reintentar
         except httpx.HTTPError:
-            pass
+            head = None
         await asyncio.sleep(0.3 * (attempt + 1))
 
-    if resp is None:
-        raise HTTPException(
-            status_code=502,
-            detail=f"Upstream HTTP {last_status} para segmento",
-        )
-    ct = resp.headers.get("content-type", "")
+    if head is None or head.status_code not in (200, 206):
+        raise HTTPException(status_code=502, detail=f"Upstream HTTP {last_status} para segmento")
+    ct = head.headers.get("content-type", "")
 
-    # Sub-manifest .m3u8 → leerlo entero, cerrarlo, reescribir.
+    # Sub-manifest .m3u8 → reescribir como el playlist principal.
     if _is_manifest(ct, u):
-        try:
-            raw = await resp.aread()
-        finally:
-            await resp.aclose()
-        text = raw.decode("utf-8", errors="replace")
+        text = head.text
         if "html" in ct.lower() or not text.lstrip().startswith("#EXTM3U"):
-            raise HTTPException(
-                status_code=502,
-                detail="Sub-manifest inválido: el upstream no devolvió HLS",
-            )
+            raise HTTPException(status_code=502, detail="Sub-manifest inválido: el upstream no devolvió HLS")
         rewritten = _rewrite_manifest(text, base=u, slug=slug)
         return Response(
             content=rewritten,
             media_type="application/vnd.apple.mpegurl",
-            headers={
-                "Cache-Control": "no-store",
-                "Access-Control-Allow-Origin": "*",
-            },
+            headers={"Cache-Control": "no-store", "Access-Control-Allow-Origin": "*"},
         )
 
-    # Binario (segmento .ts/mp4/aac/m4s/CMAF/cifrado/...). Solo
-    # descartamos lo OBVIAMENTE roto: Content-Type=html.
+    # Binario (segmento .ts/mp4/aac/m4s/CMAF/cifrado/...). Solo descartamos lo
+    # OBVIAMENTE roto: Content-Type=html o un "not found" chiquito disfrazado.
     if "html" in ct.lower():
-        await resp.aclose()
-        raise HTTPException(
-            status_code=502,
-            detail="Segmento inválido: el upstream devolvió HTML",
-        )
-
-    # Peek del primer chunk para descartar "not found"/"404" disfrazado de
-    # binario, sin perder ese chunk para el stream.
-    aiter = resp.aiter_bytes()
-    first = b""
-    try:
-        async for chunk in aiter:
-            first = chunk
-            break
-    except httpx.HTTPError:
-        await resp.aclose()
-        raise HTTPException(status_code=502, detail="Error leyendo segmento del upstream")
-
-    if 0 < len(first) < 32:
-        preview = first.decode("ascii", errors="ignore").strip().lower()
+        raise HTTPException(status_code=502, detail="Segmento inválido: el upstream devolvió HTML")
+    body = head.content
+    if len(body) < 32:
+        preview = body.decode("ascii", errors="ignore").strip().lower()
         if preview in ("not found", "404", "404 not found", "forbidden", "unauthorized"):
-            await resp.aclose()
-            raise HTTPException(
-                status_code=502,
-                detail=f"Segmento inválido: upstream respondió '{preview}'",
-            )
-
-    async def _body():
-        try:
-            if first:
-                yield first
-            async for chunk in aiter:
-                yield chunk
-        finally:
-            await resp.aclose()
+            raise HTTPException(status_code=502, detail=f"Segmento inválido: upstream respondió '{preview}'")
 
     resp_headers = {
         "Access-Control-Allow-Origin": "*",
         "Cache-Control": "public, max-age=10",
     }
-    # Pasar Content-Range/Length/Accept-Ranges del upstream (respuestas 206/200)
-    if "content-range" in resp.headers:
-        resp_headers["Content-Range"] = resp.headers["content-range"]
-    if "accept-ranges" in resp.headers:
-        resp_headers["Accept-Ranges"] = resp.headers["accept-ranges"]
-    if "content-length" in resp.headers:
-        resp_headers["Content-Length"] = resp.headers["content-length"]
+    if "content-range" in head.headers:
+        resp_headers["Content-Range"] = head.headers["content-range"]
+    if "accept-ranges" in head.headers:
+        resp_headers["Accept-Ranges"] = head.headers["accept-ranges"]
 
-    return StreamingResponse(
-        _body(),
-        status_code=resp.status_code,
+    return Response(
+        content=body,
+        status_code=head.status_code,
         media_type=ct or "video/mp2t",
         headers=resp_headers,
     )

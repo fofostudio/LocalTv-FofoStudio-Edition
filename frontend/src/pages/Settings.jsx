@@ -3,7 +3,6 @@ import { FavoritesContext } from '../context/FavoritesContext';
 import { usePreferences } from '../hooks/usePreferences';
 import { SPORTS } from '../utils/sports';
 import { api } from '../services/api';
-import { vod } from '../services/vodApi';
 import { isCapacitor } from '../services/platform';
 import { getLiteMode, setLiteMode, isTvUserAgent } from '../utils/device';
 import LtSidebar from '../components/LtSidebar/LtSidebar';
@@ -26,28 +25,6 @@ export default function Settings() {
   const changeLite = (mode) => {
     setLiteMode(mode);
     setLite(mode);
-  };
-
-  // TMDB (módulo Cine)
-  const [tmdbToken, setTmdbToken] = useState('');
-  const [tmdbSet, setTmdbSet] = useState(false);
-  const [tmdbSaving, setTmdbSaving] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    vod.getConfig().then((c) => { if (!cancelled) setTmdbSet(!!c.has_token); }).catch(() => {});
-    return () => { cancelled = true; };
-  }, []);
-
-  const saveTmdb = async () => {
-    setTmdbSaving(true);
-    try {
-      const r = await vod.setToken(tmdbToken.trim());
-      setTmdbSet(!!r.has_token);
-      setTmdbToken('');
-    } catch { /* ignore */ } finally {
-      setTmdbSaving(false);
-    }
   };
 
   useEffect(() => {
@@ -200,31 +177,8 @@ export default function Settings() {
               </div>
             </section>
 
-            {/* Cine / TMDB */}
-            <section className={styles.card}>
-              <div className={styles.cardHead}>Cine (TMDB)</div>
-              <div className={styles.row}>
-                <div className={styles.rowText}>
-                  <div className={styles.rowTitle}>Token de TMDB</div>
-                  <div className={styles.rowDesc}>
-                    {tmdbSet ? 'Configurado ✓ — ya podés usar Películas y Series.' : 'Pegá tu "API Read Access Token" (v4) de themoviedb.org para habilitar el descubrimiento.'}
-                  </div>
-                </div>
-              </div>
-              <div className={styles.row}>
-                <input
-                  type="password"
-                  className={styles.input}
-                  value={tmdbToken}
-                  onChange={(e) => setTmdbToken(e.target.value)}
-                  placeholder={tmdbSet ? '•••••••• (reemplazar)' : 'eyJhbGciOi...'}
-                  aria-label="Token TMDB"
-                />
-                <button className={styles.btn} onClick={saveTmdb} disabled={tmdbSaving || !tmdbToken.trim()}>
-                  {tmdbSaving ? 'Guardando…' : 'Guardar'}
-                </button>
-              </div>
-            </section>
+            {/* Cine (TMDB): el token va HORNEADO en el build (mismo token para
+                todos), así que NO se muestra ninguna UI de configuración. */}
 
             {/* Datos locales */}
             <section className={styles.card}>

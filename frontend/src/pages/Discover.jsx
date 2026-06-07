@@ -100,7 +100,6 @@ export default function Discover({ defaultKind = 'movie' }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [needToken, setNeedToken] = useState(false);
   const [selected, setSelected] = useState(null);
   const debounceRef = useRef(0);
 
@@ -114,9 +113,7 @@ export default function Discover({ defaultKind = 'movie' }) {
 
     const run = async () => {
       try {
-        const cfg = await vod.getConfig();
-        if (!cfg.has_token) { if (!cancelled) { setNeedToken(true); setLoading(false); } return; }
-        setNeedToken(false);
+        // El token TMDB va horneado en el build — no se pide nada al usuario.
         const data = query.trim() ? await vod.search(query) : await vod.trending(kind);
         let results = data.results || [];
         if (query.trim()) {
@@ -163,12 +160,7 @@ export default function Discover({ defaultKind = 'movie' }) {
         </div>
 
         <div className={shell.body}>
-          {needToken ? (
-            <div className={shell.empty}>
-              <p>Necesitás un token de TMDB para descubrir contenido.</p>
-              <Link to="/config" className={styles.tokenLink}>Configurar token en Ajustes →</Link>
-            </div>
-          ) : loading ? (
+          {loading ? (
             <LoadingSpinner />
           ) : error ? (
             <div className={shell.empty}><p>Error: {error}</p></div>
