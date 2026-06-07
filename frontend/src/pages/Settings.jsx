@@ -51,6 +51,9 @@ export default function Settings() {
   };
 
   useEffect(() => {
+    // La sección "Compartir en casa / red" no se muestra en Android, así que
+    // no hace falta pedir la IP LAN ahí (el Chromecast la pide aparte).
+    if (isCapacitor()) return;
     let cancelled = false;
     api.getNetworkInfo?.().then((d) => { if (!cancelled) setNet(d); }).catch(() => {});
     return () => { cancelled = true; };
@@ -112,7 +115,9 @@ export default function Settings() {
 
         <div className={shell.body}>
           <div className={styles.stack}>
-            {/* Perfil local */}
+            {/* Perfil local — concepto de escritorio ("solo en este equipo").
+                En Android no aplica (es la app del celu), se oculta. */}
+            {!isCapacitor() && (
             <div className={styles.profile}>
               <div className={styles.profileGlow} aria-hidden="true" />
               <div className={styles.avatar}>L</div>
@@ -123,8 +128,13 @@ export default function Settings() {
                 </div>
               </div>
             </div>
+            )}
 
-            {/* Compartir en casa / red */}
+            {/* Compartir en casa / red — SOLO en PC/desktop: ahí el servidor
+                FastAPI sirve la interfaz por la red local. En Android el server
+                nativo es solo un proxy HLS para el propio celu (y Chromecast),
+                NO sirve la UI a otros equipos, así que se oculta. */}
+            {!isCapacitor() && (
             <section className={styles.share}>
               <div className={`${styles.shareGlow} lt-glow`} aria-hidden="true" />
               <div className={styles.shareInner}>
@@ -163,6 +173,7 @@ export default function Settings() {
                 )}
               </div>
             </section>
+            )}
 
             {/* Deportes favoritos */}
             <section className={styles.group}>

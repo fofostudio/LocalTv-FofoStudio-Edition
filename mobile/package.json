@@ -1,6 +1,6 @@
 {
   "name": "localtv-mobile",
-  "version": "1.2.9",
+  "version": "1.2.10",
   "private": true,
   "description": "LocalTv Android — Capacitor wrapper con plugin HLS-proxy nativo",
   "scripts": {
