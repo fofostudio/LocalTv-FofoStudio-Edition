@@ -6,7 +6,6 @@ import com.getcapacitor.Plugin
 import com.getcapacitor.PluginCall
 import com.getcapacitor.PluginMethod
 import com.getcapacitor.annotation.CapacitorPlugin
-import java.net.ServerSocket
 
 /**
  * Plugin Capacitor que expone el HlsProxyServer al frontend.
@@ -32,8 +31,12 @@ class HlsProxyPlugin : Plugin() {
     fun start(call: PluginCall) {
         try {
             if (server == null) {
-                port = freePort()
-                server = HlsProxyServer(port).apply { start(NanoTimeout, false) }
+                // Bind a puerto 0: el SO asigna uno libre y lo leemos con
+                // getListeningPort() DESPUÉS del bind. Elimina el TOCTOU de
+                // pedir un puerto, cerrarlo y rezar que nadie lo tome antes.
+                val s = HlsProxyServer(0).apply { start(NanoTimeout, false) }
+                server = s
+                port = s.listeningPort
                 Log.i(TAG, "HlsProxyServer started on port $port")
             }
             val ret = JSObject().apply {
@@ -112,15 +115,6 @@ class HlsProxyPlugin : Plugin() {
         try { server?.stop() } catch (_: Exception) {}
         server = null
         super.handleOnDestroy()
-    }
-
-    /**
-     * Pide al SO un puerto libre y lo cierra inmediatamente.
-     * NanoHTTPD lo bindea después; hay una pequeña ventana de race pero en
-     * práctica nunca colisiona en un dispositivo personal.
-     */
-    private fun freePort(): Int {
-        ServerSocket(0).use { return it.localPort }
     }
 
     /** Timeout de socket por request en ms. */

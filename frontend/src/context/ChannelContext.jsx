@@ -133,6 +133,9 @@ export function ChannelProvider({ children }) {
     categories,
     currentChannel,
     setCurrentChannel,
+    // Versión sin scroll-to-top: para el auto-skip silencioso (failover de un
+    // canal caído) que no debe mover la vista del usuario.
+    setCurrentChannelSilent: setCurrentChannelState,
     activeCategory,
     setActiveCategory,
     activeRegion,

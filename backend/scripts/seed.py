@@ -129,8 +129,14 @@ def seed():
     db = SessionLocal()
     try:
         if db.query(Category).count() > 0:
-            # Ya hay datos. Igual intentamos enriquecer con regiones si falta.
-            _enrich_regions_safe(db)
+            # Ya hay datos. Sólo enriquecemos regiones si FALTAN: así no
+            # bloqueamos el arranque con un fetch a tvtvhd en cada boot cuando
+            # ya están todas cargadas.
+            missing = db.query(Channel).filter(
+                (Channel.region.is_(None)) | (Channel.region == "")
+            ).count()
+            if missing:
+                _enrich_regions_safe(db)
             return
 
         deportes = Category(name="Deportes", slug="deportes", icon="fa-futbol")

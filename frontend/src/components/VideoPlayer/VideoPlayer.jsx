@@ -136,7 +136,7 @@ function hlsConfigForTier(tier) {
 }
 
 export default function VideoPlayer({ channel }) {
-  const { nextLiveChannel, setCurrentChannel } = useContext(ChannelContext);
+  const { nextLiveChannel, setCurrentChannel, setCurrentChannelSilent } = useContext(ChannelContext);
   const videoRef = useRef(null);
   const hlsRef = useRef(null);
   const shakaRef = useRef(null);
@@ -200,8 +200,9 @@ export default function VideoPlayer({ channel }) {
 
     skipCountRef.current += 1;
     console.warn(`[player] auto-skip #${skipCountRef.current}: ${channel.slug} → ${next.slug}`);
-    setCurrentChannel(next);
-  }, [tier, maxTier, channel?.slug, nextLiveChannel, setCurrentChannel]);
+    // Failover silencioso: NO scrollear al tope (el usuario está mirando).
+    setCurrentChannelSilent(next);
+  }, [tier, maxTier, channel?.slug, nextLiveChannel, setCurrentChannelSilent]);
 
   // ----- Carga del stream (corre cuando cambia el canal o el tier) -----
   useEffect(() => {

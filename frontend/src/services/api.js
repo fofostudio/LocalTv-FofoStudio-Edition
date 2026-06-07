@@ -13,7 +13,17 @@ const BASE_URL = (() => {
 })();
 
 async function jsonFetch(path, options = {}) {
-  const res = await fetch(`${BASE_URL}${path}`, options);
+  // Timeout por defecto: ninguna llamada al backend debe colgarse para siempre
+  // si el server no responde. /streams/health puede tardar (deep-probe) → 15s.
+  const { timeout = 15000, ...rest } = options;
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeout);
+  let res;
+  try {
+    res = await fetch(`${BASE_URL}${path}`, { ...rest, signal: rest.signal || ctrl.signal });
+  } finally {
+    clearTimeout(t);
+  }
   if (!res.ok) {
     if (res.status === 401) throw new Error('API Key inválida');
     let detail = '';
