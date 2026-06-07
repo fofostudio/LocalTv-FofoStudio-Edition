@@ -35,8 +35,13 @@ class HlsProxyPlugin : Plugin() {
                 // getListeningPort() DESPUÉS del bind. Elimina el TOCTOU de
                 // pedir un puerto, cerrarlo y rezar que nadie lo tome antes.
                 val s = HlsProxyServer(0).apply { start(NanoTimeout, false) }
+                val p = s.listeningPort
+                if (p <= 0) {
+                    try { s.stop() } catch (_: Exception) {}
+                    throw IllegalStateException("el proxy no bindeó un puerto válido (port=$p)")
+                }
                 server = s
-                port = s.listeningPort
+                port = p
                 Log.i(TAG, "HlsProxyServer started on port $port")
             }
             val ret = JSObject().apply {

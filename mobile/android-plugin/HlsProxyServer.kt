@@ -305,16 +305,11 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
         } catch (e: Exception) {
             return error502("Upstream segment error: ${e.message}")
         }
-
-        // OJO: para el segmento binario NO usamos resp.use{} — el InputStream se
-        // entrega a NanoHTTPD, que lo cierra al terminar de enviar (y eso libera
-        // la conexión OkHttp). Streaming = no bufferear el segmento entero
-        // (2-10 MB) en RAM, que en celus de poca memoria causaba GC/OOM.
-        try {
+        resp.use { _ ->
             // CRÍTICO: aceptar SOLO 200 OK y 206 Partial Content. tvtvhd
             // a veces responde 404 con Content-Type m3u8 y body "not found".
             if (resp.code != 200 && resp.code != 206) {
-                resp.close(); return error502("Upstream HTTP ${resp.code}")
+                return error502("Upstream HTTP ${resp.code}")
             }
             val ct = resp.header("Content-Type") ?: "application/octet-stream"
 
@@ -324,61 +319,37 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
                 ct.contains("mpegurl", ignoreCase = true)
             if (isManifest) {
                 val text = resp.body?.string().orEmpty()
-                resp.close()
                 if (ct.contains("html") || !text.trimStart().startsWith("#EXTM3U")) {
                     return error502("Sub-manifest inválido: upstream devolvió HTML/no-HLS")
                 }
                 return manifest(rewriteManifest(text, base = target, slug = slug))
             }
 
-            // Binario (segmento .ts/mp4/aac/m4s/CMAF/cifrado/...).
             if (ct.contains("html")) {
-                resp.close(); return error502("Segmento inválido: upstream devolvió HTML")
+                return error502("Segmento inválido: upstream devolvió HTML")
             }
-            val body = resp.body
-            if (body == null) { resp.close(); return error502("Segmento sin body") }
 
-            val len = body.contentLength()
-
-            // Cuerpos chiquitos de longitud conocida: bufferear y validar que no
-            // sean "not found"/"404" disfrazados de binario (es barato).
-            if (len in 1..31) {
-                val bytes = body.bytes()
-                resp.close()
-                val preview = String(bytes, Charsets.US_ASCII).trim().lowercase()
+            // Buffereamos el segmento entero y lo servimos como longitud fija.
+            // Es el método PROBADO: el streaming con NanoHTTPD (chunked /
+            // FilterInputStream) resultó frágil en la WebView. Un segmento
+            // entra de a uno en RAM, no es problema en la práctica.
+            val bytes = resp.body?.bytes() ?: ByteArray(0)
+            if (bytes.size < 32) {
+                val preview = String(bytes, 0, bytes.size, Charsets.US_ASCII).trim().lowercase()
                 if (preview in listOf("not found", "404", "404 not found",
                                       "forbidden", "unauthorized")) {
                     return error502("Segmento inválido: upstream respondió '$preview'")
                 }
-                val r = newFixedLengthResponse(
-                    statusFromCode(resp.code), ct,
-                    java.io.ByteArrayInputStream(bytes), bytes.size.toLong()
-                )
-                resp.header("Content-Range")?.let { r.addHeader("Content-Range", it) }
-                resp.header("Accept-Ranges")?.let { r.addHeader("Accept-Ranges", it) }
-                r.addHeader("Cache-Control", "public, max-age=10")
-                r.addHeader("Access-Control-Allow-Origin", "*")
-                return r
             }
-
-            // Caso normal: streamear el body. Al cerrar este stream (lo hace
-            // NanoHTTPD al terminar) se cierra el body de OkHttp y se libera la
-            // conexión.
-            val stream = object : java.io.FilterInputStream(body.byteStream()) {
-                override fun close() { try { super.close() } finally { resp.close() } }
-            }
-            val response = if (len >= 0)
-                newFixedLengthResponse(statusFromCode(resp.code), ct, stream, len)
-            else
-                newChunkedResponse(statusFromCode(resp.code), ct, stream)
+            val response = newFixedLengthResponse(
+                statusFromCode(resp.code), ct,
+                java.io.ByteArrayInputStream(bytes), bytes.size.toLong()
+            )
             resp.header("Content-Range")?.let { response.addHeader("Content-Range", it) }
             resp.header("Accept-Ranges")?.let { response.addHeader("Accept-Ranges", it) }
             response.addHeader("Cache-Control", "public, max-age=10")
             response.addHeader("Access-Control-Allow-Origin", "*")
             return response
-        } catch (e: Exception) {
-            try { resp.close() } catch (_: Exception) {}
-            return error502("Segmento error: ${e.message}")
         }
     }
 

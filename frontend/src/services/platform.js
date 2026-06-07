@@ -73,7 +73,7 @@ export function resetHlsProxy() {
  * dice si el plugin está registrado, qué baseUrl devolvió y si responde /health.
  * Se muestra en el panel de error del reproductor en móvil.
  */
-export async function getProxyDiagnostics() {
+export async function getProxyDiagnostics(slug) {
   const diag = { platform: platform() };
   if (!isCapacitor()) return diag;
   try {
@@ -82,13 +82,32 @@ export async function getProxyDiagnostics() {
     if (!HlsProxy) return diag;
     const base = await ensureHlsProxy();
     diag.base = base || '(vacío)';
-    if (base) {
+    if (!base) return diag;
+
+    // 1) /health del server nativo
+    try { diag.health = (await fetch(`${base}/health`, { cache: 'no-store' })).status; }
+    catch (e) { diag.health = `err:${e?.message || e}`; }
+
+    // 2) playlist del canal: ¿resuelve y devuelve HLS?
+    if (slug) {
       try {
-        const r = await fetch(`${base}/health`, { cache: 'no-store' });
-        diag.health = r.status;
-      } catch (e) {
-        diag.health = `err:${e?.message || e}`;
-      }
+        const r = await fetch(`${base}/stream/${slug}/playlist.m3u8`, { cache: 'no-store' });
+        diag.pl = r.status;
+        const txt = await r.text();
+        diag.plHls = txt.startsWith('#EXTM3U');
+        // 3) primer segmento del playlist: ¿baja bytes?
+        const segLine = txt.split('\n').find((l) => l.includes('/segment?u='));
+        if (segLine) {
+          const segUrl = segLine.startsWith('http') ? segLine : `${base}${segLine.trim()}`;
+          try {
+            const sr = await fetch(segUrl, { cache: 'no-store' });
+            const buf = await sr.arrayBuffer();
+            diag.seg = `${sr.status}/${buf.byteLength}b`;
+          } catch (e) { diag.seg = `err:${e?.message || e}`; }
+        } else {
+          diag.seg = txt.startsWith('#EXTM3U') ? 'sin-segmento' : 'no-hls';
+        }
+      } catch (e) { diag.pl = `err:${e?.message || e}`; }
     }
   } catch (e) {
     diag.error = String(e?.message || e);

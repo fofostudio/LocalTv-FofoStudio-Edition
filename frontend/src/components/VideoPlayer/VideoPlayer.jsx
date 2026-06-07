@@ -43,7 +43,10 @@ function enginePlan(lite, nativeCapable, capacitor) {
   // (también empaquetado) como respaldo. Probamos el worker de hls.js activado
   // y desactivado: en varias WebViews el worker falla y sin worker anda.
   if (capacitor) {
-    return [{ e: 'hls', t: 0 }, { e: 'hls', t: 3 }, { e: 'hls', t: 4 }, { e: 'shaka' }];
+    // Worker DESACTIVADO primero (t3): el worker de hls.js falla en varias
+    // WebViews de Android y hace ciclar los tiers. Sin worker es más lento pero
+    // mucho más compatible → arranca a la primera. Luego con worker, luego shaka.
+    return [{ e: 'hls', t: 3 }, { e: 'hls', t: 0 }, { e: 'hls', t: 4 }, { e: 'shaka' }];
   }
   if (nativeCapable) return [{ e: 'native' }, { e: 'shaka' }, { e: 'hls', t: 0 }, { e: 'hls', t: 2 }, { e: 'hls', t: 3 }];
   if (lite) return [{ e: 'native' }, { e: 'shaka' }, { e: 'hls', t: 0 }, { e: 'hls', t: 2 }, { e: 'hls', t: 4 }];
@@ -172,14 +175,21 @@ export default function VideoPlayer({ channel }) {
 
   const skipCountRef = useRef(0);
 
-  // Diagnóstico del proxy nativo cuando hay error en móvil (para ver dónde
-  // falla: plugin ausente, baseUrl vacío o /health caído).
+  // Diagnóstico del proxy nativo en móvil: se dispara cuando hay error O cuando
+  // ya escaló de tier (tier>0 = el primer motor falló). Prueba toda la cadena
+  // plugin→base→/health→playlist→segmento para ver EXACTAMENTE dónde rompe.
   useEffect(() => {
-    if (!error || !isCapacitor()) { setDiag(null); return; }
+    if (!isCapacitor() || !channel?.slug || (!error && tier === 0)) { setDiag(null); return; }
     let alive = true;
-    getProxyDiagnostics().then((d) => { if (alive) setDiag(d); }).catch(() => {});
+    getProxyDiagnostics(channel.slug).then((d) => { if (alive) setDiag(d); }).catch(() => {});
     return () => { alive = false; };
-  }, [error]);
+  }, [error, tier, channel?.slug]);
+
+  const diagLine = diag && (
+    diag.plugin === false
+      ? '⚠ proxy nativo NO registrado'
+      : `base:${diag.base ? 'ok' : '✗'} health:${diag.health ?? '—'} pl:${diag.pl ?? '—'}${diag.plHls === false ? '(no-hls)' : ''} seg:${diag.seg ?? '—'}${diag.error ? ' ' + diag.error : ''}`
+  );
 
   // Plan de motores según dispositivo (estable durante la sesión).
   const nativeCapable = useMemo(() => {
@@ -474,6 +484,11 @@ export default function VideoPlayer({ channel }) {
         <div className={styles.overlay}>
           <div className={styles.spinner} />
           <p>{overlayText}</p>
+          {diagLine && (
+            <p style={{ fontSize: '10px', opacity: 0.6, marginTop: 6, fontFamily: 'monospace', textAlign: 'center', padding: '0 12px' }}>
+              {diagLine}
+            </p>
+          )}
         </div>
       )}
 
@@ -484,12 +499,9 @@ export default function VideoPlayer({ channel }) {
           </div>
           <h3 className={styles.errorTitle}>{error.title}</h3>
           <p className={styles.errorMsg}>{error.message}</p>
-          {diag && (
+          {diagLine && (
             <p style={{ fontSize: '11px', opacity: 0.65, margin: '4px 0 8px', fontFamily: 'monospace' }}>
-              {diag.plugin === false
-                ? '⚠ proxy nativo NO registrado'
-                : `proxy ${diag.base || '—'} · health ${String(diag.health ?? '—')}`}
-              {diag.error ? ` · ${diag.error}` : ''}
+              {diagLine}
             </p>
           )}
           <div className={styles.errorActions}>

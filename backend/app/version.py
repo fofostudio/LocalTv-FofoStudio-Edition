@@ -6,4 +6,4 @@ Fuente única de verdad para la versión que reporta la API (/api/health,
 """
 import os
 
-APP_VERSION = os.getenv("LOCALTV_VERSION") or "1.2.8"
+APP_VERSION = os.getenv("LOCALTV_VERSION") or "1.2.9"
