@@ -28,6 +28,7 @@ class HlsProxyPlugin : Plugin() {
     private var port: Int = 0
 
     @PluginMethod
+    @Synchronized
     fun start(call: PluginCall) {
         try {
             if (server == null) {
@@ -47,6 +48,7 @@ class HlsProxyPlugin : Plugin() {
     }
 
     @PluginMethod
+    @Synchronized
     fun stop(call: PluginCall) {
         try {
             server?.stop()

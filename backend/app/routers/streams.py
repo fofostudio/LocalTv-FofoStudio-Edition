@@ -20,7 +20,7 @@ from urllib.parse import urljoin, urlparse, quote
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import Response
+from fastapi.responses import Response, StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -43,18 +43,25 @@ UPSTREAM_HEADERS = {
 # antes) abría una conexión TLS nueva cada vez — carísimo en vivo, donde el
 # player pide un segmento cada pocos segundos + refresca el playlist. Reutilizar
 # conexiones baja latencia y CPU notablemente.
-_shared_client: httpx.AsyncClient | None = None
+def _new_client() -> httpx.AsyncClient:
+    return httpx.AsyncClient(
+        timeout=httpx.Timeout(20.0, connect=8.0),
+        headers=UPSTREAM_HEADERS,
+        follow_redirects=True,
+        limits=httpx.Limits(max_connections=100, max_keepalive_connections=30),
+    )
+
+
+# Se crea eager (en import, single-thread) para evitar la race de dos coroutines
+# creando el cliente a la vez y filtrando uno. httpx liga el pool al event loop
+# en el primer request, no en la construcción, así que crearlo acá es seguro.
+_shared_client: httpx.AsyncClient = _new_client()
 
 
 def _client() -> httpx.AsyncClient:
     global _shared_client
-    if _shared_client is None or _shared_client.is_closed:
-        _shared_client = httpx.AsyncClient(
-            timeout=httpx.Timeout(20.0, connect=8.0),
-            headers=UPSTREAM_HEADERS,
-            follow_redirects=True,
-            limits=httpx.Limits(max_connections=100, max_keepalive_connections=30),
-        )
+    if _shared_client.is_closed:
+        _shared_client = _new_client()
     return _shared_client
 
 
@@ -225,6 +232,7 @@ async def _resolve_media_playlist(slug: str, force: bool = False) -> tuple[str, 
 # ---------------------------------------------------------------------------
 _HEALTH_TTL = 60.0  # segundos — el upstream cambia disponibilidad cada minuto-ish
 _health_cache: dict = {"ts": 0.0, "live": set()}
+_health_lock = asyncio.Lock()  # single-flight: evita probes duplicados concurrentes
 
 
 async def _probe_one(client: httpx.AsyncClient, slug: str) -> tuple[str, bool]:
@@ -292,35 +300,48 @@ async def health(db: Session = Depends(get_db)):
     Si status.json falla (DNS/timeout) usamos el deep probe paralelo
     como fallback.
     """
-    now = time.time()
-    age = now - _health_cache["ts"]
-    if age < _HEALTH_TTL and _health_cache["live"]:
-        return {
-            "live": sorted(_health_cache["live"]),
-            "total": len(_health_cache["live"]),
-            "cached_age_s": round(age, 1),
-            "source": _health_cache.get("source", "cache"),
-        }
+    def _cached_response():
+        age = time.time() - _health_cache["ts"]
+        if age < _HEALTH_TTL and _health_cache["live"]:
+            return {
+                "live": sorted(_health_cache["live"]),
+                "total": len(_health_cache["live"]),
+                "cached_age_s": round(age, 1),
+                "source": _health_cache.get("source", "cache"),
+            }
+        return None
 
-    # 1. Fast path: status.json (un solo fetch)
-    try:
-        from app.services.scraper import fetch_status
-        status_map = await fetch_status()  # {slug: is_live}
-        live = {slug for slug, is_live in status_map.items() if is_live}
-        _health_cache["ts"] = now
-        _health_cache["live"] = live
-        _health_cache["source"] = "status.json"
-        return {"live": sorted(live), "total": len(live), "cached_age_s": 0.0,
-                "source": "status.json"}
-    except Exception as e:
-        # 2. Fallback: deep probe (más lento)
-        slugs = [c.slug for c in crud_channels.get_channels(db, active_only=False)]
-        live = await _refresh_health(slugs)
-        _health_cache["ts"] = now
-        _health_cache["live"] = live
-        _health_cache["source"] = "deep-probe"
-        return {"live": sorted(live), "total": len(live), "cached_age_s": 0.0,
-                "source": "deep-probe", "fallback_reason": str(e)}
+    cached = _cached_response()
+    if cached:
+        return cached
+
+    # Single-flight: si varias requests llegan con el cache vencido, sólo una
+    # hace el probe; las demás esperan el lock y reusan el resultado fresco.
+    async with _health_lock:
+        cached = _cached_response()
+        if cached:
+            return cached
+
+        now = time.time()
+        # 1. Fast path: status.json (un solo fetch)
+        try:
+            from app.services.scraper import fetch_status
+            status_map = await fetch_status()  # {slug: is_live}
+            live = {slug for slug, is_live in status_map.items() if is_live}
+            _health_cache["ts"] = now
+            _health_cache["live"] = live
+            _health_cache["source"] = "status.json"
+            return {"live": sorted(live), "total": len(live), "cached_age_s": 0.0,
+                    "source": "status.json"}
+        except Exception as e:
+            # 2. Fallback: deep probe (más lento)
+            slugs = [c.slug for c in crud_channels.get_channels(db, active_only=False)]
+            live = await _refresh_health(slugs)
+            _health_cache["ts"] = now
+            _health_cache["live"] = live
+            _health_cache["source"] = "deep-probe"
+            return {"live": sorted(live), "total": len(live), "cached_age_s": 0.0,
+                    "source": "deep-probe", "fallback_reason": str(e)}
 
 
 # ---------------------------------------------------------------------------
@@ -379,31 +400,41 @@ async def proxy_segment(slug: str, u: str, request: Request):
     if range_header:
         forward_headers["Range"] = range_header
 
-    # Cliente compartido (keep-alive). GET con reintentos: un blip transitorio
-    # del upstream (5xx/timeout) no debe cortar la reproducción.
-    head = None
+    # GET en modo streaming con reintentos: un blip transitorio del upstream
+    # (5xx/timeout) no debe cortar la reproducción. Streaming evita bufferear
+    # el segmento entero (2-10 MB) en RAM por cada request.
+    client = _client()
+    resp = None
     last_status = None
     for attempt in range(3):
         try:
-            head = await _client().get(u, headers=forward_headers)
-            last_status = head.status_code
-            if head.status_code in (200, 206):
+            req = client.build_request("GET", u, headers=forward_headers)
+            r = await client.send(req, stream=True)
+            last_status = r.status_code
+            if r.status_code in (200, 206):
+                resp = r
                 break
-            if head.status_code < 500 and head.status_code != 429:
+            await r.aclose()
+            if r.status_code < 500 and r.status_code != 429:
                 break  # 4xx definitivo, no reintentar
         except httpx.HTTPError:
-            head = None
+            pass
         await asyncio.sleep(0.3 * (attempt + 1))
 
-    if head is None or head.status_code not in (200, 206):
+    if resp is None:
         raise HTTPException(
             status_code=502,
             detail=f"Upstream HTTP {last_status} para segmento",
         )
-    ct = head.headers.get("content-type", "")
+    ct = resp.headers.get("content-type", "")
 
+    # Sub-manifest .m3u8 → leerlo entero, cerrarlo, reescribir.
     if _is_manifest(ct, u):
-        text = head.text
+        try:
+            raw = await resp.aread()
+        finally:
+            await resp.aclose()
+        text = raw.decode("utf-8", errors="replace")
         if "html" in ct.lower() or not text.lstrip().startswith("#EXTM3U"):
             raise HTTPException(
                 status_code=502,
@@ -422,40 +453,57 @@ async def proxy_segment(slug: str, u: str, request: Request):
     # Binario (segmento .ts/mp4/aac/m4s/CMAF/cifrado/...). Solo
     # descartamos lo OBVIAMENTE roto: Content-Type=html.
     if "html" in ct.lower():
+        await resp.aclose()
         raise HTTPException(
             status_code=502,
             detail="Segmento inválido: el upstream devolvió HTML",
         )
-    body = head.content
 
-    # Sanity: si el body es muy chico (<32 bytes) y NO es "not found"
-    # pero tampoco bytes binarios, descartar. "not found" pasa por aquí.
-    if len(body) < 32:
+    # Peek del primer chunk para descartar "not found"/"404" disfrazado de
+    # binario, sin perder ese chunk para el stream.
+    aiter = resp.aiter_bytes()
+    first = b""
+    try:
+        async for chunk in aiter:
+            first = chunk
+            break
+    except httpx.HTTPError:
+        await resp.aclose()
+        raise HTTPException(status_code=502, detail="Error leyendo segmento del upstream")
+
+    if 0 < len(first) < 32:
+        preview = first.decode("ascii", errors="ignore").strip().lower()
+        if preview in ("not found", "404", "404 not found", "forbidden", "unauthorized"):
+            await resp.aclose()
+            raise HTTPException(
+                status_code=502,
+                detail=f"Segmento inválido: upstream respondió '{preview}'",
+            )
+
+    async def _body():
         try:
-            preview = body.decode("ascii", errors="ignore").strip().lower()
-            if preview in ("not found", "404", "404 not found", "forbidden", "unauthorized"):
-                raise HTTPException(
-                    status_code=502,
-                    detail=f"Segmento inválido: upstream respondió '{preview}'",
-                )
-        except HTTPException:
-            raise
-        except Exception:
-            pass
+            if first:
+                yield first
+            async for chunk in aiter:
+                yield chunk
+        finally:
+            await resp.aclose()
 
     resp_headers = {
         "Access-Control-Allow-Origin": "*",
         "Cache-Control": "public, max-age=10",
     }
-    # Pasar Content-Range si vino (respuesta 206)
-    if "content-range" in head.headers:
-        resp_headers["Content-Range"] = head.headers["content-range"]
-    if "accept-ranges" in head.headers:
-        resp_headers["Accept-Ranges"] = head.headers["accept-ranges"]
+    # Pasar Content-Range/Length/Accept-Ranges del upstream (respuestas 206/200)
+    if "content-range" in resp.headers:
+        resp_headers["Content-Range"] = resp.headers["content-range"]
+    if "accept-ranges" in resp.headers:
+        resp_headers["Accept-Ranges"] = resp.headers["accept-ranges"]
+    if "content-length" in resp.headers:
+        resp_headers["Content-Length"] = resp.headers["content-length"]
 
-    return Response(
-        content=body,
-        status_code=head.status_code,
+    return StreamingResponse(
+        _body(),
+        status_code=resp.status_code,
         media_type=ct or "video/mp2t",
         headers=resp_headers,
     )

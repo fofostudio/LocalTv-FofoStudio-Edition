@@ -35,6 +35,10 @@ class AppUpdaterPlugin : Plugin() {
 
     companion object { private const val TAG = "AppUpdater" }
 
+    // Receiver activo de la descarga en curso, para poder desregistrarlo si la
+    // app se destruye antes de que termine (evita fuga de BroadcastReceiver).
+    private var activeReceiver: BroadcastReceiver? = null
+
     @PluginMethod
     fun downloadAndInstall(call: PluginCall) {
         val url = call.getString("url")
@@ -61,6 +65,10 @@ class AppUpdaterPlugin : Plugin() {
             }
             val downloadId = dm.enqueue(req)
             Log.i(TAG, "Download enqueued id=$downloadId url=$url")
+            // La descarga es asíncrona: la promesa se resuelve recién cuando el
+            // BroadcastReceiver dispara installApk(). Sin keepAlive, Capacitor
+            // descarta el PluginCall y el await en JS quedaba colgado para siempre.
+            call.setKeepAlive(true)
 
             // Listener para cuando termina la descarga -> lanzar install intent
             val receiver = object : BroadcastReceiver() {
@@ -73,6 +81,7 @@ class AppUpdaterPlugin : Plugin() {
                     try {
                         ctx.unregisterReceiver(this)
                     } catch (_: Exception) { /* ignore */ }
+                    activeReceiver = null
 
                     val q = DownloadManager.Query().setFilterById(downloadId)
                     dm.query(q).use { cursor ->
@@ -97,6 +106,7 @@ class AppUpdaterPlugin : Plugin() {
                 }
             }
 
+            activeReceiver = receiver
             val filter = IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 ctx.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
@@ -139,5 +149,13 @@ class AppUpdaterPlugin : Plugin() {
             Log.e(TAG, "installApk: ${e.message}", e)
             call.reject("install: ${e.message}", e)
         }
+    }
+
+    override fun handleOnDestroy() {
+        activeReceiver?.let {
+            try { context.unregisterReceiver(it) } catch (_: Exception) { /* ignore */ }
+        }
+        activeReceiver = null
+        super.handleOnDestroy()
     }
 }

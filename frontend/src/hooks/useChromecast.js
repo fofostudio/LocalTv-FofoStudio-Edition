@@ -97,8 +97,13 @@ export const useChromecast = () => {
         }
       };
 
+      // Sólo instalamos el callback global si no había uno, y recordamos si
+      // fuimos nosotros para no pisarlo al desmontar (otra instancia de
+      // CastButton podría depender de él).
+      let installedGlobalCb = false;
       if (!window.__onGCastApiAvailable) {
         window.__onGCastApiAvailable = globalCallback;
+        installedGlobalCb = true;
       }
 
       // Polling como fallback
@@ -115,7 +120,10 @@ export const useChromecast = () => {
 
     return () => {
       mountedRef.current = false;
-      window.__onGCastApiAvailable = undefined;
+      // No pisar el callback global si no fuimos nosotros quien lo puso.
+      if (installedGlobalCb && window.__onGCastApiAvailable === globalCallback) {
+        window.__onGCastApiAvailable = undefined;
+      }
       cleanupFns.forEach(fn => fn());
     };
   }, []);

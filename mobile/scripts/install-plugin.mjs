@@ -68,6 +68,7 @@ if (!gradle.includes('kotlin-android')) {
 //          la firma sea idéntica entre versiones.
 if (!gradle.includes('localtv-signing')) {
   const signingBlock = `
+    // localtv-signing: keystore commiteada en mobile/localtv.keystore
     signingConfigs {
         localtvSigning {
             storeFile file('../../localtv.keystore') // mobile/localtv.keystore
@@ -77,38 +78,42 @@ if (!gradle.includes('localtv-signing')) {
         }
     }
 `;
-  // Insertar signingConfigs DENTRO del bloque android { ... }, justo
-  // después de la apertura.
+  // Insertar signingConfigs DENTRO del bloque android { ... }, justo tras la apertura.
   gradle = gradle.replace(/android\s*\{/, (m) => `${m}${signingBlock}`);
 
-  // Asignar la signingConfig a debug y release.
-  gradle = gradle.replace(
-    /buildTypes\s*\{([\s\S]*?)\}/,
-    (full, body) => {
-      // localtv-signing en cada buildType existente
-      let newBody = body
-        .replace(/(release\s*\{)/, '$1\n            signingConfig signingConfigs.localtvSigning')
-        .replace(/(debug\s*\{)/, '$1\n            signingConfig signingConfigs.localtvSigning');
-      // Si no hay bloques release/debug aún, agregarlos
-      if (!/release\s*\{/.test(body)) {
-        newBody = `\n        release {\n            signingConfig signingConfigs.localtvSigning\n            minifyEnabled false\n        }${newBody}`;
-      }
-      if (!/debug\s*\{/.test(body)) {
-        newBody = `${newBody}\n        debug {\n            signingConfig signingConfigs.localtvSigning\n        }`;
-      }
-      return `buildTypes {${newBody}}`;
-    },
-  );
-  // Si no había buildTypes, agregarlo
-  if (!gradle.includes('buildTypes')) {
-    gradle = gradle.replace(/android\s*\{[^}]*signingBlock[\s\S]*?(\n\s*)}/, (m) => m);
+  // release: agregar la signingConfig (idempotente).
+  if (/release\s*\{/.test(gradle) && !/release\s*\{[^}]*localtvSigning/.test(gradle)) {
+    gradle = gradle.replace(
+      /(release\s*\{)/,
+      '$1\n            signingConfig signingConfigs.localtvSigning',
+    );
+  }
+
+  // debug: bloque hermano de release DENTRO de buildTypes. La plantilla de
+  // Capacitor no trae bloque debug, así que lo insertamos limpio (no anidado).
+  // El bug viejo lo metía DENTRO de release (release nunca se cerraba, '}}'),
+  // dejando el debug sin firmar de forma estable → "app no instalada" al update.
+  if (/buildTypes\s*\{/.test(gradle)) {
+    if (!/debug\s*\{/.test(gradle)) {
+      gradle = gradle.replace(
+        /(buildTypes\s*\{)/,
+        '$1\n        debug {\n            signingConfig signingConfigs.localtvSigning\n        }',
+      );
+    } else if (!/debug\s*\{[^}]*localtvSigning/.test(gradle)) {
+      gradle = gradle.replace(
+        /(debug\s*\{)/,
+        '$1\n            signingConfig signingConfigs.localtvSigning',
+      );
+    }
+  } else {
+    // Plantilla sin buildTypes: agregamos un bloque completo dentro de android{}.
+    gradle = gradle.replace(
+      /android\s*\{/,
+      (m) =>
+        `${m}\n    buildTypes {\n        debug {\n            signingConfig signingConfigs.localtvSigning\n        }\n        release {\n            signingConfig signingConfigs.localtvSigning\n            minifyEnabled false\n        }\n    }`,
+    );
   }
   mutated = true;
-  // Marcador comentado para detección idempotente
-  gradle = gradle.replace(
-    'signingConfigs {',
-    '// localtv-signing: keystore commiteada en mobile/localtv.keystore\n    signingConfigs {',
-  );
   console.log('[install-plugin] configurada signingConfig fija (debug + release)');
 }
 if (mutated) fs.writeFileSync(APP_GRADLE, gradle);

@@ -12,11 +12,14 @@ import java.net.URLEncoder
 import java.util.regex.Pattern
 
 /**
- * Mini-server HTTP que corre en 127.0.0.1:<puerto random>.
+ * Mini-server HTTP que corre en 0.0.0.0:<puerto random>.
  *
  * Hace lo mismo que backend/app/routers/streams.py pero en Kotlin para que
- * la app Android sea 100% local (sin PC). Solo la WebView de la propia app
- * accede a este server — Android bindea a localhost, no expone puertos.
+ * la app Android sea 100% local (sin PC). Bindea a 0.0.0.0 (no sólo localhost)
+ * A PROPÓSITO: el Chromecast en la misma Wi-Fi necesita alcanzar el stream por
+ * la IP LAN del celu (ver networkInfo()/lanUrl). Trade-off: cualquier device de
+ * la red puede usar el proxy mientras la app está abierta (puerto aleatorio,
+ * sin datos sensibles — sólo reenvía HLS público de tvtvhd).
  *
  * Endpoints:
  *   GET /stream/{slug}/playlist.m3u8     -> manifest reescrito
@@ -298,13 +301,16 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
         } catch (e: Exception) {
             return error502("Upstream segment error: ${e.message}")
         }
-        resp.use { _ ->
+
+        // OJO: para el segmento binario NO usamos resp.use{} — el InputStream se
+        // entrega a NanoHTTPD, que lo cierra al terminar de enviar (y eso libera
+        // la conexión OkHttp). Streaming = no bufferear el segmento entero
+        // (2-10 MB) en RAM, que en celus de poca memoria causaba GC/OOM.
+        try {
             // CRÍTICO: aceptar SOLO 200 OK y 206 Partial Content. tvtvhd
-            // a veces responde 404 con Content-Type m3u8 y body "not found"
-            // — sin este guard, ese 'not found' llegaba al player y
-            // disparaba el demuxer-error.
+            // a veces responde 404 con Content-Type m3u8 y body "not found".
             if (resp.code != 200 && resp.code != 206) {
-                return error502("Upstream HTTP ${resp.code}")
+                resp.close(); return error502("Upstream HTTP ${resp.code}")
             }
             val ct = resp.header("Content-Type") ?: "application/octet-stream"
 
@@ -314,36 +320,61 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
                 ct.contains("mpegurl", ignoreCase = true)
             if (isManifest) {
                 val text = resp.body?.string().orEmpty()
+                resp.close()
                 if (ct.contains("html") || !text.trimStart().startsWith("#EXTM3U")) {
                     return error502("Sub-manifest inválido: upstream devolvió HTML/no-HLS")
                 }
-                val rewritten = rewriteManifest(text, base = target, slug = slug)
-                return manifest(rewritten)
+                return manifest(rewriteManifest(text, base = target, slug = slug))
             }
 
             // Binario (segmento .ts/mp4/aac/m4s/CMAF/cifrado/...).
             if (ct.contains("html")) {
-                return error502("Segmento inválido: upstream devolvió HTML")
+                resp.close(); return error502("Segmento inválido: upstream devolvió HTML")
             }
-            val bytes = resp.body?.bytes() ?: ByteArray(0)
-            // Sanity: si el body es muy chico, podría ser "not found" / "404"
-            // disfrazado con Content-Type binario.
-            if (bytes.size < 32) {
-                val preview = String(bytes, 0, bytes.size, Charsets.US_ASCII)
-                    .trim().lowercase()
+            val body = resp.body
+            if (body == null) { resp.close(); return error502("Segmento sin body") }
+
+            val len = body.contentLength()
+
+            // Cuerpos chiquitos de longitud conocida: bufferear y validar que no
+            // sean "not found"/"404" disfrazados de binario (es barato).
+            if (len in 1..31) {
+                val bytes = body.bytes()
+                resp.close()
+                val preview = String(bytes, Charsets.US_ASCII).trim().lowercase()
                 if (preview in listOf("not found", "404", "404 not found",
                                       "forbidden", "unauthorized")) {
                     return error502("Segmento inválido: upstream respondió '$preview'")
                 }
+                val r = newFixedLengthResponse(
+                    statusFromCode(resp.code), ct,
+                    java.io.ByteArrayInputStream(bytes), bytes.size.toLong()
+                )
+                resp.header("Content-Range")?.let { r.addHeader("Content-Range", it) }
+                resp.header("Accept-Ranges")?.let { r.addHeader("Accept-Ranges", it) }
+                r.addHeader("Cache-Control", "public, max-age=10")
+                r.addHeader("Access-Control-Allow-Origin", "*")
+                return r
             }
-            val response = newFixedLengthResponse(
-                statusFromCode(resp.code), ct, bytes.inputStream(), bytes.size.toLong()
-            )
+
+            // Caso normal: streamear el body. Al cerrar este stream (lo hace
+            // NanoHTTPD al terminar) se cierra el body de OkHttp y se libera la
+            // conexión.
+            val stream = object : java.io.FilterInputStream(body.byteStream()) {
+                override fun close() { try { super.close() } finally { resp.close() } }
+            }
+            val response = if (len >= 0)
+                newFixedLengthResponse(statusFromCode(resp.code), ct, stream, len)
+            else
+                newChunkedResponse(statusFromCode(resp.code), ct, stream)
             resp.header("Content-Range")?.let { response.addHeader("Content-Range", it) }
             resp.header("Accept-Ranges")?.let { response.addHeader("Accept-Ranges", it) }
             response.addHeader("Cache-Control", "public, max-age=10")
             response.addHeader("Access-Control-Allow-Origin", "*")
             return response
+        } catch (e: Exception) {
+            try { resp.close() } catch (_: Exception) {}
+            return error502("Segmento error: ${e.message}")
         }
     }
 

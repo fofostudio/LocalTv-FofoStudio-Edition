@@ -1,12 +1,13 @@
 import os
 import sys
 from pathlib import Path
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from app.database import engine, Base
 from app.routers import channels, categories, streams, auth, admin, logos, updater, network, vod
+from app.version import APP_VERSION
 from app.models.category import Category  # noqa: F401 (registra modelo)
 from app.models.channel import Channel    # noqa: F401
 from app.models.user import User          # noqa: F401
@@ -45,8 +46,17 @@ seed()
 app = FastAPI(
     title="LocalTv API",
     description="API de la plataforma de streaming LocalTv (FofoStudio Edition)",
-    version="1.0.0",
+    version=APP_VERSION,
 )
+
+
+@app.on_event("shutdown")
+async def _shutdown() -> None:
+    """Cierra ordenadamente el cliente httpx compartido del proxy de streams."""
+    try:
+        await streams.close_shared_client()
+    except Exception:
+        pass
 
 # CORS — útil para desarrollo (frontend en :5173). En producción servimos
 # todo desde el mismo origen así que CORS no aplica.
@@ -77,7 +87,7 @@ app.include_router(vod.router)
 
 @app.get("/api/health")
 def health_check():
-    return {"status": "ok", "version": "1.0.0"}
+    return {"status": "ok", "version": APP_VERSION}
 
 
 # --- Servir frontend buildeado (modo producción / .exe) ---
@@ -107,6 +117,11 @@ if _dist:
 
     @app.get("/{full_path:path}")
     def _spa_fallback(full_path: str):
+        # Las rutas /api/* que no matchearon un endpoint son un 404 real, no el
+        # SPA. Sin esto, un GET a un endpoint inexistente devolvía index.html con
+        # 200 y el frontend reventaba al parsear HTML como JSON.
+        if full_path.startswith("api/"):
+            raise HTTPException(status_code=404, detail="Not found")
         # Si el path apunta a un archivo estático real (favicon, logo, etc.) lo servimos
         target = _dist / full_path
         if target.is_file():

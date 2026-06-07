@@ -21,6 +21,7 @@ import httpx
 
 TMDB_BASE = "https://api.themoviedb.org/3"
 _CACHE_TTL = 600  # 10 min
+_CACHE_MAX = 256   # cota dura: cada query de búsqueda distinta crea una key
 _cache: dict[str, tuple[float, dict]] = {}
 
 
@@ -88,6 +89,10 @@ def _get(path: str, params: dict | None = None) -> dict:
         r = c.get(path, params=query, headers=headers)
         r.raise_for_status()
         data = r.json()
+    # Evicción simple cuando se llena: descarta las entradas más viejas.
+    if len(_cache) >= _CACHE_MAX:
+        for old_key in sorted(_cache, key=lambda k: _cache[k][0])[: _CACHE_MAX // 4]:
+            _cache.pop(old_key, None)
     _cache[key] = (now, data)
     return data
 

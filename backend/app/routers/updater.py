@@ -32,6 +32,8 @@ import httpx
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
+from app.version import APP_VERSION
+
 router = APIRouter(prefix="/api/update", tags=["update"])
 
 
@@ -72,7 +74,7 @@ def capabilities():
         "bundled": bundled,
         "canAutoUpdate": bundled and pk in ("win", "mac"),
         "executable": sys.executable,
-        "version": "1.0.0",
+        "version": APP_VERSION,
     }
 
 

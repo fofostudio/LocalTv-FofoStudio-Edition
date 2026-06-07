@@ -151,9 +151,11 @@ jobs:
           else
             v="1.0.0"
           fi
-          # versionCode debe ser entero monotónico — derivamos de los componentes
+          # versionCode debe ser entero monotónico — derivamos de los componentes.
+          # Bandas de 1000 para que minor/patch hasta 999 nunca colisionen
+          # (la fórmula vieja maj*10000+min*100+pat colisionaba con patch>=100).
           IFS='.' read -r maj min pat <<< "$v"
-          code=$(( maj*10000 + min*100 + pat ))
+          code=$(( maj*1000000 + min*1000 + pat ))
           echo "version=$v" >> "$GITHUB_OUTPUT"
           echo "code=$code" >> "$GITHUB_OUTPUT"
           echo "Version: $v (code $code)"

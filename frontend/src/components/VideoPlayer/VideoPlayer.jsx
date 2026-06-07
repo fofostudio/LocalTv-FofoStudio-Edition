@@ -19,13 +19,12 @@
  */
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ChannelContext } from '../../context/ChannelContext';
-import { streamPlaylistUrl, lanStreamUrl } from '../../services/platform';
+import { streamPlaylistUrl, lanStreamUrl, resetHlsProxy } from '../../services/platform';
 import { setPlayerEngine } from '../../hooks/usePlayerEngine';
 import { isLite } from '../../utils/device';
 import CastButton from '../CastButton/CastButton';
 import styles from './VideoPlayer.module.css';
 
-const BASE_URL = import.meta.env.VITE_API_URL || '';
 const MAX_AUTO_SKIPS = 3;
 
 const SHAKA_URL = 'https://cdn.jsdelivr.net/npm/shaka-player@4.11.2/dist/shaka-player.compiled.js';
@@ -137,7 +136,7 @@ function hlsConfigForTier(tier) {
 }
 
 export default function VideoPlayer({ channel }) {
-  const { nextLiveChannel, setCurrentChannel, healthLoading } = useContext(ChannelContext);
+  const { nextLiveChannel, setCurrentChannel } = useContext(ChannelContext);
   const videoRef = useRef(null);
   const hlsRef = useRef(null);
   const shakaRef = useRef(null);
@@ -339,7 +338,11 @@ export default function VideoPlayer({ channel }) {
     })();
 
     return () => { cancelled = true; cleanup(); };
-  }, [channel?.slug, tier, healthLoading]);
+    // OJO: NO incluir healthLoading acá. Antes estaba en las deps y como cambia
+    // (true→false) cada vez que termina un refresh de "en vivo", reejecutaba el
+    // effect → cleanup() destruía hls y recargaba el stream → corte/parpadeo en
+    // un canal que ya estaba andando. El effect no usa healthLoading.
+  }, [channel?.slug, tier]);
 
   // ----- Listeners del <video> -----
   useEffect(() => {
@@ -377,14 +380,18 @@ export default function VideoPlayer({ channel }) {
 
   const retry = () => {
     skipCountRef.current = 0;
+    // Por si el proxy nativo (Android) reinició en otro puerto tras un resume:
+    // invalida el baseUrl cacheado para forzar un start() fresco. No-op en web.
+    resetHlsProxy();
     setError(null);
     setTier(0);
   };
 
-  const finalCastUrl = useMemo(
-    () => castUrl || `${window.location.origin}${BASE_URL}/api/streams/${channel?.slug || ''}/playlist.m3u8`,
-    [castUrl, channel?.slug],
-  );
+  // Sólo casteamos con una URL LAN real alcanzable por el Chromecast. El
+  // localhost del emisor NO sirve (el dispositivo de cast no lo alcanza), así
+  // que si no hay IP LAN dejamos null → CastButton queda deshabilitado en vez
+  // de castear una URL muerta.
+  const finalCastUrl = castUrl || null;
 
   const overlayText = (() => {
     if (tier === 0) return 'Cargando…';

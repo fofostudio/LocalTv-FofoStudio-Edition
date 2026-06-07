@@ -26,18 +26,40 @@ export const platform = () => {
  *   local — no se hace fetch HTTP para esos endpoints.
  */
 let _hlsProxyBase = null;
+let _hlsProxyStarting = null;
 
 export async function ensureHlsProxy() {
   if (!isCapacitor()) return '';
   if (_hlsProxyBase) return _hlsProxyBase;
+  // Dedup de llamadas concurrentes: streamPlaylistUrl y lanStreamUrl pueden
+  // pedir el proxy a la vez al cambiar de canal. Sin esto arrancábamos el
+  // server nativo dos veces (y se filtraba uno).
+  if (_hlsProxyStarting) return _hlsProxyStarting;
   const HlsProxy = window.Capacitor.Plugins?.HlsProxy;
   if (!HlsProxy) {
     console.warn('[platform] HlsProxy plugin no disponible — fallback a relative URLs');
     return '';
   }
-  const { baseUrl } = await HlsProxy.start();
-  _hlsProxyBase = baseUrl;
-  return baseUrl;
+  _hlsProxyStarting = (async () => {
+    try {
+      const { baseUrl } = await HlsProxy.start();
+      _hlsProxyBase = baseUrl;
+      return baseUrl;
+    } finally {
+      _hlsProxyStarting = null;
+    }
+  })();
+  return _hlsProxyStarting;
+}
+
+/**
+ * Invalida el baseUrl cacheado del proxy nativo. Se llama si una request al
+ * proxy falla con error de red (el server pudo reiniciar en otro puerto tras
+ * un resume de la app) para forzar un nuevo start() en la próxima reproducción.
+ */
+export function resetHlsProxy() {
+  _hlsProxyBase = null;
+  _hlsProxyStarting = null;
 }
 
 /**

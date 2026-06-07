@@ -8,36 +8,35 @@ export function FavoritesProvider({ children }) {
   const [favorites, setFavorites] = useState([]);
   const isInitialized = useRef(false);
 
-  // Load favorites from localStorage on mount
+  // Load favorites from localStorage on mount + sync entre pestañas/ventanas
   useEffect(() => {
     try {
       const stored = localStorage.getItem(FAVORITES_KEY);
-      console.log('Cargando favoritos desde localStorage:', stored);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        setFavorites(parsed);
-        console.log('Favoritos cargados:', parsed);
-      }
-      isInitialized.current = true;
+      if (stored) setFavorites(JSON.parse(stored));
     } catch (error) {
       console.error('Error loading favorites:', error);
-      isInitialized.current = true;
     }
+    isInitialized.current = true;
+
+    // Si otra pestaña cambia los favoritos, reflejarlo acá.
+    const onStorage = (e) => {
+      if (e.key !== FAVORITES_KEY) return;
+      try {
+        setFavorites(e.newValue ? JSON.parse(e.newValue) : []);
+      } catch (_) { /* ignore corrupto */ }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
   }, []);
 
   // Save favorites to localStorage when they change (but not on initial load)
   useEffect(() => {
-    if (isInitialized.current) {
-      try {
-        const json = JSON.stringify(favorites);
-        localStorage.setItem(FAVORITES_KEY, json);
-        console.log('✅ Favoritos guardados en localStorage:', favorites);
-        console.log('Contenido localStorage:', localStorage.getItem(FAVORITES_KEY));
-      } catch (error) {
-        console.error('❌ Error guardando favoritos:', error);
-      }
-    } else {
-      console.log('⏳ Esperando inicialización...');
+    if (!isInitialized.current) return;
+    try {
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+    } catch (error) {
+      // QuotaExceededError u otros: no romper la UI por no poder persistir.
+      console.error('Error guardando favoritos:', error);
     }
   }, [favorites]);
 
