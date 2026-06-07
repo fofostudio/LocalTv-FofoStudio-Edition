@@ -77,31 +77,54 @@ _PATTERNS = [
     re.compile(r'<source[^>]+src=["\']([^"\']+\.m3u8[^"\']*)["\']', re.IGNORECASE),
     re.compile(r'(https?://[^"\'<>\s]+\.m3u8[^"\'<>\s]*)', re.IGNORECASE),
 ]
+# tvtvhd dejó de embeber el m3u8 directo: ahora mete un <iframe src="...la18hd.com...">
+# donde vive el m3u8 real. Seguimos esa cadena de iframes.
+_IFRAME_RE = re.compile(r'<iframe[^>]+src=["\']([^"\']+)["\']', re.IGNORECASE)
+
+
+def _find_m3u8(html: str) -> str | None:
+    for pat in _PATTERNS:
+        m = pat.search(html)
+        if m:
+            url = m.group(1).strip()
+            if url.startswith("http"):
+                return url
+    return None
 
 
 async def get_stream_url(channel_slug: str) -> str:
-    """Resuelve el slug → URL real del manifest .m3u8 (scrape de tvtvhd).
+    """Resuelve el slug → URL real del manifest .m3u8.
 
-    Reintenta ante fallos transitorios del upstream (tvtvhd a veces tira 5xx
-    o timeouts esporádicos que rompían la reproducción en vivo).
+    tvtvhd cambió su arquitectura: la página del player ya no trae el m3u8
+    embebido, sino un <iframe> a la18hd.com donde sí está. Seguimos la cadena
+    de iframes (hasta 3 niveles) buscando el m3u8 en cada nivel. Reintenta ante
+    fallos transitorios del upstream.
     """
-    upstream = f"https://tvtvhd.com/vivo/canales.php?stream={channel_slug}"
+    url = f"https://tvtvhd.com/vivo/canales.php?stream={channel_slug}"
+    referer = "https://tvtvhd.com/"
     last_err: Exception | None = None
-    for attempt in range(3):
-        try:
-            r = await _client().get(upstream)
-            html = r.text
-            for pat in _PATTERNS:
-                m = pat.search(html)
-                if m:
-                    url = m.group(1).strip()
-                    if url.startswith("http"):
-                        return url
-            last_err = HTTPException(status_code=404, detail="Manifest .m3u8 no encontrado")
-        except httpx.HTTPError as e:
-            last_err = HTTPException(status_code=502, detail=f"Upstream error: {e}")
-        await asyncio.sleep(0.4 * (attempt + 1))
-    raise last_err or HTTPException(status_code=502, detail="No se pudo resolver el stream")
+    for _level in range(3):
+        html: str | None = None
+        for attempt in range(3):
+            try:
+                r = await _client().get(url, headers={"Referer": referer})
+                html = r.text
+                break
+            except httpx.HTTPError as e:
+                last_err = HTTPException(status_code=502, detail=f"Upstream error: {e}")
+                await asyncio.sleep(0.4 * (attempt + 1))
+        if not html:
+            break
+        found = _find_m3u8(html)
+        if found:
+            return found
+        # No hay m3u8 en este nivel → seguir el iframe (la18hd u otro)
+        im = _IFRAME_RE.search(html)
+        if not im:
+            break
+        referer = url
+        url = urljoin(url, im.group(1).strip())
+    raise last_err or HTTPException(status_code=404, detail="Manifest .m3u8 no encontrado (¿iframe?)")
 
 
 # ---------------------------------------------------------------------------
@@ -254,13 +277,11 @@ async def _probe_one(client: httpx.AsyncClient, slug: str) -> tuple[str, bool]:
         if r.status_code != 200:
             return slug, False
         html = r.text or ""
-        # Si el HTML del player tiene una URL m3u8 embedida, el slug
-        # está vivo en tvtvhd. La calidad real del stream se valida en
-        # los endpoints /playlist.m3u8 y /segment.
-        for pat in _PATTERNS:
-            m = pat.search(html)
-            if m and m.group(1).strip().startswith("http"):
-                return slug, True
+        # El slug está vivo si la página del player tiene un m3u8 embebido O un
+        # <iframe> (tvtvhd ahora mete un iframe a la18hd donde está el m3u8). La
+        # calidad real se valida en /playlist.m3u8 y /segment.
+        if _find_m3u8(html) or _IFRAME_RE.search(html):
+            return slug, True
         return slug, False
     except (httpx.HTTPError, asyncio.TimeoutError):
         return slug, False

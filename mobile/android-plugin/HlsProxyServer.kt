@@ -34,9 +34,14 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
 
     companion object {
         private const val TAG = "HlsProxyServer"
+        // UA de DESKTOP (igual que el backend PC, que SÍ funciona). tvtvhd le
+        // sirve a los UA móviles una página de player distinta donde el m3u8 no
+        // está embebido igual → el regex no matcheaba → resolve fallaba → el
+        // stream no cargaba en Android. Con el UA desktop recibimos la MISMA
+        // página que en PC y el m3u8 aparece.
         private const val UA =
-            "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) " +
-            "Chrome/120.0.0.0 Mobile Safari/537.36"
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
+            "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         private const val REFERER = "https://tvtvhd.com/"
         private const val ORIGIN = "https://tvtvhd.com"
         private const val UPSTREAM_TEMPLATE =
@@ -57,11 +62,25 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
                 Pattern.CASE_INSENSITIVE
             ),
         )
+
+        // tvtvhd ya no embebe el m3u8 directo: mete un <iframe src="...la18hd.com...">
+        // donde vive el m3u8 real. Seguimos esa cadena de iframes.
+        private val IFRAME_RE: Pattern = Pattern.compile(
+            """<iframe[^>]+src=["']([^"']+)["']""",
+            Pattern.CASE_INSENSITIVE
+        )
     }
 
     private val http: OkHttpClient = OkHttpClient.Builder()
         .followRedirects(true)
         .followSslRedirects(true)
+        // Timeouts explícitos: sin esto OkHttp podía colgar la request del
+        // playlist mucho tiempo si tvtvhd no respondía, y el fetch de la WebView
+        // moría con "Failed to fetch" en vez de devolver un 502 rápido.
+        .connectTimeout(8, java.util.concurrent.TimeUnit.SECONDS)
+        .readTimeout(12, java.util.concurrent.TimeUnit.SECONDS)
+        .writeTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+        .callTimeout(20, java.util.concurrent.TimeUnit.SECONDS)
         .build()
 
     private fun upstreamHeaders(builder: Request.Builder): Request.Builder = builder
@@ -100,31 +119,57 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
     // ----------------------------------------------------------------------
     // 1. Resolver slug → URL real del .m3u8 scrapeando el HTML del player
     // ----------------------------------------------------------------------
+    private fun findM3u8(html: String): String? {
+        for (pat in M3U8_PATTERNS) {
+            val m = pat.matcher(html)
+            if (m.find()) {
+                val url = m.group(1)?.trim().orEmpty()
+                if (url.startsWith("http")) return url
+            }
+        }
+        return null
+    }
+
+    /**
+     * slug → URL real del .m3u8. tvtvhd ya no embebe el m3u8: mete un <iframe>
+     * a la18hd.com donde sí está. Seguimos la cadena de iframes (hasta 3 niveles)
+     * buscando el m3u8 en cada nivel. Era la causa de "no carga en Android".
+     */
     @Throws(IOException::class)
     private fun resolveStreamUrl(slug: String): String {
-        val upstream = String.format(UPSTREAM_TEMPLATE, slug)
+        var url = String.format(UPSTREAM_TEMPLATE, slug)
+        var referer = REFERER
         var lastErr: Exception? = null
-        for (attempt in 0 until 3) {
-            try {
-                val req = upstreamHeaders(Request.Builder().url(upstream).get()).build()
-                http.newCall(req).execute().use { resp ->
-                    if (resp.isSuccessful) {
-                        val html = resp.body?.string() ?: ""
-                        for (pat in M3U8_PATTERNS) {
-                            val m = pat.matcher(html)
-                            if (m.find()) {
-                                val url = m.group(1)?.trim().orEmpty()
-                                if (url.startsWith("http")) return url
-                            }
-                        }
+        for (level in 0 until 3) {
+            var html: String? = null
+            for (attempt in 0 until 3) {
+                try {
+                    val req = Request.Builder().url(url)
+                        .header("User-Agent", UA)
+                        .header("Referer", referer)
+                        .header("Origin", ORIGIN)
+                        .header("Accept", "*/*")
+                        .get().build()
+                    http.newCall(req).execute().use { resp ->
+                        if (resp.isSuccessful) html = resp.body?.string()
                     }
+                    if (html != null) break
+                } catch (e: Exception) {
+                    lastErr = e
                 }
-            } catch (e: Exception) {
-                lastErr = e
+                try { Thread.sleep(300L * (attempt + 1)) } catch (_: InterruptedException) {}
             }
-            try { Thread.sleep(400L * (attempt + 1)) } catch (_: InterruptedException) {}
+            val h = html ?: break
+            findM3u8(h)?.let { return it }
+            // No hay m3u8 en este nivel → seguir el iframe.
+            val im = IFRAME_RE.matcher(h)
+            if (!im.find()) break
+            val nxt = im.group(1)?.trim().orEmpty()
+            if (nxt.isEmpty()) break
+            referer = url
+            url = resolveUrl(url, nxt)
         }
-        throw IOException("Resolve falló para slug=$slug: ${lastErr?.message ?: "sin m3u8"}")
+        throw IOException("Resolve falló para slug=$slug: ${lastErr?.message ?: "sin m3u8 (¿iframe?)"}")
     }
 
     /** GET con reintentos ante errores transitorios (5xx/timeout/red). 4xx no se reintenta. */
