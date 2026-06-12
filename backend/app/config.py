@@ -26,6 +26,14 @@ class Settings(BaseSettings):
     XTREAM_XDID: str = "8556eddcd454679f"
     XTREAM_XVERSION: str = "10/1.0.9"
 
+    # Activación por defecto: SOLO el catálogo Magma viene activo. Los demás
+    # orígenes (tvtvhd, iptv-org) se siembran pero quedan INACTIVOS (se muestran
+    # con badge "INACTIVO" y no reproducen) hasta que se activen desde config:
+    # poné ACTIVATE_NON_MAGMA=true en el .env del backend y reiniciá.
+    # El flag es la fuente de verdad: en cada arranque se reconcilia la activación
+    # de los canales no-Magma para que coincida con este valor.
+    ACTIVATE_NON_MAGMA: bool = False
+
     class Config:
         env_file = ".env"
 

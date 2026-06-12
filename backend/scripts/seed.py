@@ -111,6 +111,11 @@ def _channels_for(category_id: int) -> list[Channel]:
         ("ESPN 3 NL", "espn3-nl", "espn3nl", None),
         ("Dazn Eleven Pro 1 BE", "dazn-eleven-pro1-be", "daznelevenpro1be", None),
     ]
+    # tvtvhd NO es Magma → inactivo por defecto (solo Magma viene activo).
+    # ACTIVATE_NON_MAGMA en config lo invierte. La reconciliación en seed_iptv()
+    # garantiza el estado correcto en cada arranque igualmente.
+    from app.config import settings
+    active = settings.ACTIVATE_NON_MAGMA
     return [
         Channel(
             name=name,
@@ -118,7 +123,7 @@ def _channels_for(category_id: int) -> list[Channel]:
             stream_url=f"https://tvtvhd.com/vivo/canales.php?stream={stream}",
             logo_url=logo,
             category_id=category_id,
-            is_active=True,
+            is_active=active,
         )
         for (name, slug, stream, logo) in raw
     ]
@@ -211,37 +216,66 @@ async def seed_iptv():
 
     db = SessionLocal()
     try:
-        # Solo importar si es primer arranque (seed channels creados justo ahora)
-        # y no hay canales iptv-org todavía (< 100 canales = solo seed deportes)
+        # iptv-org solo en primer arranque (seed channels creados justo ahora):
+        # < 100 canales = solo seed deportes, todavía no se importó iptv-org.
         total = db.query(Channel).count()
-        if total > 100:
-            return
+        if total <= 100:
+            print("  iptv-org: descargando listas...")
+            all_channels = await fetch_all_categories()
+            if all_channels:
+                stats = import_all_to_db(db, all_channels)
+                print(
+                    f"  iptv-org: {stats['created']} creados, "
+                    f"{stats['skipped']} omitidos"
+                )
 
-        print("  iptv-org: descargando listas...")
-        all_channels = await fetch_all_categories()
-        if all_channels:
-            stats = import_all_to_db(db, all_channels)
-            print(
-                f"  iptv-org: {stats['created']} creados, "
-                f"{stats['skipped']} omitidos"
-            )
-
-        # Catálogo Magma (Xtream). Solo se auto-importa si hay credenciales
-        # XTREAM_* en el .env (si no, ensuciaría la lista con canales inactivos).
-        # Sin credenciales el usuario puede importarlo manualmente desde el panel.
+        # Catálogo Magma (Xtream). Credenciales horneadas en config.py → viene
+        # activo por defecto. Se importa si faltan los canales Magma, INCLUSO en
+        # instalaciones que actualizan (BD ya poblada): así un update de una
+        # versión vieja también recibe el catálogo, no solo las instalaciones nuevas.
         try:
             from app.services import xtream_scraper
-            if xtream_scraper.is_configured():
+            has_magma = db.query(Channel).filter(Channel.region == "Magma").count() > 0
+            if xtream_scraper.is_configured() and not has_magma:
                 dump = xtream_scraper.load_catalog_dump()
                 if dump:
                     ms = xtream_scraper.import_xtream(db, dump, provider="Magma")
                     print(f"  magma/xtream: {ms['created']} creados (reproducibles)")
+                else:
+                    print("  magma/xtream: dump vacío o no encontrado")
         except Exception as e:
             print(f"  magma/xtream: error ({e})")
+
+        # Reconciliar activación: por defecto solo Magma activo; los no-Magma
+        # siguen el flag ACTIVATE_NON_MAGMA (la config es la fuente de verdad).
+        _reconcile_activation(db)
     except Exception as e:
         print(f"  iptv-org: error ({e})")
     finally:
         db.close()
+
+
+def _reconcile_activation(db) -> None:
+    """Alinea is_active de los canales no-Magma con ACTIVATE_NON_MAGMA.
+
+    Por defecto (flag False) SOLO el catálogo Magma queda activo; tvtvhd e
+    iptv-org quedan inactivos (se ven con badge "INACTIVO", no reproducen).
+    Poniendo ACTIVATE_NON_MAGMA=true en el .env y reiniciando se activan todos.
+    Magma no se toca: lo dejó activo el import.
+    """
+    from app.config import settings
+    target = bool(settings.ACTIVATE_NON_MAGMA)
+    # region != 'Magma' en SQL no matchea NULL → incluir NULL explícitamente.
+    non_magma = (Channel.region.is_(None)) | (Channel.region != "Magma")
+    changed = (
+        db.query(Channel)
+        .filter(non_magma, Channel.is_active != target)
+        .update({Channel.is_active: target}, synchronize_session=False)
+    )
+    if changed:
+        db.commit()
+        estado = "activados" if target else "desactivados"
+        print(f"  activación: {changed} canales no-Magma {estado} (ACTIVATE_NON_MAGMA={target})")
 
 
 if __name__ == "__main__":

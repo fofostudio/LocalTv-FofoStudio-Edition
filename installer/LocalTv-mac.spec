@@ -29,6 +29,9 @@ DATAS = [
     (str(ROOT / "backend" / "main.py"), "."),
     (str(ROOT / "backend" / "app"),     "app"),
     (str(ROOT / "backend" / "scripts"), "scripts"),
+    # Dumps de catálogo (Magma/Xtream + listas IPTV) — sin esto load_catalog_dump()
+    # no encuentra el JSON y el catálogo Magma queda vacío en el .app.
+    (str(ROOT / "backend" / "playlists"), "playlists"),
     # PNG para iconphoto en Tk
     (ICON_PNG, "."),
 ]
@@ -78,6 +81,12 @@ HIDDEN = [
     "app.schemas.user",
     "app.services",
     "app.services.scraper",
+    "app.services.iptv_scraper",
+    "app.services.xtream_scraper",
+    "app.services.vod_scraper",
+    "app.services.tmdb",
+    "app.services.logos",
+    "app.routers.vod",
     "scripts",
     "scripts.seed",
 ]

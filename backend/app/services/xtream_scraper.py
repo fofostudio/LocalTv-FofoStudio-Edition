@@ -18,6 +18,7 @@ from __future__ import annotations
 import asyncio
 import csv
 import json
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -34,8 +35,24 @@ from app.services.iptv_scraper import (
     _unique_slug,
 )
 
+
+def _dump_dir() -> Path:
+    """Directorio con los dumps de catálogo Magma.
+
+    En el .exe/.app empaquetado (PyInstaller) los datos viven bajo `_MEIPASS`
+    en `playlists/magma`; en el repo, en `backend/playlists/magma`. Probamos
+    ambos para que el catálogo Magma cargue en las dos modalidades.
+    """
+    base = getattr(sys, "_MEIPASS", None)
+    if base:
+        bundled = Path(base) / "playlists" / "magma"
+        if bundled.exists():
+            return bundled
+    return Path(__file__).resolve().parent.parent.parent / "playlists" / "magma"
+
+
 # Directorio donde viven los dumps de catálogo Magma (sobreviven al empaquetado .exe)
-DUMP_DIR = Path(__file__).resolve().parent.parent.parent / "playlists" / "magma"
+DUMP_DIR = _dump_dir()
 
 # Marcadores de feeds claramente NO hispanos dentro de un panel hispano.
 # El catálogo Magma/TVClub es un servicio LatAm, así que importamos casi todo

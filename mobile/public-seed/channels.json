@@ -7,7 +7,7 @@
    "slug": "azteca-7",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "MÉXICO",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=azteca7"
   },
@@ -16,7 +16,7 @@
    "slug": "azteca-deportes",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "MÉXICO",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=azteca_deportes"
   },
@@ -25,7 +25,7 @@
    "slug": "bein-sports-espanol",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "USA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=beinsportes"
   },
@@ -34,7 +34,7 @@
    "slug": "bein-sports-xtra-espanol",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "USA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=beinsport_xtra_espanol"
   },
@@ -43,7 +43,7 @@
    "slug": "canal-5",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "MÉXICO",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=canal5"
   },
@@ -52,7 +52,7 @@
    "slug": "dsports",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "LATINOAMERICA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dsports"
   },
@@ -61,7 +61,7 @@
    "slug": "dsports-2",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "LATINOAMERICA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dsports2"
   },
@@ -70,7 +70,7 @@
    "slug": "espn",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "LATINOAMERICA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn"
   },
@@ -79,7 +79,7 @@
    "slug": "espn-1-nl",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "MUNDO",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn1_nl"
   },
@@ -88,7 +88,7 @@
    "slug": "espn-2",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "LATINOAMERICA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn2"
   },
@@ -97,7 +97,7 @@
    "slug": "espn-2-nl",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "MUNDO",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn2_nl"
   },
@@ -106,7 +106,7 @@
    "slug": "espn-3",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "LATINOAMERICA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn3"
   },
@@ -115,7 +115,7 @@
    "slug": "espn-3-nl",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "MUNDO",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn3_nl"
   },
@@ -124,7 +124,7 @@
    "slug": "espn-4",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "LATINOAMERICA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn4"
   },
@@ -133,7 +133,7 @@
    "slug": "espn-5",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "LATINOAMERICA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn5"
   },
@@ -142,7 +142,7 @@
    "slug": "espn-6",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "LATINOAMERICA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn6"
   },
@@ -151,7 +151,7 @@
    "slug": "espn-7",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "LATINOAMERICA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn7"
   },
@@ -160,7 +160,7 @@
    "slug": "espn-deportes",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "USA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espndeportes"
   },
@@ -169,7 +169,7 @@
    "slug": "espn-premium",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "ARGENTINA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espnpremium"
   },
@@ -178,7 +178,7 @@
    "slug": "fox-deportes",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "USA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=foxdeportes"
   },
@@ -187,7 +187,7 @@
    "slug": "fox-sports",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "ARGENTINA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=foxsports"
   },
@@ -196,7 +196,7 @@
    "slug": "fox-sports-2",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "ARGENTINA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=foxsports2"
   },
@@ -205,7 +205,7 @@
    "slug": "fox-sports-3",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "ARGENTINA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=foxsports3"
   },
@@ -214,7 +214,7 @@
    "slug": "fox-sports-premium",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "MÉXICO",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=foxsportspremium"
   },
@@ -223,7 +223,7 @@
    "slug": "golperu",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "PERÚ",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=golperu"
   },
@@ -232,7 +232,7 @@
    "slug": "goltv",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "LATINOAMERICA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=goltv"
   },
@@ -241,7 +241,7 @@
    "slug": "liga1-max",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "PERÚ",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=liga1max"
   },
@@ -250,7 +250,7 @@
    "slug": "movistar-deportes",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "PERÚ",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=movistar"
   },
@@ -259,7 +259,7 @@
    "slug": "premiere-1",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "BRASIL",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=premiere1"
   },
@@ -268,7 +268,7 @@
    "slug": "premiere-2",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "BRASIL",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=premiere2"
   },
@@ -277,7 +277,7 @@
    "slug": "premiere-3",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "BRASIL",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=premiere3"
   },
@@ -286,7 +286,7 @@
    "slug": "premiere-5",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "BRASIL",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=premiere5"
   },
@@ -295,7 +295,7 @@
    "slug": "sportv",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "BRASIL",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sportv"
   },
@@ -304,7 +304,7 @@
    "slug": "sportv-2",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "BRASIL",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sportv2"
   },
@@ -313,7 +313,7 @@
    "slug": "sportv-3",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "BRASIL",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sportv3"
   },
@@ -322,7 +322,7 @@
    "slug": "tnt-sports",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "ARGENTINA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=tntsports"
   },
@@ -331,7 +331,7 @@
    "slug": "tudn",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "MÉXICO",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=tudn_mx"
   },
@@ -340,7 +340,7 @@
    "slug": "telefe",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "ARGENTINA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=telefe"
   },
@@ -349,7 +349,7 @@
    "slug": "telemundo",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "USA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=telemundo"
   },
@@ -358,7 +358,7 @@
    "slug": "tyc-sports",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "ARGENTINA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=tycsports"
   },
@@ -367,7 +367,7 @@
    "slug": "tyc-sports-internacional-usa",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "ARGENTINA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=tycinternacional"
   },
@@ -376,7 +376,7 @@
    "slug": "usanetwork",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "USA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=usanetwork"
   },
@@ -385,7 +385,7 @@
    "slug": "unimas",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "USA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=unimas"
   },
@@ -394,7 +394,7 @@
    "slug": "vtv-plus",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "LATINOAMERICA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=vtvplus"
   },
@@ -403,7 +403,7 @@
    "slug": "win-sports-plus-2",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "COLOMBIA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=winsports2"
   },
@@ -412,7 +412,7 @@
    "slug": "cbs-sports-network",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "USA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=cbs_sports_network"
   },
@@ -421,7 +421,7 @@
    "slug": "caliente-tv",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "MÉXICO",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=calientetv"
   },
@@ -430,7 +430,7 @@
    "slug": "canal-11",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "PORTUGAL",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=canal11_pt"
   },
@@ -439,7 +439,7 @@
    "slug": "dazn-1",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "ESPAÑA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dazn1"
   },
@@ -448,7 +448,7 @@
    "slug": "dazn-1-de",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "MUNDO",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dazn1_de"
   },
@@ -457,7 +457,7 @@
    "slug": "dazn-2",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "ESPAÑA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dazn2"
   },
@@ -466,7 +466,7 @@
    "slug": "dazn-2-de",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "MUNDO",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dazn2_de"
   },
@@ -475,7 +475,7 @@
    "slug": "dazn-3-eventos",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "ESPAÑA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dazn3"
   },
@@ -484,7 +484,7 @@
    "slug": "dazn-4-eventos",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "ESPAÑA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dazn4"
   },
@@ -493,7 +493,7 @@
    "slug": "dazn-laliga",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "ESPAÑA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dazn_laliga"
   },
@@ -502,7 +502,7 @@
    "slug": "dsports-plus",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "LATINOAMERICA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dsportsplus"
   },
@@ -511,7 +511,7 @@
    "slug": "dazn-eleven-1",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "PORTUGAL",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=eleven1_pt"
   },
@@ -520,7 +520,7 @@
    "slug": "dazn-eleven-2",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "PORTUGAL",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=eleven2_pt"
   },
@@ -529,7 +529,7 @@
    "slug": "dazn-eleven-3",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "PORTUGAL",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=eleven3_pt"
   },
@@ -538,7 +538,7 @@
    "slug": "dazn-eleven-4",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "PORTUGAL",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=eleven4_pt"
   },
@@ -547,7 +547,7 @@
    "slug": "dazn-eleven-5",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "PORTUGAL",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=eleven5_pt"
   },
@@ -556,7 +556,7 @@
    "slug": "dazn-eleven-6",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "PORTUGAL",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=eleven6_pt"
   },
@@ -565,7 +565,7 @@
    "slug": "dazn-eleven-pro-1-be",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "MUNDO",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=elevenpro1_be"
   },
@@ -574,7 +574,7 @@
    "slug": "ecdf-ligapro-eventos",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "LATINOAMERICA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=ecdf_ligapro"
   },
@@ -583,7 +583,7 @@
    "slug": "espn-u",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "USA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espnu"
   },
@@ -592,7 +592,7 @@
    "slug": "espn2",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "USA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn2_usa"
   },
@@ -601,7 +601,7 @@
    "slug": "fox-sports-1",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "USA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=foxsports1_usa"
   },
@@ -610,7 +610,7 @@
    "slug": "hisports",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "MÉXICO",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=hisports"
   },
@@ -619,7 +619,7 @@
    "slug": "la-1-tve",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "ESPAÑA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=la1tve"
   },
@@ -628,7 +628,7 @@
    "slug": "laligatv-bar",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "ESPAÑA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=laligatvbar"
   },
@@ -637,7 +637,7 @@
    "slug": "liga-de-campeones-1",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "ESPAÑA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=ligadecampeones1"
   },
@@ -646,7 +646,7 @@
    "slug": "liga-de-campeones-2",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "ESPAÑA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=ligadecampeones2"
   },
@@ -655,7 +655,7 @@
    "slug": "liga-de-campeones-3",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "ESPAÑA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=ligadecampeones3"
   },
@@ -664,7 +664,7 @@
    "slug": "m-laliga-tv",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "ESPAÑA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=m_laligatv"
   },
@@ -673,7 +673,7 @@
    "slug": "premiere-4",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "BRASIL",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=premiere4"
   },
@@ -682,7 +682,7 @@
    "slug": "premiere-6",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "BRASIL",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=premiere6"
   },
@@ -691,7 +691,7 @@
    "slug": "premiere-7",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "BRASIL",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=premiere7"
   },
@@ -700,7 +700,7 @@
    "slug": "premiere-8",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "BRASIL",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=premiere8"
   },
@@ -709,7 +709,7 @@
    "slug": "sky-bundesliga-1",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "MUNDO",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sky_bundesliga1"
   },
@@ -718,7 +718,7 @@
    "slug": "sky-bundesliga-2",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "MUNDO",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sky_bundesliga2"
   },
@@ -727,7 +727,7 @@
    "slug": "sky-bundesliga-3",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "MUNDO",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sky_bundesliga3"
   },
@@ -736,7 +736,7 @@
    "slug": "sky-bundesliga-4",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "MUNDO",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sky_bundesliga4"
   },
@@ -745,7 +745,7 @@
    "slug": "sky-bundesliga-5",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "MUNDO",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sky_bundesliga5"
   },
@@ -754,7 +754,7 @@
    "slug": "sky-sports-bundesliga",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "MÉXICO",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sky_bundesliga_mx"
   },
@@ -763,7 +763,7 @@
    "slug": "sky-sports-laliga",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "MÉXICO",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sky_sports_laliga"
   },
@@ -772,7 +772,7 @@
    "slug": "sport-tv-1",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "PORTUGAL",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sporttv1"
   },
@@ -781,7 +781,7 @@
    "slug": "sport-tv-2",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "PORTUGAL",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sporttv2"
   },
@@ -790,7 +790,7 @@
    "slug": "sport-tv-3",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "PORTUGAL",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sporttv3"
   },
@@ -799,7 +799,7 @@
    "slug": "sport-tv-4",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "PORTUGAL",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sporttv4"
   },
@@ -808,7 +808,7 @@
    "slug": "sport-tv-5",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "PORTUGAL",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sporttv5"
   },
@@ -817,7 +817,7 @@
    "slug": "sport-tv-6",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "PORTUGAL",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sporttv6"
   },
@@ -826,7 +826,7 @@
    "slug": "tnt-sports-chile",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "CHILE",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=eventos13"
   },
@@ -835,7 +835,7 @@
    "slug": "tv-publica",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "ARGENTINA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=tvpublica"
   },
@@ -844,7 +844,7 @@
    "slug": "tvc-deportes",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "MÉXICO",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=tvc_deportes"
   },
@@ -853,7 +853,7 @@
    "slug": "universo",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "USA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=universo"
   },
@@ -862,7 +862,7 @@
    "slug": "univision",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "USA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=univision"
   },
@@ -871,7 +871,7 @@
    "slug": "win-sports",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "COLOMBIA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=winsports"
   },
@@ -880,7 +880,7 @@
    "slug": "win-sports-plus",
    "logo_url": null,
    "category_id": 1,
-   "is_active": true,
+   "is_active": false,
    "region": "COLOMBIA",
    "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=winsportsplus"
   },
