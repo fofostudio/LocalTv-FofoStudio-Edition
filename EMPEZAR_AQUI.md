@@ -276,7 +276,7 @@ La próxima vez **no necesitas hacer todo el setup de nuevo**. Solo abre la term
 Si quieres añadir, editar o borrar canales:
 
 1. Abre http://localhost:5173/admin
-2. Pega esta clave: `bustatv-dev-secret-key-changeme`
+2. Pega esta clave: `fofolocaltv-dev-secret-key-changeme`
 3. Verás una tabla con todos los canales. Puedes editarlos.
 
 ---

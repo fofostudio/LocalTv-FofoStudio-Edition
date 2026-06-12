@@ -16,6 +16,27 @@ Datos de runtime (BD SQLite) viven en `%LOCALAPPDATA%\LocalTv\` para que sobrevi
 
 Reemplazado los antiguos `scrape_*.js` (Node + Playwright + Chromium ≈ 300 MB) por `backend/app/services/scraper.py` en Python puro (httpx + regex). Endpoint `POST /api/admin/sync-channels` lo invoca; botón "Sincronizar" en `/admin/dashboard`.
 
+### IPTV español + Xtream (Magma)
+
+`backend/app/services/iptv_scraper.py` importa canales hispanos de iptv-org, Free-TV España, TDTChannels y Colombia, con filtro de idioma `_is_likely_spanish()`. Se siembra en primer arranque (`seed_iptv()` en `scripts/seed.py`).
+
+`backend/app/services/xtream_scraper.py` es un cliente **Xtream Codes genérico** (compatible con Magma Player y cualquier panel). Las credenciales NO se hornean: se leen de `XTREAM_HOST/XTREAM_USERNAME/XTREAM_PASSWORD` en el `.env`. URL reproducible: `{host}/live/{user}/{pass}/{stream_id}.{ext}`.
+- **Catálogo offline**: dump de 540 canales (Magma/TVClub) en `backend/playlists/magma/xtream_live.json` (+ `.csv`). `load_catalog_dump()` lo lee; `import_xtream()` filtra a solo español y los marca `region="Magma"`.
+- **En vivo**: `fetch_live_streams()` consulta `player_api.php?action=get_live_streams` con tus credenciales.
+- Sin credenciales los canales se importan **inactivos** (placeholder `xtream://…`); con credenciales se construyen las URLs y se activan. Auto-seed solo si hay credenciales (si no, ensuciaría la lista).
+- Endpoints: `GET /api/admin/xtream-status`, `POST /api/admin/import-xtream?live=&strict=`. UI: sección "Importar Xtream — Magma" en `/admin/dashboard`.
+- **Xuper/Magis TV** NO es Xtream (middleware propietario `lebo.cn` + firmas Ed25519 por dispositivo); no es integrable como lista Xtream sin reversear el auth del STB.
+
+### Protocolo Magma (reverseado del APK con jadx)
+
+Decompilado en `magma_src/` (jadx CLI; el `.jar -all` arranca GUI, usar `jadx.cli.JadxCLI` headless). Hallazgos clave:
+- **2 endpoints Retrofit** (`ea/InterfaceC3524a`, `ea/InterfaceC3525b`), base `http://127.0.0.1` reescrita en runtime por `hb/q` (hostSelectionInterceptor) al server del usuario, forzando `User-Agent: Magma Player/10`:
+  - `GET /channels?username=&password=` (API propia): canales con el path del stream en `license`; URL reproducible = `host + license` (ver `Fa/C3569h.d()`).
+  - `GET /player_api.php?...&action=get_live_streams` (Xtream compat, fallback): cada canal trae `url`/`direct_source` con la URL HLS directa cuando está poblada.
+- Player = ExoPlayer media3 (`qa/C4800e`, envuelve `w2.q`), UA `Magma Player/10`, headers por canal, DRM clearkey. La media es `la/j(id,name,url,...)`.
+- `com/magmaplayer/util/Native.generateHash()` (libmagma.so) genera un token de atestación de dispositivo desde `android_id`; se usa para inicializar el player, **no** es requisito del listado.
+- **Demo `tv.m3uts.xyz` (m/m)**: solo expone `player_api.php`; `/channels` da 404. De 540 canales, solo ~5 traen `url` directo (CDNs externos, inestables); los 535 restantes vienen vacíos (se servirían por `/channels`, ausente aquí). El host no sirve streams en rutas propias. → Integración protocol-correct, pero este host demo es casi solo-listado.
+
 ## Stack Tecnológico Final
 
 ### Frontend
@@ -432,7 +453,7 @@ npm install
 
 ```
 DATABASE_URL=sqlite:///./localTv.db
-SECRET_API_KEY=bustatv-dev-secret-key-changeme
+SECRET_API_KEY=fofolocaltv-dev-secret-key-changeme
 ```
 
 ### Frontend (.env)

@@ -1,14 +1,19 @@
+import { LocalTvMark, LocalTvWordmark } from '../Brand/Brand';
 import styles from './LoadingSpinner.module.css';
 
-export default function LoadingSpinner() {
+export default function LoadingSpinner({ text = 'Cargando canales…' }) {
   return (
     <div className={styles.container}>
-      <div className={styles.spinnerWrap}>
-        <div className={styles.spinner} />
-        <div className={styles.spinnerInner} />
+      <div className={styles.logoWrap}>
+        <span className={styles.ring} />
+        <span className={styles.logoPulse}>
+          <LocalTvMark size={44} radius={13} />
+        </span>
       </div>
-      <p className={styles.text}>Cargando canales...</p>
-      <p className={styles.subtitle}>FofoStudio · LocalTv</p>
+      <LocalTvWordmark size={18} />
+      <p className={styles.text}>{text}</p>
+      <div className={styles.bar}><span /></div>
+      <p className={styles.subtitle}>FofoStudio Edition</p>
     </div>
   );
 }

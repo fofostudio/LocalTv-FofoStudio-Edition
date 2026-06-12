@@ -102,6 +102,34 @@
 }
 .liveBadgeDot { width: 4px; height: 4px; border-radius: 50%; background: #fff; }
 
+/* Category sections */
+.catSection {
+  margin-bottom: 32px;
+}
+.catTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 12px;
+  color: var(--lt-text);
+}
+.catIcon {
+  font-size: 16px;
+  line-height: 1;
+}
+.catCount {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--lt-mute);
+  background: var(--lt-panel2);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
 @media (max-width: 1180px) { .grid { grid-template-columns: repeat(4, 1fr); } }
 @media (max-width: 860px) { .grid { grid-template-columns: repeat(3, 1fr); gap: 10px; } }
 @media (max-width: 560px) { .grid { grid-template-columns: repeat(2, 1fr); } }

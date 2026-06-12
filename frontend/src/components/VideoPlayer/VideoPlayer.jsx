@@ -20,12 +20,15 @@
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ChannelContext } from '../../context/ChannelContext';
 import { streamPlaylistUrl, lanStreamUrl, resetHlsProxy, isCapacitor, getProxyDiagnostics } from '../../services/platform';
+import { magmaParamsFor } from '../../services/magma';
 import { setPlayerEngine } from '../../hooks/usePlayerEngine';
 import { isLite } from '../../utils/device';
 import CastButton from '../CastButton/CastButton';
 import styles from './VideoPlayer.module.css';
 
 const MAX_AUTO_SKIPS = 3;
+// Cuántas veces recargamos el MISMO canal ante blips antes de escalar/saltar.
+const MAX_LIVE_RELOADS = 6;
 
 const SHAKA_URL = 'https://cdn.jsdelivr.net/npm/shaka-player@4.11.2/dist/shaka-player.compiled.js';
 
@@ -92,7 +95,7 @@ function describeError(detail) {
   if (d.includes('manifestloaderror') || d.includes('manifestparsingerror')) {
     return {
       title: 'Canal no disponible ahora',
-      message: 'El servidor no devolvió un manifest válido. Probá otro canal.',
+      message: 'El servidor no devolvió un manifest válido. Prueba otro canal.',
       kind: 'unavailable',
     };
   }
@@ -112,7 +115,7 @@ function describeError(detail) {
   }
   return {
     title: 'Error reproduciendo el canal',
-    message: detail ? `(${detail})` : 'Probá otro canal.',
+    message: detail ? `(${detail})` : 'Prueba otro canal.',
     kind: 'generic',
   };
 }
@@ -164,13 +167,16 @@ function hlsConfigForTier(tier) {
 }
 
 export default function VideoPlayer({ channel }) {
-  const { nextLiveChannel, setCurrentChannel, setCurrentChannelSilent } = useContext(ChannelContext);
+  const { nextLiveChannel, setCurrentChannel, setCurrentChannelSilent, vodActive, immersive } = useContext(ChannelContext);
   const videoRef = useRef(null);
   const hlsRef = useRef(null);
   const shakaRef = useRef(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [tier, setTier] = useState(0);
+  // Recarga del MISMO canal (persistencia ante blips, sin saltar de canal).
+  const [reloadNonce, setReloadNonce] = useState(0);
+  const liveRetriesRef = useRef(0);
   const [diag, setDiag] = useState(null);
 
   const skipCountRef = useRef(0);
@@ -211,6 +217,8 @@ export default function VideoPlayer({ channel }) {
   // Reset de tier + error al cambiar de canal
   useEffect(() => {
     setTier(0);
+    setReloadNonce(0);
+    liveRetriesRef.current = 0;
     setError(null);
   }, [channel?.slug]);
 
@@ -225,7 +233,7 @@ export default function VideoPlayer({ channel }) {
         title: 'No hay canales disponibles',
         message:
           `Probamos ${skipCountRef.current + 1} canales y ninguno respondió. ` +
-          'Verificá tu conexión o intentá más tarde.',
+          'Verifica tu conexión o intenta más tarde.',
         kind: 'unavailable',
       });
       setLoading(false);
@@ -281,10 +289,26 @@ export default function VideoPlayer({ channel }) {
       setTier((t) => t + 1);
     };
 
+    // Persistencia: ante un blip recargamos el MISMO canal (re-resuelve el
+    // playlist con token/firma frescos) con backoff, hasta MAX_LIVE_RELOADS,
+    // ANTES de escalar de motor o saltar de canal. Evita que la transmisión
+    // se caiga por cortes transitorios del upstream (típico en Magma en vivo).
+    const persistRetry = (detail) => {
+      if (cancelled) return;
+      if (liveRetriesRef.current < MAX_LIVE_RELOADS) {
+        liveRetriesRef.current += 1;
+        const delay = Math.min(600 * liveRetriesRef.current, 4000);
+        console.warn(`[player] persist-retry #${liveRetriesRef.current} ${channel.slug} (${detail})`);
+        setTimeout(() => { if (!cancelled) setReloadNonce((n) => n + 1); }, delay);
+      } else {
+        escalate(detail);
+      }
+    };
+
     (async () => {
       let proxyUrl;
       try {
-        proxyUrl = await streamPlaylistUrl(channel.slug);
+        proxyUrl = await streamPlaylistUrl(channel.slug, magmaParamsFor(channel));
         if (isCapacitor()) console.info(`[player] proxyUrl=${proxyUrl} engine=${plan[tier]?.e} t=${plan[tier]?.t ?? ''}`);
       } catch (e) {
         if (!cancelled) {
@@ -297,8 +321,9 @@ export default function VideoPlayer({ channel }) {
       const video = videoRef.current;
       if (!video) return;
 
-      // En cualquier reintento pedimos tokens frescos aguas arriba.
-      const bustedUrl = tier >= 1
+      // En cualquier reintento (tier o recarga del mismo canal) pedimos tokens
+      // frescos aguas arriba para no reusar un manifest/segmento vencido.
+      const bustedUrl = (tier >= 1 || reloadNonce > 0)
         ? `${proxyUrl}${proxyUrl.includes('?') ? '&' : '?'}_t=${Date.now()}`
         : proxyUrl;
 
@@ -379,7 +404,9 @@ export default function VideoPlayer({ channel }) {
             try { hls.startLoad(); return; } catch (_) {}
           }
         }
-        escalate(data.details);
+        // Persistencia: recargar el MISMO canal (token/firma frescos) antes de
+        // escalar de motor o saltar de canal. Solo escala si falla sostenido.
+        persistRetry(data.details);
       });
     })();
 
@@ -388,7 +415,19 @@ export default function VideoPlayer({ channel }) {
     // (true→false) cada vez que termina un refresh de "en vivo", reejecutaba el
     // effect → cleanup() destruía hls y recargaba el stream → corte/parpadeo en
     // un canal que ya estaba andando. El effect no usa healthLoading.
-  }, [channel?.slug, tier]);
+  }, [channel?.slug, tier, reloadNonce]);
+
+  // ----- Pausar el canal en vivo mientras se ve una película/serie (VOD) -----
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (vodActive) {
+      try { v.pause(); } catch (_) { /* noop */ }
+    } else {
+      // Al cerrar el VOD, reanudar el canal (vuelve al borde en vivo).
+      v.play().catch(() => { /* autoplay bloqueado */ });
+    }
+  }, [vodActive]);
 
   // ----- Listeners del <video> -----
   useEffect(() => {
@@ -398,6 +437,7 @@ export default function VideoPlayer({ channel }) {
       setLoading(false);
       setError(null);
       skipCountRef.current = 0;
+      liveRetriesRef.current = 0; // reproducción OK → resetea el contador de recargas
     };
     const onWaiting = () => setLoading(true);
     const onError = () => {
@@ -456,7 +496,7 @@ export default function VideoPlayer({ channel }) {
       <video
         ref={videoRef}
         className={styles.player}
-        controls
+        controls={!immersive}
         playsInline
         autoPlay
         x-webkit-airplay="allow"

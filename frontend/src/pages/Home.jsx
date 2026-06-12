@@ -1,4 +1,5 @@
 import { useContext, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ChannelContext } from '../context/ChannelContext';
 import { FavoritesContext } from '../context/FavoritesContext';
 import LoadingSpinner from '../components/LoadingSpinner/LoadingSpinner';
@@ -13,6 +14,7 @@ import { LocalTvMark, LocalTvWordmark } from '../components/Brand/Brand';
 import { IconStar, IconPlay, IconBell, IconCalendar } from '../components/icons/Icons';
 import { regionLabel } from '../utils/channelDisplay';
 import { getLogoFor } from '../utils/channelLogos';
+import { isLite } from '../utils/device';
 import styles from './Home.module.css';
 
 const TODAY_LABEL = (() => {
@@ -25,13 +27,23 @@ const TODAY_LABEL = (() => {
 })();
 
 export default function Home() {
+  const navigate = useNavigate();
   const {
     channels, currentChannel, setCurrentChannel,
-    filteredChannels, healthLoading, refreshHealth,
+    filteredChannels, healthLoading, refreshHealth, categories,
   } = useContext(ChannelContext);
   const { isFavorite, toggleFavorite } = useContext(FavoritesContext);
   const { events, counts, loading: eventsLoading } = useDiaryEvents();
   const playerEngine = usePlayerEngine();
+
+  // En TV (lite) renderizamos MUCHO menos DOM: menos canales por fila, menos
+  // filas y menos "más canales". Menos nodos = scroll y pintado fluidos.
+  // isLite() se lee en render (el atributo data-lite ya está aplicado).
+  const TV = isLite();
+  const STRIP_MAX = TV ? 14 : 30;   // tira superior de canales
+  const ROW_MAX = TV ? 3 : 6;       // filas de categoría
+  const ROW_ITEMS = TV ? 8 : 15;    // canales por fila
+  const MORE_MAX = TV ? 8 : 12;     // "Más canales"
 
   const [agendaFilter, setAgendaFilter] = useState('live');
 
@@ -40,10 +52,46 @@ export default function Home() {
     [events, agendaFilter]
   );
 
-  const otherChannels = useMemo(
-    () => filteredChannels.filter((c) => c.id !== currentChannel?.id).slice(0, 10),
-    [filteredChannels, currentChannel]
-  );
+  // Map category id -> info (lo necesita "Más canales" para etiquetar y agrupar).
+  const catMap = useMemo(() => {
+    const m = {};
+    for (const c of categories) m[c.id] = c;
+    return m;
+  }, [categories]);
+
+  // "Más canales" = los de la MISMA categoría que el canal actual (sin el actual);
+  // si quedan pocos, se completa con el resto. Así lo de al lado es afín a lo que ves.
+  const otherChannels = useMemo(() => {
+    const rest = filteredChannels.filter((c) => c.id !== currentChannel?.id);
+    if (currentChannel?.category_id == null) return rest.slice(0, MORE_MAX);
+    const same = rest.filter((c) => c.category_id === currentChannel.category_id);
+    const diff = rest.filter((c) => c.category_id !== currentChannel.category_id);
+    return [...same, ...diff].slice(0, MORE_MAX);
+  }, [filteredChannels, currentChannel]);
+
+  // Etiqueta de la sección: el nombre de la categoría que se está viendo.
+  const currentCatName = currentChannel
+    ? (catMap[currentChannel.category_id]?.name || null)
+    : null;
+
+  const catRows = useMemo(() => {
+    const groups = {};
+    for (const ch of filteredChannels) {
+      const cat = catMap[ch.category_id];
+      const slug = cat ? cat.slug : 'general';
+      const name = cat ? cat.name : 'General';
+      if (!groups[slug]) groups[slug] = { name, channels: [] };
+      if (groups[slug].channels.length < ROW_ITEMS) groups[slug].channels.push(ch);
+    }
+    // La categoría del canal actual va primero (es la que estás viendo).
+    const curSlug = catMap[currentChannel?.category_id]?.slug;
+    const entries = Object.entries(groups).sort(([a], [b]) => {
+      if (a === curSlug) return -1;
+      if (b === curSlug) return 1;
+      return 0;
+    });
+    return entries.slice(0, ROW_MAX);
+  }, [filteredChannels, catMap, currentChannel]);
 
   const playEvent = (ev) => {
     const target = ev.streams.find((s) => s.channel);
@@ -79,8 +127,8 @@ export default function Home() {
         </div>
 
         {/* mobile channel strip */}
-        <div className={styles.chStrip}>
-          {filteredChannels.slice(0, 30).map((ch) => {
+        <div className={`${styles.chStrip} lt-stagger`}>
+          {filteredChannels.slice(0, STRIP_MAX).map((ch) => {
             const selected = currentChannel?.id === ch.id;
             return (
               <button
@@ -160,17 +208,53 @@ export default function Home() {
               </div>
             );
           })}
-          {!visibleEvents.length && (
-            <div className={styles.emptyAgenda}>
-              <IconCalendar size={28} color="rgba(255,255,255,0.25)" />
-              <p>
-                {agendaFilter === 'live' && 'No hay eventos en vivo ahora mismo.'}
-                {agendaFilter === 'upcoming' && 'No hay próximos eventos hoy.'}
-                {agendaFilter === 'finished' && 'Aún no hay eventos finalizados.'}
-              </p>
+            {!visibleEvents.length && (
+              <div className={styles.emptyAgenda}>
+                <IconCalendar size={28} color="rgba(255,255,255,0.25)" />
+                <p>
+                  {agendaFilter === 'live' && 'No hay eventos en vivo ahora mismo.'}
+                  {agendaFilter === 'upcoming' && 'No hay próximos eventos hoy.'}
+                  {agendaFilter === 'finished' && 'Aún no hay eventos finalizados.'}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Category rows */}
+          {catRows.map(([slug, group]) => (
+            <div key={slug} className={styles.catRow}>
+              <div className={styles.catRowHead}>
+                <h4 className={styles.catRowTitle}>{group.name}</h4>
+                <button
+                  type="button"
+                  className={styles.catRowMore}
+                  onClick={() => navigate(`/channels?cat=${slug}`)}
+                >Ver todos</button>
+              </div>
+              <div className={`${styles.catRowStrip} lt-stagger`}>
+                {group.channels.map((ch) => {
+                  const selected = currentChannel?.id === ch.id;
+                  return (
+                    <button
+                      key={ch.id}
+                      type="button"
+                      className={`${styles.catRowCard} ${selected ? styles.catRowCardActive : ''}`}
+                      onClick={() => setCurrentChannel(ch)}
+                    >
+                      <div className={styles.catRowThumb}>
+                        {!TV && getLogoFor(ch) ? (
+                          <img src={getLogoFor(ch)} alt="" className={styles.catRowImg} loading="lazy" />
+                        ) : (
+                          <span className={styles.catRowCode}>{ch.name.slice(0, 3).toUpperCase()}</span>
+                        )}
+                      </div>
+                      <span className={styles.catRowName}>{ch.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          )}
-        </div>
+          ))}
       </main>
 
       {/* ===== RIGHT DETAIL PANEL (rediseñado) ===== */}
@@ -186,8 +270,8 @@ export default function Home() {
 
           {currentChannel ? (
             <div className={styles.hero}>
-              {getLogoFor(currentChannel) && (
-                <img className={styles.heroBg} src={getLogoFor(currentChannel)} alt="" aria-hidden="true" />
+              {!TV && getLogoFor(currentChannel) && (
+                <img className={styles.heroBg} src={getLogoFor(currentChannel)} alt="" aria-hidden="true" loading="lazy" />
               )}
               <div className={styles.heroLogo}>
                 <ChannelLogo ch={currentChannel} size={76} radius={22} />
@@ -207,8 +291,10 @@ export default function Home() {
             <div className={styles.curEmpty}>Selecciona un canal</div>
           )}
 
-          <div className={styles.detailSectionLabel}>Más canales</div>
-          <div className={styles.detailList}>
+          <div className={styles.detailSectionLabel}>
+            {currentCatName ? `Más de ${currentCatName}` : 'Más canales'}
+          </div>
+          <div className={`${styles.detailList} lt-stagger`}>
             {otherChannels.map((ch) => (
               <button key={ch.id} type="button" className={styles.detailRow} onClick={() => setCurrentChannel(ch)}>
                 <ChannelLogo ch={ch} size={38} radius={12} />

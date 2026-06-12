@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { api } from '../services/api';
+import { usePreferences, channelSource } from '../hooks/usePreferences';
 
 export const ChannelContext = createContext();
 
@@ -15,6 +16,25 @@ export function ChannelProvider({ children }) {
   const [channels, setChannels] = useState([]);
   const [categories, setCategories] = useState([]);
   const [currentChannel, setCurrentChannelState] = useState(null);
+  // Reproducción VOD (película/serie) a nivel app, para que sobreviva al "atrás"
+  // y se pueda minimizar a PiP. `vod` = { source, title, subtitles, startAt,
+  // mediaType, id } | null. `vodMin` = está en mini-player (PiP).
+  const [vod, setVod] = useState(null);
+  const [vodMin, setVodMin] = useState(false);
+  const playVod = useCallback((payload) => { setVod(payload); setVodMin(false); }, []);
+  const minimizeVod = useCallback(() => setVodMin(true), []);
+  const expandVod = useCallback(() => setVodMin(false), []);
+  const closeVod = useCallback(() => { setVod(null); setVodMin(false); }, []);
+  // Mientras hay VOD (fullscreen o PiP) el canal en vivo se pausa.
+  const vodActive = !!vod;
+  // Modo inmersivo (pantalla completa propia con zapping de canales). A nivel
+  // app para que cualquier botón del player lo abra y el zapper lo controle.
+  const [immersive, setImmersive] = useState(false);
+  const enterImmersive = useCallback(() => setImmersive(true), []);
+  const exitImmersive = useCallback(() => setImmersive(false), []);
+  // PiP nativo de Android (fuera de la app): el video llena la ventana flotante
+  // del sistema, sin el overlay de zapping.
+  const [nativePip, setNativePip] = useState(false);
   const [activeCategory, setActiveCategory] = useState('all');
   const [activeRegion, setActiveRegion] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -97,9 +117,20 @@ export function ChannelProvider({ children }) {
     return [...set].sort();
   }, [channels]);
 
-  // Filtrar canales por búsqueda + categoría + región
+  // Fuentes de canales activas (Ajustes) — filtro global: aplica al sidebar,
+  // Home, búsqueda y demás, no solo a la página de Canales.
+  const { sourceEnabled } = usePreferences();
+
+  // Canales visibles según las fuentes activas (sin filtros de categoría/región).
+  // Base para los conteos de la UI.
+  const visibleChannels = useMemo(
+    () => channels.filter((ch) => sourceEnabled(channelSource(ch))),
+    [channels, sourceEnabled],
+  );
+
+  // Filtrar canales por fuente + búsqueda + categoría + región
   const filteredChannels = useMemo(() => {
-    let list = channels;
+    let list = visibleChannels;
     if (activeCategory !== 'all') {
       list = list.filter((ch) => ch.category_id === activeCategory);
     }
@@ -110,14 +141,26 @@ export function ChannelProvider({ children }) {
       const q = searchQuery.toLowerCase();
       list = list.filter((ch) => ch.name.toLowerCase().includes(q));
     }
-    // Ordenar: live primero, luego por nombre
+    // Ordenar pensando en el canal que se está viendo: primero ese canal, luego
+    // los de su MISMA categoría (para que "lo de al lado" sea afín a lo que ves),
+    // y dentro de cada bloque los live primero y por nombre. Así el sidebar, el
+    // strip móvil y "Más canales" surfacean el contexto del canal actual.
+    const curId = currentChannel?.id;
+    const curCat = currentChannel?.category_id;
     return [...list].sort((a, b) => {
+      if (a.id === curId) return -1;
+      if (b.id === curId) return 1;
+      if (curCat != null) {
+        const aSame = a.category_id === curCat ? 0 : 1;
+        const bSame = b.category_id === curCat ? 0 : 1;
+        if (aSame !== bSame) return aSame - bSame;
+      }
       const al = liveSlugs.has(a.slug) ? 0 : 1;
       const bl = liveSlugs.has(b.slug) ? 0 : 1;
       if (al !== bl) return al - bl;
       return a.name.localeCompare(b.name);
     });
-  }, [channels, activeCategory, activeRegion, searchQuery, liveSlugs]);
+  }, [visibleChannels, activeCategory, activeRegion, searchQuery, liveSlugs, currentChannel]);
 
   // Próximo canal LIVE distinto al actual (para auto-skip cuando un canal falla)
   const nextLiveChannel = useCallback((excludeSlug) => {
@@ -128,6 +171,17 @@ export function ChannelProvider({ children }) {
     return lives[Math.floor(Math.random() * lives.length)];
   }, [channels, liveSlugs]);
 
+  // Zapping: salta al canal anterior/siguiente (dir = +1 | -1) dentro de los
+  // canales visibles (respeta las fuentes activas), cíclico. Sin scroll (el
+  // overlay inmersivo cubre la página). Lo usa el zapper con ←/→ y swipe.
+  const zap = useCallback((dir = 1) => {
+    const list = visibleChannels;
+    if (!list.length) return;
+    const i = list.findIndex((c) => c.id === currentChannel?.id);
+    const ni = i < 0 ? 0 : (i + (dir > 0 ? 1 : -1) + list.length) % list.length;
+    setCurrentChannelState(list[ni]);
+  }, [visibleChannels, currentChannel]);
+
   const value = {
     channels,
     categories,
@@ -136,6 +190,21 @@ export function ChannelProvider({ children }) {
     // Versión sin scroll-to-top: para el auto-skip silencioso (failover de un
     // canal caído) que no debe mover la vista del usuario.
     setCurrentChannelSilent: setCurrentChannelState,
+    vodActive,
+    vod,
+    vodMin,
+    playVod,
+    minimizeVod,
+    expandVod,
+    closeVod,
+    // Modo inmersivo + zapping
+    immersive,
+    enterImmersive,
+    exitImmersive,
+    zap,
+    // PiP nativo (Android)
+    nativePip,
+    setNativePip,
     activeCategory,
     setActiveCategory,
     activeRegion,
@@ -144,6 +213,7 @@ export function ChannelProvider({ children }) {
     searchQuery,
     setSearchQuery,
     filteredChannels,
+    visibleChannels,
     loading,
     error,
     // health

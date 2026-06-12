@@ -3,7 +3,9 @@ import ReactDOM from 'react-dom/client'
 import Hls from 'hls.js'
 import App from './App'
 import { detectLite, applyLite } from './utils/device'
+import { initTvNav } from './utils/tvNav'
 import './index.css'
+import './styles/tv.css'
 
 // hls.js EMPAQUETADO en el bundle (antes venía sólo de un CDN en index.html).
 // Crítico para Android: el WebView no soporta HLS nativo, así que si el CDN
@@ -17,6 +19,8 @@ if (typeof window !== 'undefined') {
 
 // Aplicar modo ligero (TV / equipos lentos) lo antes posible, antes de pintar.
 applyLite(detectLite())
+// Navegación por control remoto (sólo se instala en modo TV/lite).
+initTvNav()
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <App />

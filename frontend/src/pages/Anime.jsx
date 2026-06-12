@@ -104,7 +104,7 @@ export default function Anime() {
         <div className={shell.mobileTop}><LocalTvMark size={26} radius={7} /><LocalTvWordmark size={15} /></div>
         <div className={shell.header}>
           <div className={shell.headTop}><h2 className={shell.title}>Anime</h2></div>
-          <div className={shell.sub}>Descubrí anime · datos de AniList</div>
+          <div className={shell.sub}>Descubre anime · datos de AniList</div>
           <div className={shell.filterRow}>
             <Link to="/peliculas" className={shell.pill}>Películas</Link>
             <Link to="/series" className={shell.pill}>Series</Link>

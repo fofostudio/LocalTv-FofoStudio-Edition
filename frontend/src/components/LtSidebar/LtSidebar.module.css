@@ -149,6 +149,42 @@
 }
 .empty { padding: 16px; color: var(--lt-mute); font-size: 12px; text-align: center; }
 
+/* Divisor entre el bloque "misma categoría que ves" y el resto */
+.listDivider {
+  padding: 10px 18px 4px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--lt-mute);
+  opacity: 0.7;
+}
+
+/* Ecualizador animado: marca el canal que se está reproduciendo */
+.eq {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 11px;
+  flex-shrink: 0;
+}
+.eq i {
+  width: 2.5px;
+  background: var(--lt-blue);
+  border-radius: 1px;
+  animation: eqBar 0.9s ease-in-out infinite;
+}
+.eq i:nth-child(1) { height: 40%; animation-delay: -0.5s; }
+.eq i:nth-child(2) { height: 100%; animation-delay: -0.2s; }
+.eq i:nth-child(3) { height: 65%; animation-delay: -0.7s; }
+@keyframes eqBar {
+  0%, 100% { transform: scaleY(0.35); }
+  50%      { transform: scaleY(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .eq i { animation: none; }
+}
+
 .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
 .dotLive { background: var(--lt-green); box-shadow: 0 0 0 3px rgba(31, 179, 107, 0.35); }
 

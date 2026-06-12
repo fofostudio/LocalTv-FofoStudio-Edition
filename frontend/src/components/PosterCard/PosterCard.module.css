@@ -52,10 +52,15 @@
   padding: 3px 7px;
   border-radius: 6px;
   background: rgba(30, 123, 255, 0.85);
+  color: #fff;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.3px;
 }
+/* Color por tipo: película (azul) · serie (violeta) · anime (rosa) */
+.kindMovie { background: rgba(30, 123, 255, 0.9); }
+.kindTv { background: rgba(155, 89, 255, 0.92); }
+.kindAnime { background: rgba(255, 78, 160, 0.92); }
 .meta { padding: 8px 2px 2px; }
 .title {
   font-size: 13px;

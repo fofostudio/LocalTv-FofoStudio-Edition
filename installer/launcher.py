@@ -41,7 +41,7 @@ def _user_data_dir() -> Path:
 DATA_DIR = _user_data_dir()
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-DB_PATH = (DATA_DIR / "LocalTv.db").as_posix()
+DB_PATH = (DATA_DIR / "FofoLocalTv.db").as_posix()
 os.environ.setdefault("DATABASE_URL", f"sqlite:///{DB_PATH}")
 os.environ.setdefault("SECRET_API_KEY", "localtv-fofostudio-key")
 

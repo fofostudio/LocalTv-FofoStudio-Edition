@@ -1,0 +1,73 @@
+/* ===========================================================
+   LocalTv — Modo TV (Smart TV / navegadores de TV)
+   Se activa con html[data-lite] (ver utils/device.js).
+   Objetivo: cargar MUCHO más liviano que en PC y ser usable
+   con control remoto (D-pad). Sólo reglas baratas de pintar.
+   =========================================================== */
+
+/* --- 1. Quitar todo lo caro de pintar en GPUs débiles --- */
+html[data-lite] *,
+html[data-lite] *::before,
+html[data-lite] *::after {
+  box-shadow: none !important;
+  text-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+  will-change: auto !important;
+  /* Las animaciones/transiciones ya las neutraliza index.css; reforzamos */
+  transition: none !important;
+  animation: none !important;
+  text-rendering: optimizeSpeed;
+}
+
+/* Fondo sólido (los degradados radiales repintan caro en TV) */
+html[data-lite],
+html[data-lite] body {
+  background: #07070c !important;
+}
+/* Capas decorativas de glow/gradiente animado: fuera */
+html[data-lite] .lt-glow,
+html[data-lite] [class*="glow"],
+html[data-lite] [class*="heroBg"],
+html[data-lite] [class*="matchBg"] {
+  display: none !important;
+}
+
+/* --- 2. Imágenes: en TV no usamos logos remotos (ver ChannelLogo/Badge),
+       pero por si alguna queda, que no bloquee ni se decodifique grande --- */
+html[data-lite] img {
+  image-rendering: optimizeSpeed;
+  content-visibility: auto;
+}
+
+/* --- 3. Foco visible y fuerte para D-pad (control remoto) ---
+   Muchos navegadores de TV no disparan :focus-visible con el D-pad, así que
+   forzamos el anillo en :focus a secas. scroll-margin evita que el elemento
+   enfocado quede pegado al borde (zona de overscan). */
+html[data-lite] :focus {
+  outline: 3px solid var(--lt-blue, #1e7bff) !important;
+  outline-offset: 3px !important;
+  border-radius: 8px;
+}
+html[data-lite] button:focus,
+html[data-lite] a:focus,
+html[data-lite] [tabindex]:focus,
+html[data-lite] input:focus {
+  /* leve realce del fondo además del anillo */
+  background-color: rgba(30, 123, 255, 0.16) !important;
+  scroll-margin: 140px 80px !important;
+}
+
+/* --- 4. Área segura de TV (overscan): respiro en los bordes --- */
+html[data-lite] body {
+  padding: 12px 18px;
+  box-sizing: border-box;
+}
+
+/* --- 5. Scroll: sin "smooth" (el JS lo controla) y sin rebote --- */
+html[data-lite] * {
+  scroll-behavior: auto !important;
+  overscroll-behavior: none;
+}

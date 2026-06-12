@@ -2,7 +2,7 @@ import { createContext, useState, useEffect, useRef } from 'react';
 
 export const FavoritesContext = createContext();
 
-const FAVORITES_KEY = 'bustaTv_favorites';
+const FAVORITES_KEY = 'FofoLocalTv_favorites';
 
 export function FavoritesProvider({ children }) {
   const [favorites, setFavorites] = useState([]);

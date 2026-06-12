@@ -85,7 +85,7 @@ export default function Library() {
             </>
           )}
           {!lib.list.length ? (
-            <div className={shell.empty}><p>Tu lista está vacía. Agregá títulos desde Películas, Series o Anime.</p></div>
+            <div className={shell.empty}><p>Tu lista está vacía. Agrega títulos desde Películas, Series o Anime.</p></div>
           ) : (
             <>
               <div className={styles.sectionLabel}>Mi lista · {lib.list.length}</div>

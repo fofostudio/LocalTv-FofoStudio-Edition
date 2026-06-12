@@ -36,8 +36,13 @@
   padding: 2px 8px;
   white-space: nowrap;
 }
-.close {
+.barActions {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.close {
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -47,10 +52,44 @@
   justify-content: center;
   color: #fff;
   flex-shrink: 0;
+  transition: background 0.12s;
 }
+.close:hover { background: rgba(0, 0, 0, 0.8); }
 .video {
   width: 100%;
   height: 100%;
   background: #000;
   display: block;
+}
+
+/* ===== PiP (mini-player flotante) ===== */
+.mini {
+  inset: auto;
+  right: 16px;
+  bottom: 16px;
+  width: 340px;
+  max-width: 72vw;
+  height: 191px;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  cursor: pointer;
+}
+.mini .bar {
+  padding: 7px 9px;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.mini:hover .bar { opacity: 1; }
+.mini .title { font-size: 12px; }
+.mini .close { width: 28px; height: 28px; }
+.miniExpand {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
 }

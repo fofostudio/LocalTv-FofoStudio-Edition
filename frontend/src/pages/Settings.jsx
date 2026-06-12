@@ -1,54 +1,84 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { FavoritesContext } from '../context/FavoritesContext';
+import { ChannelContext } from '../context/ChannelContext';
 import { usePreferences } from '../hooks/usePreferences';
-import { SPORTS } from '../utils/sports';
 import { api } from '../services/api';
+import { vod } from '../services/vodApi';
 import { isCapacitor } from '../services/platform';
 import { getLiteMode, setLiteMode, isTvUserAgent } from '../utils/device';
 import LtSidebar from '../components/LtSidebar/LtSidebar';
 import LtMobileTabs from '../components/LtMobileTabs/LtMobileTabs';
 import { LocalTvMark, LocalTvWordmark } from '../components/Brand/Brand';
-import { IconStar, IconCheck, IconShare, IconTv } from '../components/icons/Icons';
+import { IconStar, IconCheck, IconShare } from '../components/icons/Icons';
 import shell from '../components/LtScreen/ltShell.module.css';
 import styles from './Settings.module.css';
 
 const VERSION = import.meta.env.VITE_APP_VERSION || '1.0.0';
 const REPO = 'https://github.com/fofostudio/LocalTv-FofoStudio-Edition';
 
+// Categorías con más sentido para destacar (orden y emoji). El resto se agrega
+// dinámico desde las categorías reales de la app.
+const CAT_EMOJI = {
+  deportes: '⚽', peliculas: '🎬', series: '📺', noticias: '📰', infantil: '🧒',
+  infantiles: '🧒', musica: '🎵', entretenimiento: '🎭', documentales: '🎞️',
+  educativo: '🎓', cultura: '🎨', nacionales: '🏳️', hd: '🔆', '24-7': '🔁',
+  'cine-24-7': '🍿', 'mas-vistos': '🔥', espana: '🇪🇸', usa: '🇺🇸',
+  religion: '🙏', reality: '🎙️', general: '🌐',
+};
+const catHue = (slug) => `hsl(${(slug || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0) % 360} 60% 45%)`;
+
 export default function Settings() {
   const { favorites, toggleFavorite } = useContext(FavoritesContext);
-  const { favoriteSports, toggleSport } = usePreferences();
+  const { categories, channels } = useContext(ChannelContext);
+  const { favoriteCategories, toggleCategory, sourceEnabled, toggleSourceEnabled } = usePreferences();
   const [net, setNet] = useState(null);
   const [copied, setCopied] = useState(false);
   const [lite, setLite] = useState(getLiteMode());
-
-  const changeLite = (mode) => {
-    setLiteMode(mode);
-    setLite(mode);
+  // Token TMDB (películas/series). En la APK no hay backend ni token horneado,
+  // así que el usuario puede pegar el suyo (gratis en themoviedb.org) y queda
+  // guardado en el equipo. Es lo que habilita el catálogo de cine en móvil.
+  const [tmdbTok, setTmdbTok] = useState('');
+  const [tmdbHas, setTmdbHas] = useState(() => vod.hasToken());
+  const saveTmdb = async () => {
+    const r = await vod.setToken(tmdbTok.trim());
+    setTmdbHas(!!r.has_token);
+    if (r.has_token) setTmdbTok('');
   };
+  const clearTmdb = async () => { await vod.setToken(''); setTmdbHas(vod.hasToken()); };
+
+  // Conteo de canales por fuente (para mostrar cuántos hay).
+  const srcCounts = useMemo(() => {
+    let magma = 0, abiertos = 0;
+    for (const c of (channels || [])) (c.region === 'Magma' ? (magma++) : (abiertos++));
+    return { magma, abiertos };
+  }, [channels]);
+
+  // Categorías reales de la app, ordenadas: las destacadas primero.
+  const cats = useMemo(() => {
+    const order = Object.keys(CAT_EMOJI);
+    return [...(categories || [])].sort((a, b) => {
+      const ia = order.indexOf(a.slug); const ib = order.indexOf(b.slug);
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.name.localeCompare(b.name);
+    });
+  }, [categories]);
+
+  const changeLite = (mode) => { setLiteMode(mode); setLite(mode); };
 
   useEffect(() => {
-    // La sección "Compartir en casa / red" no se muestra en Android, así que
-    // no hace falta pedir la IP LAN ahí (el Chromecast la pide aparte).
     if (isCapacitor()) return;
     let cancelled = false;
     api.getNetworkInfo?.().then((d) => { if (!cancelled) setNet(d); }).catch(() => {});
     return () => { cancelled = true; };
   }, []);
 
-  // La URL a compartir usa el puerto REAL con el que estás viendo la app
-  // (window.location), porque ese es el server que sirve esta interfaz.
-  // En APK (file://) usamos la lan_url que entrega el plugin nativo.
+  // URL para ver la app desde otra pantalla de la misma red.
   const share = (() => {
     if (!net) return null;
-    if (isCapacitor()) {
-      if (!net.lan_url) return null;
-      return { url: net.lan_url, ip: net.lan_ip, port: net.port };
-    }
-    if (!net.lan_ip) return net.lan_url ? { url: net.lan_url, ip: net.lan_ip, port: net.port } : null;
+    if (isCapacitor()) return net.lan_url ? { url: net.lan_url } : null;
+    if (!net.lan_ip) return net.lan_url ? { url: net.lan_url } : null;
     const proto = window.location.protocol === 'https:' ? 'https' : 'http';
     const port = window.location.port || (proto === 'https' ? '443' : '80');
-    return { url: `${proto}://${net.lan_ip}:${port}`, ip: net.lan_ip, port };
+    return { url: `${proto}://${net.lan_ip}:${port}` };
   })();
 
   const copyUrl = async () => {
@@ -68,7 +98,7 @@ export default function Settings() {
   };
 
   const clearLocalData = () => {
-    if (confirm('Esto borra favoritos, preferencias y caché local de este equipo. ¿Continuar?')) {
+    if (confirm('Esto borra tus favoritos, tu lista de películas y las preferencias de este equipo. ¿Continuar?')) {
       try { localStorage.clear(); } catch { /* ignore */ }
       location.reload();
     }
@@ -84,92 +114,77 @@ export default function Settings() {
         </div>
 
         <div className={shell.header}>
-          <h2 className={shell.title}>Configuración</h2>
-          <div className={shell.sub}>
-            Todo lo que cambies se guarda solo en este equipo. Cero telemetría, cero cuentas.
-          </div>
+          <h2 className={shell.title}>Ajustes</h2>
+          <div className={shell.sub}>Todo se guarda solo en este equipo. Sin cuentas, sin anuncios de seguimiento.</div>
         </div>
 
         <div className={shell.body}>
           <div className={styles.stack}>
-            {/* Perfil local — concepto de escritorio ("solo en este equipo").
-                En Android no aplica (es la app del celu), se oculta. */}
-            {!isCapacitor() && (
-            <div className={styles.profile}>
-              <div className={styles.profileGlow} aria-hidden="true" />
-              <div className={styles.avatar}>L</div>
-              <div className={styles.profileInfo}>
-                <div className={styles.profileName}>Perfil local</div>
-                <div className={styles.profileSub}>
-                  Solo en este equipo · sin cuentas · {favorites.length} favoritos · {favoriteSports.length} deportes
+
+            {/* Ver en otra pantalla — solo desktop, mismo Wi-Fi */}
+            {!isCapacitor() && share?.url && (
+              <section className={styles.card}>
+                <div className={styles.cardHead}>
+                  <span className={styles.headIcon}><IconShare size={15} color="#fff" /></span>
+                  Ver en otra pantalla
                 </div>
-              </div>
-            </div>
+                <div className={styles.cardNote}>
+                  Abre esta dirección en tu Smart TV, celular o tablet conectados al mismo Wi-Fi.
+                </div>
+                <div className={styles.shareUrlRow}>
+                  <a className={styles.shareUrl} href={share.url} target="_blank" rel="noopener noreferrer">{share.url}</a>
+                  <button className={styles.shareCopy} onClick={copyUrl}>
+                    <IconCheck size={13} color="currentColor" /> {copied ? 'Copiado' : 'Copiar'}
+                  </button>
+                </div>
+              </section>
             )}
 
-            {/* Compartir en casa / red — SOLO en PC/desktop: ahí el servidor
-                FastAPI sirve la interfaz por la red local. En Android el server
-                nativo es solo un proxy HLS para el propio celu (y Chromecast),
-                NO sirve la UI a otros equipos, así que se oculta. */}
-            {!isCapacitor() && (
-            <section className={styles.share}>
-              <div className={`${styles.shareGlow} lt-glow`} aria-hidden="true" />
-              <div className={styles.shareInner}>
-                <div className={styles.shareHead}>
-                  <span className={styles.shareIcon}><IconShare size={16} color="#fff" /></span>
-                  Compartir en casa / red
-                </div>
-                {share?.url ? (
-                  <>
-                    <p className={styles.shareNote}>
-                      Abrí esta dirección en cualquier dispositivo de tu red (Smart TV, celular, tablet)
-                      para ver la misma interfaz de LocalTv:
-                    </p>
-                    <div className={styles.shareUrlRow}>
-                      <a className={styles.shareUrl} href={share.url} target="_blank" rel="noopener noreferrer">
-                        {share.url}
-                      </a>
-                      <button className={styles.shareCopy} onClick={copyUrl}>
-                        <IconCheck size={13} color="currentColor" /> {copied ? 'Copiado' : 'Copiar'}
-                      </button>
-                    </div>
-                    <div className={styles.shareMeta}>
-                      <span><IconTv size={12} color="var(--lt-mute)" /> IP <b>{share.ip}</b></span>
-                      <span>Puerto <b>{share.port}</b></span>
-                      {net.hostname && <span>Equipo <b>{net.hostname}</b></span>}
-                    </div>
-                    <p className={styles.shareHint}>
-                      El equipo y el dispositivo deben estar en la misma red Wi-Fi. Si no carga,
-                      permití LocalTv en el Firewall de Windows (red privada).
-                    </p>
-                  </>
-                ) : (
-                  <p className={styles.shareNote}>
-                    No se pudo obtener la IP de red. Asegurate de estar conectado a una red local.
-                  </p>
-                )}
+            {/* Fuentes de canales */}
+            <section className={styles.card}>
+              <div className={styles.cardHead}>
+                <span className={styles.headIcon}>📡</span>
+                Fuentes de canales
               </div>
+              <div className={styles.cardNote}>Activa o desactiva de dónde salen los canales.</div>
+              {[
+                { key: 'abiertos', name: 'Canales abiertos', desc: 'IPTV español, deportes y TDT', count: srcCounts.abiertos },
+                { key: 'magma', name: 'Magma (premium)', desc: 'Catálogo Xtream de tu cuenta', count: srcCounts.magma },
+              ].map((s) => (
+                <div key={s.key} className={styles.row}>
+                  <div className={styles.rowText}>
+                    <div className={styles.rowTitle}>{s.name} <span style={{ color: 'var(--lt-mute)', fontWeight: 400 }}>· {s.count}</span></div>
+                    <div className={styles.rowDesc}>{s.desc}</div>
+                  </div>
+                  <div className={styles.seg}>
+                    <button className={`${styles.segBtn} ${sourceEnabled(s.key) ? styles.segOn : ''}`} onClick={() => sourceEnabled(s.key) || toggleSourceEnabled(s.key)}>Sí</button>
+                    <button className={`${styles.segBtn} ${!sourceEnabled(s.key) ? styles.segOn : ''}`} onClick={() => sourceEnabled(s.key) && toggleSourceEnabled(s.key)}>No</button>
+                  </div>
+                </div>
+              ))}
             </section>
-            )}
 
-            {/* Deportes favoritos */}
-            <section className={styles.group}>
-              <div className={styles.groupHead}>Deportes favoritos</div>
-              <div className={styles.groupNote}>
-                Elegí tus deportes y la agenda priorizará esos eventos primero.
+            {/* Categorías favoritas */}
+            <section className={styles.card}>
+              <div className={styles.cardHead}>
+                <span className={styles.headIcon}>★</span>
+                Categorías favoritas
               </div>
+              <div className={styles.cardNote}>Las categorías que elijas aparecen primero en Canales.</div>
               <div className={styles.sports}>
-                {SPORTS.map((s) => {
-                  const on = favoriteSports.includes(s.id);
+                {cats.map((c) => {
+                  const on = favoriteCategories.includes(c.slug);
                   return (
                     <button
-                      key={s.id}
+                      key={c.slug}
                       type="button"
                       className={`${styles.sport} ${on ? styles.sportOn : ''}`}
-                      onClick={() => toggleSport(s.id)}
+                      onClick={() => toggleCategory(c.slug)}
                     >
-                      <span className={styles.sportCode} style={{ background: s.hue }}>{s.code}</span>
-                      {s.name}
+                      <span className={styles.sportCode} style={{ background: catHue(c.slug) }}>
+                        {CAT_EMOJI[c.slug] || (c.name || '?').slice(0, 1).toUpperCase()}
+                      </span>
+                      {c.name}
                       {on && <span className={styles.sportCheck}><IconCheck size={12} color="#fff" /></span>}
                     </button>
                   );
@@ -177,67 +192,22 @@ export default function Settings() {
               </div>
             </section>
 
-            {/* Cine (TMDB): el token va HORNEADO en el build (mismo token para
-                todos), así que NO se muestra ninguna UI de configuración. */}
-
-            {/* Datos locales */}
+            {/* Rendimiento */}
             <section className={styles.card}>
-              <div className={styles.cardHead}>Datos locales</div>
-              <div className={styles.row}>
-                <div className={styles.rowText}>
-                  <div className={styles.rowTitle}>Canales favoritos</div>
-                  <div className={styles.rowDesc}>{favorites.length} guardados en este equipo</div>
-                </div>
-                <button className={styles.btn} onClick={clearFavorites} disabled={!favorites.length}>
-                  <IconStar size={13} color="currentColor" /> Limpiar
-                </button>
+              <div className={styles.cardHead}>
+                <span className={styles.headIcon}>⚡</span>
+                Velocidad
               </div>
               <div className={styles.row}>
                 <div className={styles.rowText}>
-                  <div className={styles.rowTitle}>Borrar datos locales</div>
-                  <div className={styles.rowDesc}>Elimina favoritos, preferencias y caché</div>
-                </div>
-                <button className={`${styles.btn} ${styles.btnDanger}`} onClick={clearLocalData}>
-                  Borrar
-                </button>
-              </div>
-            </section>
-
-            {/* Preferencias (informativas) */}
-            <section className={styles.card}>
-              <div className={styles.cardHead}>Preferencias de visualización</div>
-              <div className={styles.prefGrid}>
-                {[
-                  { l: 'Idioma', v: 'Español' },
-                  { l: 'Zona horaria', v: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Local' },
-                  { l: 'Calidad por defecto', v: 'Auto · adaptativa (hls.js)' },
-                  { l: 'Reproductor', v: 'hls.js + <video> nativo' },
-                ].map((it, i) => (
-                  <div key={i} className={styles.pref}>
-                    <div className={styles.prefLabel}>{it.l}</div>
-                    <div className={styles.prefValue}>{it.v}</div>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* Rendimiento / modo ligero */}
-            <section className={styles.card}>
-              <div className={styles.cardHead}>Rendimiento</div>
-              <div className={styles.row}>
-                <div className={styles.rowText}>
-                  <div className={styles.rowTitle}>Modo ligero (TV / equipos lentos)</div>
+                  <div className={styles.rowTitle}>Modo ligero</div>
                   <div className={styles.rowDesc}>
-                    Desactiva blur y animaciones para cargar más rápido.
-                    {isTvUserAgent() ? ' Detectamos una TV: se activa solo.' : ' "Auto" lo activa solo en TVs.'}
+                    Para TVs o equipos lentos: desactiva efectos para que cargue más rápido.
+                    {isTvUserAgent() ? ' Detectamos una TV: se activa solo.' : ''}
                   </div>
                 </div>
                 <div className={styles.seg}>
-                  {[
-                    { id: 'auto', l: 'Auto' },
-                    { id: 'on', l: 'Sí' },
-                    { id: 'off', l: 'No' },
-                  ].map((o) => (
+                  {[{ id: 'auto', l: 'Auto' }, { id: 'on', l: 'Sí' }, { id: 'off', l: 'No' }].map((o) => (
                     <button
                       key={o.id}
                       className={`${styles.segBtn} ${lite === o.id ? styles.segOn : ''}`}
@@ -248,17 +218,86 @@ export default function Settings() {
               </div>
             </section>
 
+            {/* Películas y series (TMDB) — solo en la app, donde se necesita el token */}
+            {isCapacitor() && (
+              <section className={styles.card}>
+                <div className={styles.cardHead}>
+                  <span className={styles.headIcon}>🎬</span>
+                  Películas y series
+                </div>
+                <div className={styles.row}>
+                  <div className={styles.rowText}>
+                    <div className={styles.rowTitle}>
+                      Token de TMDB {tmdbHas
+                        ? <span style={{ color: 'var(--lt-green,#22c55e)' }}>· activo ✓</span>
+                        : <span style={{ color: 'var(--lt-amber,#f5a524)' }}>· falta</span>}
+                    </div>
+                    <div className={styles.rowDesc}>
+                      Pega tu token (gratis en themoviedb.org → Configuración → API) para ver el
+                      catálogo de películas y series en la app.
+                    </div>
+                  </div>
+                </div>
+                <div className={styles.row} style={{ gap: 8, flexWrap: 'wrap' }}>
+                  <input
+                    type="password"
+                    value={tmdbTok}
+                    onChange={(e) => setTmdbTok(e.target.value)}
+                    placeholder={tmdbHas ? 'Token guardado — pega uno nuevo para cambiarlo' : 'Pega tu token TMDB (v4 eyJ… o api_key)'}
+                    aria-label="Token TMDB"
+                    style={{
+                      flex: 1, minWidth: 180, padding: '10px 12px', borderRadius: 10,
+                      border: '1px solid var(--lt-line2,#2e2e44)', background: 'var(--lt-panel2,#161823)',
+                      color: 'var(--lt-text,#fff)', fontSize: 13,
+                    }}
+                  />
+                  <button className={styles.btn} onClick={saveTmdb} disabled={!tmdbTok.trim()}>Guardar</button>
+                  {tmdbHas && <button className={`${styles.btn} ${styles.btnDanger}`} onClick={clearTmdb}>Quitar</button>}
+                </div>
+              </section>
+            )}
+
+            {/* Mis datos */}
+            <section className={styles.card}>
+              <div className={styles.cardHead}>
+                <span className={styles.headIcon}><IconStar size={14} color="#fff" /></span>
+                Mis datos
+              </div>
+              <div className={styles.row}>
+                <div className={styles.rowText}>
+                  <div className={styles.rowTitle}>Canales favoritos</div>
+                  <div className={styles.rowDesc}>{favorites.length} guardados</div>
+                </div>
+                <button className={styles.btn} onClick={clearFavorites} disabled={!favorites.length}>
+                  Limpiar
+                </button>
+              </div>
+              <div className={styles.row}>
+                <div className={styles.rowText}>
+                  <div className={styles.rowTitle}>Borrar todo</div>
+                  <div className={styles.rowDesc}>Favoritos, lista de películas y preferencias de este equipo</div>
+                </div>
+                <button className={`${styles.btn} ${styles.btnDanger}`} onClick={clearLocalData}>
+                  Borrar
+                </button>
+              </div>
+            </section>
+
             {/* Acerca de */}
             <section className={styles.card}>
-              <div className={styles.cardHead}>Acerca de</div>
+              <div className={styles.cardHead}>
+                <span className={styles.headIcon}>ℹ️</span>
+                Acerca de
+              </div>
               <div className={styles.row}>
                 <div className={styles.rowText}>
                   <div className={styles.rowTitle}>LocalTv · FofoStudio Edition</div>
-                  <div className={styles.rowDesc}>Versión {VERSION} · Licencia MIT · open source</div>
+                  <div className={styles.rowDesc}>Versión {VERSION}</div>
                 </div>
                 <a className={styles.btn} href={REPO} target="_blank" rel="noopener noreferrer">GitHub</a>
               </div>
             </section>
+
           </div>
         </div>
       </div>

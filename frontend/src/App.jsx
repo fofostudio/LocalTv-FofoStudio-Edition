@@ -7,6 +7,7 @@ import Home from './pages/Home';
 import LoadingSpinner from './components/LoadingSpinner/LoadingSpinner';
 import UpdateGate from './components/UpdateGate/UpdateGate';
 import PersistentPlayer from './components/PersistentPlayer/PersistentPlayer';
+import VodLayer from './components/VodLayer/VodLayer';
 import styles from './App.module.css';
 
 // Code-splitting: las pantallas secundarias se cargan bajo demanda para que el
@@ -153,6 +154,14 @@ function Footer() {
   );
 }
 
+// Envuelve las rutas para animar la entrada de cada pantalla. Key por pathname
+// para que la animación se re-dispare en cada navegación. Solo opacity (ver
+// .lt-page en index.css) para no descolocar el player persistente.
+function AnimatedRoutes({ children }) {
+  const location = useLocation();
+  return <div className="lt-page" key={location.pathname}>{children}</div>;
+}
+
 export default function App() {
   return (
     <UpdateGate>
@@ -163,6 +172,7 @@ export default function App() {
               <Header />
               <main className={styles.routesContainer}>
                 <Suspense fallback={<LoadingSpinner />}>
+                  <AnimatedRoutes>
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/en-vivo" element={<Live />} />
@@ -184,10 +194,12 @@ export default function App() {
                       }
                     />
                   </Routes>
+                  </AnimatedRoutes>
                 </Suspense>
               </main>
               <Footer />
               <PersistentPlayer />
+              <VodLayer />
             </div>
           </BrowserRouter>
         </ChannelProvider>

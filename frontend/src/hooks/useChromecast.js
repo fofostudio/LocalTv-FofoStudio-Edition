@@ -11,6 +11,10 @@ export const useChromecast = () => {
   useEffect(() => {
     mountedRef.current = true;
     let cleanupFns = [];
+    // Declarados a nivel del effect para que el cleanup pueda referenciarlos
+    // aunque el bloque `if (!initialized)` no se haya ejecutado.
+    let installedGlobalCb = false;
+    let globalCallback = null;
 
     const setupSession = (session) => {
       if (mountedRef.current) {
@@ -90,7 +94,7 @@ export const useChromecast = () => {
       console.log('⏳ Esperando SDK...');
 
       // Callback global para cuando el SDK cargue
-      const globalCallback = (available) => {
+      globalCallback = (available) => {
         console.log('🎬 window.__onGCastApiAvailable llamado con:', available);
         if (mountedRef.current) {
           initCast();
@@ -100,7 +104,6 @@ export const useChromecast = () => {
       // Sólo instalamos el callback global si no había uno, y recordamos si
       // fuimos nosotros para no pisarlo al desmontar (otra instancia de
       // CastButton podría depender de él).
-      let installedGlobalCb = false;
       if (!window.__onGCastApiAvailable) {
         window.__onGCastApiAvailable = globalCallback;
         installedGlobalCb = true;

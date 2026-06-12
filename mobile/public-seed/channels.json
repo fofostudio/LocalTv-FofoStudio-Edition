@@ -1,888 +1,5864 @@
 {
-  "version": 3,
-  "source": "tvtvhd.com/status.json",
-  "channels": [
-    {
-      "name": "Azteca 7",
-      "slug": "azteca-7",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "MÉXICO",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=azteca7"
-    },
-    {
-      "name": "Azteca Deportes",
-      "slug": "azteca-deportes",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "MÉXICO",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=azteca_deportes"
-    },
-    {
-      "name": "BeIN Sports Español",
-      "slug": "bein-sports-espanol",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "USA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=beinsportes"
-    },
-    {
-      "name": "BeIN Sports Xtra Español",
-      "slug": "bein-sports-xtra-espanol",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "USA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=beinsport_xtra_espanol"
-    },
-    {
-      "name": "Canal 5",
-      "slug": "canal-5",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "MÉXICO",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=canal5"
-    },
-    {
-      "name": "DSports",
-      "slug": "dsports",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "LATINOAMERICA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dsports"
-    },
-    {
-      "name": "DSports 2",
-      "slug": "dsports-2",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "LATINOAMERICA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dsports2"
-    },
-    {
-      "name": "ESPN",
-      "slug": "espn",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "LATINOAMERICA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn"
-    },
-    {
-      "name": "ESPN 1 NL",
-      "slug": "espn-1-nl",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "MUNDO",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn1_nl"
-    },
-    {
-      "name": "ESPN 2",
-      "slug": "espn-2",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "LATINOAMERICA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn2"
-    },
-    {
-      "name": "ESPN 2 NL",
-      "slug": "espn-2-nl",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "MUNDO",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn2_nl"
-    },
-    {
-      "name": "ESPN 3",
-      "slug": "espn-3",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "LATINOAMERICA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn3"
-    },
-    {
-      "name": "ESPN 3 NL",
-      "slug": "espn-3-nl",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "MUNDO",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn3_nl"
-    },
-    {
-      "name": "ESPN 4",
-      "slug": "espn-4",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "LATINOAMERICA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn4"
-    },
-    {
-      "name": "ESPN 5",
-      "slug": "espn-5",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "LATINOAMERICA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn5"
-    },
-    {
-      "name": "ESPN 6",
-      "slug": "espn-6",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "LATINOAMERICA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn6"
-    },
-    {
-      "name": "ESPN 7",
-      "slug": "espn-7",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "LATINOAMERICA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn7"
-    },
-    {
-      "name": "ESPN Deportes",
-      "slug": "espn-deportes",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "USA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espndeportes"
-    },
-    {
-      "name": "ESPN Premium",
-      "slug": "espn-premium",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "ARGENTINA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espnpremium"
-    },
-    {
-      "name": "Fox Deportes",
-      "slug": "fox-deportes",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "USA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=foxdeportes"
-    },
-    {
-      "name": "Fox Sports",
-      "slug": "fox-sports",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "ARGENTINA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=foxsports"
-    },
-    {
-      "name": "Fox Sports 2",
-      "slug": "fox-sports-2",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "ARGENTINA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=foxsports2"
-    },
-    {
-      "name": "Fox Sports 3",
-      "slug": "fox-sports-3",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "ARGENTINA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=foxsports3"
-    },
-    {
-      "name": "Fox Sports Premium",
-      "slug": "fox-sports-premium",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "MÉXICO",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=foxsportspremium"
-    },
-    {
-      "name": "GOLPERU",
-      "slug": "golperu",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "PERÚ",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=golperu"
-    },
-    {
-      "name": "GOLTV",
-      "slug": "goltv",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "LATINOAMERICA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=goltv"
-    },
-    {
-      "name": "Liga1 MAX",
-      "slug": "liga1-max",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "PERÚ",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=liga1max"
-    },
-    {
-      "name": "Movistar Deportes",
-      "slug": "movistar-deportes",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "PERÚ",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=movistar"
-    },
-    {
-      "name": "Premiere 1",
-      "slug": "premiere-1",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "BRASIL",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=premiere1"
-    },
-    {
-      "name": "Premiere 2",
-      "slug": "premiere-2",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "BRASIL",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=premiere2"
-    },
-    {
-      "name": "Premiere 3",
-      "slug": "premiere-3",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "BRASIL",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=premiere3"
-    },
-    {
-      "name": "Premiere 5",
-      "slug": "premiere-5",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "BRASIL",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=premiere5"
-    },
-    {
-      "name": "Sportv",
-      "slug": "sportv",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "BRASIL",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sportv"
-    },
-    {
-      "name": "Sportv 2",
-      "slug": "sportv-2",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "BRASIL",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sportv2"
-    },
-    {
-      "name": "Sportv 3",
-      "slug": "sportv-3",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "BRASIL",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sportv3"
-    },
-    {
-      "name": "TNT Sports",
-      "slug": "tnt-sports",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "ARGENTINA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=tntsports"
-    },
-    {
-      "name": "TUDN",
-      "slug": "tudn",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "MÉXICO",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=tudn_mx"
-    },
-    {
-      "name": "Telefe",
-      "slug": "telefe",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "ARGENTINA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=telefe"
-    },
-    {
-      "name": "Telemundo",
-      "slug": "telemundo",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "USA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=telemundo"
-    },
-    {
-      "name": "TyC Sports",
-      "slug": "tyc-sports",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "ARGENTINA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=tycsports"
-    },
-    {
-      "name": "TyC Sports Internacional (USA)",
-      "slug": "tyc-sports-internacional-usa",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "ARGENTINA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=tycinternacional"
-    },
-    {
-      "name": "USAnetwork",
-      "slug": "usanetwork",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "USA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=usanetwork"
-    },
-    {
-      "name": "Unimás",
-      "slug": "unimas",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "USA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=unimas"
-    },
-    {
-      "name": "VTV Plus",
-      "slug": "vtv-plus",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "LATINOAMERICA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=vtvplus"
-    },
-    {
-      "name": "Win Sports plus (2)",
-      "slug": "win-sports-plus-2",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "COLOMBIA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=winsports2"
-    },
-    {
-      "name": "CBS Sports Network",
-      "slug": "cbs-sports-network",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "USA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=cbs_sports_network"
-    },
-    {
-      "name": "Caliente TV",
-      "slug": "caliente-tv",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "MÉXICO",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=calientetv"
-    },
-    {
-      "name": "Canal 11",
-      "slug": "canal-11",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "PORTUGAL",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=canal11_pt"
-    },
-    {
-      "name": "DAZN 1",
-      "slug": "dazn-1",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "ESPAÑA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dazn1"
-    },
-    {
-      "name": "DAZN 1 DE",
-      "slug": "dazn-1-de",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "MUNDO",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dazn1_de"
-    },
-    {
-      "name": "DAZN 2",
-      "slug": "dazn-2",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "ESPAÑA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dazn2"
-    },
-    {
-      "name": "DAZN 2 DE",
-      "slug": "dazn-2-de",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "MUNDO",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dazn2_de"
-    },
-    {
-      "name": "DAZN 3 (eventos)",
-      "slug": "dazn-3-eventos",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "ESPAÑA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dazn3"
-    },
-    {
-      "name": "DAZN 4 (eventos)",
-      "slug": "dazn-4-eventos",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "ESPAÑA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dazn4"
-    },
-    {
-      "name": "DAZN LaLiga",
-      "slug": "dazn-laliga",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "ESPAÑA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dazn_laliga"
-    },
-    {
-      "name": "DSports Plus",
-      "slug": "dsports-plus",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "LATINOAMERICA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dsportsplus"
-    },
-    {
-      "name": "Dazn Eleven 1",
-      "slug": "dazn-eleven-1",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "PORTUGAL",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=eleven1_pt"
-    },
-    {
-      "name": "Dazn Eleven 2",
-      "slug": "dazn-eleven-2",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "PORTUGAL",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=eleven2_pt"
-    },
-    {
-      "name": "Dazn Eleven 3",
-      "slug": "dazn-eleven-3",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "PORTUGAL",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=eleven3_pt"
-    },
-    {
-      "name": "Dazn Eleven 4",
-      "slug": "dazn-eleven-4",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "PORTUGAL",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=eleven4_pt"
-    },
-    {
-      "name": "Dazn Eleven 5",
-      "slug": "dazn-eleven-5",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "PORTUGAL",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=eleven5_pt"
-    },
-    {
-      "name": "Dazn Eleven 6",
-      "slug": "dazn-eleven-6",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "PORTUGAL",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=eleven6_pt"
-    },
-    {
-      "name": "Dazn Eleven Pro 1 BE",
-      "slug": "dazn-eleven-pro-1-be",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "MUNDO",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=elevenpro1_be"
-    },
-    {
-      "name": "ECDF LigaPro (eventos)",
-      "slug": "ecdf-ligapro-eventos",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "LATINOAMERICA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=ecdf_ligapro"
-    },
-    {
-      "name": "ESPN U",
-      "slug": "espn-u",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "USA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espnu"
-    },
-    {
-      "name": "ESPN2",
-      "slug": "espn2",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "USA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn2_usa"
-    },
-    {
-      "name": "Fox Sports 1",
-      "slug": "fox-sports-1",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "USA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=foxsports1_usa"
-    },
-    {
-      "name": "Hisports",
-      "slug": "hisports",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "MÉXICO",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=hisports"
-    },
-    {
-      "name": "La 1 TVE",
-      "slug": "la-1-tve",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "ESPAÑA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=la1tve"
-    },
-    {
-      "name": "LaLigaTV BAR",
-      "slug": "laligatv-bar",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "ESPAÑA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=laligatvbar"
-    },
-    {
-      "name": "Liga de Campeones 1",
-      "slug": "liga-de-campeones-1",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "ESPAÑA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=ligadecampeones1"
-    },
-    {
-      "name": "Liga de Campeones 2",
-      "slug": "liga-de-campeones-2",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "ESPAÑA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=ligadecampeones2"
-    },
-    {
-      "name": "Liga de Campeones 3",
-      "slug": "liga-de-campeones-3",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "ESPAÑA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=ligadecampeones3"
-    },
-    {
-      "name": "M+ LaLiga TV",
-      "slug": "m-laliga-tv",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "ESPAÑA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=m_laligatv"
-    },
-    {
-      "name": "Premiere 4",
-      "slug": "premiere-4",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "BRASIL",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=premiere4"
-    },
-    {
-      "name": "Premiere 6",
-      "slug": "premiere-6",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "BRASIL",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=premiere6"
-    },
-    {
-      "name": "Premiere 7",
-      "slug": "premiere-7",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "BRASIL",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=premiere7"
-    },
-    {
-      "name": "Premiere 8",
-      "slug": "premiere-8",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "BRASIL",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=premiere8"
-    },
-    {
-      "name": "Sky Bundesliga 1",
-      "slug": "sky-bundesliga-1",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "MUNDO",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sky_bundesliga1"
-    },
-    {
-      "name": "Sky Bundesliga 2",
-      "slug": "sky-bundesliga-2",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "MUNDO",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sky_bundesliga2"
-    },
-    {
-      "name": "Sky Bundesliga 3",
-      "slug": "sky-bundesliga-3",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "MUNDO",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sky_bundesliga3"
-    },
-    {
-      "name": "Sky Bundesliga 4",
-      "slug": "sky-bundesliga-4",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "MUNDO",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sky_bundesliga4"
-    },
-    {
-      "name": "Sky Bundesliga 5",
-      "slug": "sky-bundesliga-5",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "MUNDO",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sky_bundesliga5"
-    },
-    {
-      "name": "Sky Sports Bundesliga",
-      "slug": "sky-sports-bundesliga",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "MÉXICO",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sky_bundesliga_mx"
-    },
-    {
-      "name": "Sky Sports LaLiga",
-      "slug": "sky-sports-laliga",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "MÉXICO",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sky_sports_laliga"
-    },
-    {
-      "name": "Sport TV 1",
-      "slug": "sport-tv-1",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "PORTUGAL",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sporttv1"
-    },
-    {
-      "name": "Sport TV 2",
-      "slug": "sport-tv-2",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "PORTUGAL",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sporttv2"
-    },
-    {
-      "name": "Sport TV 3",
-      "slug": "sport-tv-3",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "PORTUGAL",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sporttv3"
-    },
-    {
-      "name": "Sport TV 4",
-      "slug": "sport-tv-4",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "PORTUGAL",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sporttv4"
-    },
-    {
-      "name": "Sport TV 5",
-      "slug": "sport-tv-5",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "PORTUGAL",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sporttv5"
-    },
-    {
-      "name": "Sport TV 6",
-      "slug": "sport-tv-6",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "PORTUGAL",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sporttv6"
-    },
-    {
-      "name": "TNT Sports Chile",
-      "slug": "tnt-sports-chile",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "CHILE",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=eventos13"
-    },
-    {
-      "name": "TV Pública",
-      "slug": "tv-publica",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "ARGENTINA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=tvpublica"
-    },
-    {
-      "name": "TVC Deportes",
-      "slug": "tvc-deportes",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "MÉXICO",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=tvc_deportes"
-    },
-    {
-      "name": "Universo",
-      "slug": "universo",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "USA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=universo"
-    },
-    {
-      "name": "Univisión",
-      "slug": "univision",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "USA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=univision"
-    },
-    {
-      "name": "Win Sports",
-      "slug": "win-sports",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "COLOMBIA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=winsports"
-    },
-    {
-      "name": "Win Sports Plus",
-      "slug": "win-sports-plus",
-      "logo_url": null,
-      "category_id": 1,
-      "is_active": true,
-      "region": "COLOMBIA",
-      "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=winsportsplus"
-    }
-  ]
+ "version": 4,
+ "source": "tvtvhd.com/status.json + Magma (FofoLocalTv.db)",
+ "channels": [
+  {
+   "name": "Azteca 7",
+   "slug": "azteca-7",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "MÉXICO",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=azteca7"
+  },
+  {
+   "name": "Azteca Deportes",
+   "slug": "azteca-deportes",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "MÉXICO",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=azteca_deportes"
+  },
+  {
+   "name": "BeIN Sports Español",
+   "slug": "bein-sports-espanol",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "USA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=beinsportes"
+  },
+  {
+   "name": "BeIN Sports Xtra Español",
+   "slug": "bein-sports-xtra-espanol",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "USA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=beinsport_xtra_espanol"
+  },
+  {
+   "name": "Canal 5",
+   "slug": "canal-5",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "MÉXICO",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=canal5"
+  },
+  {
+   "name": "DSports",
+   "slug": "dsports",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "LATINOAMERICA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dsports"
+  },
+  {
+   "name": "DSports 2",
+   "slug": "dsports-2",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "LATINOAMERICA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dsports2"
+  },
+  {
+   "name": "ESPN",
+   "slug": "espn",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "LATINOAMERICA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn"
+  },
+  {
+   "name": "ESPN 1 NL",
+   "slug": "espn-1-nl",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "MUNDO",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn1_nl"
+  },
+  {
+   "name": "ESPN 2",
+   "slug": "espn-2",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "LATINOAMERICA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn2"
+  },
+  {
+   "name": "ESPN 2 NL",
+   "slug": "espn-2-nl",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "MUNDO",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn2_nl"
+  },
+  {
+   "name": "ESPN 3",
+   "slug": "espn-3",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "LATINOAMERICA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn3"
+  },
+  {
+   "name": "ESPN 3 NL",
+   "slug": "espn-3-nl",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "MUNDO",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn3_nl"
+  },
+  {
+   "name": "ESPN 4",
+   "slug": "espn-4",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "LATINOAMERICA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn4"
+  },
+  {
+   "name": "ESPN 5",
+   "slug": "espn-5",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "LATINOAMERICA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn5"
+  },
+  {
+   "name": "ESPN 6",
+   "slug": "espn-6",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "LATINOAMERICA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn6"
+  },
+  {
+   "name": "ESPN 7",
+   "slug": "espn-7",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "LATINOAMERICA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn7"
+  },
+  {
+   "name": "ESPN Deportes",
+   "slug": "espn-deportes",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "USA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espndeportes"
+  },
+  {
+   "name": "ESPN Premium",
+   "slug": "espn-premium",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "ARGENTINA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espnpremium"
+  },
+  {
+   "name": "Fox Deportes",
+   "slug": "fox-deportes",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "USA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=foxdeportes"
+  },
+  {
+   "name": "Fox Sports",
+   "slug": "fox-sports",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "ARGENTINA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=foxsports"
+  },
+  {
+   "name": "Fox Sports 2",
+   "slug": "fox-sports-2",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "ARGENTINA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=foxsports2"
+  },
+  {
+   "name": "Fox Sports 3",
+   "slug": "fox-sports-3",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "ARGENTINA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=foxsports3"
+  },
+  {
+   "name": "Fox Sports Premium",
+   "slug": "fox-sports-premium",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "MÉXICO",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=foxsportspremium"
+  },
+  {
+   "name": "GOLPERU",
+   "slug": "golperu",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "PERÚ",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=golperu"
+  },
+  {
+   "name": "GOLTV",
+   "slug": "goltv",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "LATINOAMERICA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=goltv"
+  },
+  {
+   "name": "Liga1 MAX",
+   "slug": "liga1-max",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "PERÚ",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=liga1max"
+  },
+  {
+   "name": "Movistar Deportes",
+   "slug": "movistar-deportes",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "PERÚ",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=movistar"
+  },
+  {
+   "name": "Premiere 1",
+   "slug": "premiere-1",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "BRASIL",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=premiere1"
+  },
+  {
+   "name": "Premiere 2",
+   "slug": "premiere-2",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "BRASIL",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=premiere2"
+  },
+  {
+   "name": "Premiere 3",
+   "slug": "premiere-3",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "BRASIL",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=premiere3"
+  },
+  {
+   "name": "Premiere 5",
+   "slug": "premiere-5",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "BRASIL",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=premiere5"
+  },
+  {
+   "name": "Sportv",
+   "slug": "sportv",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "BRASIL",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sportv"
+  },
+  {
+   "name": "Sportv 2",
+   "slug": "sportv-2",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "BRASIL",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sportv2"
+  },
+  {
+   "name": "Sportv 3",
+   "slug": "sportv-3",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "BRASIL",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sportv3"
+  },
+  {
+   "name": "TNT Sports",
+   "slug": "tnt-sports",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "ARGENTINA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=tntsports"
+  },
+  {
+   "name": "TUDN",
+   "slug": "tudn",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "MÉXICO",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=tudn_mx"
+  },
+  {
+   "name": "Telefe",
+   "slug": "telefe",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "ARGENTINA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=telefe"
+  },
+  {
+   "name": "Telemundo",
+   "slug": "telemundo",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "USA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=telemundo"
+  },
+  {
+   "name": "TyC Sports",
+   "slug": "tyc-sports",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "ARGENTINA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=tycsports"
+  },
+  {
+   "name": "TyC Sports Internacional (USA)",
+   "slug": "tyc-sports-internacional-usa",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "ARGENTINA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=tycinternacional"
+  },
+  {
+   "name": "USAnetwork",
+   "slug": "usanetwork",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "USA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=usanetwork"
+  },
+  {
+   "name": "Unimás",
+   "slug": "unimas",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "USA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=unimas"
+  },
+  {
+   "name": "VTV Plus",
+   "slug": "vtv-plus",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "LATINOAMERICA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=vtvplus"
+  },
+  {
+   "name": "Win Sports plus (2)",
+   "slug": "win-sports-plus-2",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "COLOMBIA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=winsports2"
+  },
+  {
+   "name": "CBS Sports Network",
+   "slug": "cbs-sports-network",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "USA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=cbs_sports_network"
+  },
+  {
+   "name": "Caliente TV",
+   "slug": "caliente-tv",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "MÉXICO",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=calientetv"
+  },
+  {
+   "name": "Canal 11",
+   "slug": "canal-11",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "PORTUGAL",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=canal11_pt"
+  },
+  {
+   "name": "DAZN 1",
+   "slug": "dazn-1",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "ESPAÑA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dazn1"
+  },
+  {
+   "name": "DAZN 1 DE",
+   "slug": "dazn-1-de",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "MUNDO",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dazn1_de"
+  },
+  {
+   "name": "DAZN 2",
+   "slug": "dazn-2",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "ESPAÑA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dazn2"
+  },
+  {
+   "name": "DAZN 2 DE",
+   "slug": "dazn-2-de",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "MUNDO",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dazn2_de"
+  },
+  {
+   "name": "DAZN 3 (eventos)",
+   "slug": "dazn-3-eventos",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "ESPAÑA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dazn3"
+  },
+  {
+   "name": "DAZN 4 (eventos)",
+   "slug": "dazn-4-eventos",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "ESPAÑA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dazn4"
+  },
+  {
+   "name": "DAZN LaLiga",
+   "slug": "dazn-laliga",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "ESPAÑA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dazn_laliga"
+  },
+  {
+   "name": "DSports Plus",
+   "slug": "dsports-plus",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "LATINOAMERICA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=dsportsplus"
+  },
+  {
+   "name": "Dazn Eleven 1",
+   "slug": "dazn-eleven-1",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "PORTUGAL",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=eleven1_pt"
+  },
+  {
+   "name": "Dazn Eleven 2",
+   "slug": "dazn-eleven-2",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "PORTUGAL",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=eleven2_pt"
+  },
+  {
+   "name": "Dazn Eleven 3",
+   "slug": "dazn-eleven-3",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "PORTUGAL",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=eleven3_pt"
+  },
+  {
+   "name": "Dazn Eleven 4",
+   "slug": "dazn-eleven-4",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "PORTUGAL",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=eleven4_pt"
+  },
+  {
+   "name": "Dazn Eleven 5",
+   "slug": "dazn-eleven-5",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "PORTUGAL",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=eleven5_pt"
+  },
+  {
+   "name": "Dazn Eleven 6",
+   "slug": "dazn-eleven-6",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "PORTUGAL",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=eleven6_pt"
+  },
+  {
+   "name": "Dazn Eleven Pro 1 BE",
+   "slug": "dazn-eleven-pro-1-be",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "MUNDO",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=elevenpro1_be"
+  },
+  {
+   "name": "ECDF LigaPro (eventos)",
+   "slug": "ecdf-ligapro-eventos",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "LATINOAMERICA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=ecdf_ligapro"
+  },
+  {
+   "name": "ESPN U",
+   "slug": "espn-u",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "USA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espnu"
+  },
+  {
+   "name": "ESPN2",
+   "slug": "espn2",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "USA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=espn2_usa"
+  },
+  {
+   "name": "Fox Sports 1",
+   "slug": "fox-sports-1",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "USA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=foxsports1_usa"
+  },
+  {
+   "name": "Hisports",
+   "slug": "hisports",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "MÉXICO",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=hisports"
+  },
+  {
+   "name": "La 1 TVE",
+   "slug": "la-1-tve",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "ESPAÑA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=la1tve"
+  },
+  {
+   "name": "LaLigaTV BAR",
+   "slug": "laligatv-bar",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "ESPAÑA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=laligatvbar"
+  },
+  {
+   "name": "Liga de Campeones 1",
+   "slug": "liga-de-campeones-1",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "ESPAÑA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=ligadecampeones1"
+  },
+  {
+   "name": "Liga de Campeones 2",
+   "slug": "liga-de-campeones-2",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "ESPAÑA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=ligadecampeones2"
+  },
+  {
+   "name": "Liga de Campeones 3",
+   "slug": "liga-de-campeones-3",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "ESPAÑA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=ligadecampeones3"
+  },
+  {
+   "name": "M+ LaLiga TV",
+   "slug": "m-laliga-tv",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "ESPAÑA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=m_laligatv"
+  },
+  {
+   "name": "Premiere 4",
+   "slug": "premiere-4",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "BRASIL",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=premiere4"
+  },
+  {
+   "name": "Premiere 6",
+   "slug": "premiere-6",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "BRASIL",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=premiere6"
+  },
+  {
+   "name": "Premiere 7",
+   "slug": "premiere-7",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "BRASIL",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=premiere7"
+  },
+  {
+   "name": "Premiere 8",
+   "slug": "premiere-8",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "BRASIL",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=premiere8"
+  },
+  {
+   "name": "Sky Bundesliga 1",
+   "slug": "sky-bundesliga-1",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "MUNDO",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sky_bundesliga1"
+  },
+  {
+   "name": "Sky Bundesliga 2",
+   "slug": "sky-bundesliga-2",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "MUNDO",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sky_bundesliga2"
+  },
+  {
+   "name": "Sky Bundesliga 3",
+   "slug": "sky-bundesliga-3",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "MUNDO",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sky_bundesliga3"
+  },
+  {
+   "name": "Sky Bundesliga 4",
+   "slug": "sky-bundesliga-4",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "MUNDO",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sky_bundesliga4"
+  },
+  {
+   "name": "Sky Bundesliga 5",
+   "slug": "sky-bundesliga-5",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "MUNDO",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sky_bundesliga5"
+  },
+  {
+   "name": "Sky Sports Bundesliga",
+   "slug": "sky-sports-bundesliga",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "MÉXICO",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sky_bundesliga_mx"
+  },
+  {
+   "name": "Sky Sports LaLiga",
+   "slug": "sky-sports-laliga",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "MÉXICO",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sky_sports_laliga"
+  },
+  {
+   "name": "Sport TV 1",
+   "slug": "sport-tv-1",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "PORTUGAL",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sporttv1"
+  },
+  {
+   "name": "Sport TV 2",
+   "slug": "sport-tv-2",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "PORTUGAL",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sporttv2"
+  },
+  {
+   "name": "Sport TV 3",
+   "slug": "sport-tv-3",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "PORTUGAL",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sporttv3"
+  },
+  {
+   "name": "Sport TV 4",
+   "slug": "sport-tv-4",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "PORTUGAL",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sporttv4"
+  },
+  {
+   "name": "Sport TV 5",
+   "slug": "sport-tv-5",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "PORTUGAL",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sporttv5"
+  },
+  {
+   "name": "Sport TV 6",
+   "slug": "sport-tv-6",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "PORTUGAL",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=sporttv6"
+  },
+  {
+   "name": "TNT Sports Chile",
+   "slug": "tnt-sports-chile",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "CHILE",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=eventos13"
+  },
+  {
+   "name": "TV Pública",
+   "slug": "tv-publica",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "ARGENTINA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=tvpublica"
+  },
+  {
+   "name": "TVC Deportes",
+   "slug": "tvc-deportes",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "MÉXICO",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=tvc_deportes"
+  },
+  {
+   "name": "Universo",
+   "slug": "universo",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "USA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=universo"
+  },
+  {
+   "name": "Univisión",
+   "slug": "univision",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "USA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=univision"
+  },
+  {
+   "name": "Win Sports",
+   "slug": "win-sports",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "COLOMBIA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=winsports"
+  },
+  {
+   "name": "Win Sports Plus",
+   "slug": "win-sports-plus",
+   "logo_url": null,
+   "category_id": 1,
+   "is_active": true,
+   "region": "COLOMBIA",
+   "stream_url": "https://tvtvhd.com/vivo/canales.php?stream=winsportsplus"
+  },
+  {
+   "name": "A&E",
+   "slug": "magma-a-e",
+   "logo_url": "http://i.tvcluboficial.com/ae.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/5.m3u8"
+  },
+  {
+   "name": "A&E HD",
+   "slug": "magma-a-e-hd",
+   "logo_url": "http://i.tvcluboficial.com/ae.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/8.m3u8"
+  },
+  {
+   "name": "A+",
+   "slug": "magma-a",
+   "logo_url": "http://i.tvcluboficial.com/aplus.png",
+   "category_id": 9,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/9.m3u8"
+  },
+  {
+   "name": "A24",
+   "slug": "magma-a24",
+   "logo_url": "http://i.tvcluboficial.com/a24.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1163.m3u8"
+  },
+  {
+   "name": "A3Cine",
+   "slug": "magma-a3cine",
+   "logo_url": "http://i.tvcluboficial.com/a3cine.png",
+   "category_id": 18,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/14.m3u8"
+  },
+  {
+   "name": "A3Series",
+   "slug": "magma-a3series",
+   "logo_url": "http://i.tvcluboficial.com/a3series.png",
+   "category_id": 18,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/17.m3u8"
+  },
+  {
+   "name": "ADN 40",
+   "slug": "magma-adn-40",
+   "logo_url": "http://i.tvcluboficial.com/adn40.png",
+   "category_id": 2,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/20.m3u8"
+  },
+  {
+   "name": "AMC",
+   "slug": "magma-amc",
+   "logo_url": "http://i.tvcluboficial.com/amc.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/29.m3u8"
+  },
+  {
+   "name": "AMC (ES)",
+   "slug": "magma-amc-es",
+   "logo_url": "http://i.tvcluboficial.com/amc.png",
+   "category_id": 18,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/32.m3u8"
+  },
+  {
+   "name": "AMC HD",
+   "slug": "magma-amc-hd",
+   "logo_url": "http://i.tvcluboficial.com/amc.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/33.m3u8"
+  },
+  {
+   "name": "ATV | Peru",
+   "slug": "magma-atv-peru",
+   "logo_url": "http://i.tvcluboficial.com/pe_atv.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1063.m3u8"
+  },
+  {
+   "name": "ATV: Novelas Turcas",
+   "slug": "magma-atv-novelas-turcas",
+   "logo_url": "http://i.tvcluboficial.com/atv.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1120.m3u8"
+  },
+  {
+   "name": "AXN",
+   "slug": "magma-axn",
+   "logo_url": "http://i.tvcluboficial.com/axn.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/54.m3u8"
+  },
+  {
+   "name": "AXN HD",
+   "slug": "magma-axn-hd",
+   "logo_url": "http://i.tvcluboficial.com/axn.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/58.m3u8"
+  },
+  {
+   "name": "AXN HD (ES)",
+   "slug": "magma-axn-hd-es",
+   "logo_url": "http://i.tvcluboficial.com/axn.png",
+   "category_id": 18,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/59.m3u8"
+  },
+  {
+   "name": "AXN WHITE HD (ES)",
+   "slug": "magma-axn-white-hd-es",
+   "logo_url": "http://i.tvcluboficial.com/axn.png",
+   "category_id": 18,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/61.m3u8"
+  },
+  {
+   "name": "AZ Corazon",
+   "slug": "magma-az-corazon",
+   "logo_url": "http://i.tvcluboficial.com/azcorazon.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/66.m3u8"
+  },
+  {
+   "name": "Aguacate TV | Venezuela",
+   "slug": "magma-aguacate-tv-venezuela",
+   "logo_url": "http://i.tvcluboficial.com/ve_aguacate.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1087.m3u8"
+  },
+  {
+   "name": "Al Jazeera",
+   "slug": "magma-al-jazeera",
+   "logo_url": "http://i.tvcluboficial.com/aljazeera.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/27.m3u8"
+  },
+  {
+   "name": "Alcance TV | Venezuela",
+   "slug": "magma-alcance-tv-venezuela",
+   "logo_url": "http://i.tvcluboficial.com/ve_alcancetv.png",
+   "category_id": 21,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1086.m3u8"
+  },
+  {
+   "name": "Alf 24/7",
+   "slug": "magma-alf-24-7",
+   "logo_url": "http://i.tvcluboficial.com/alf.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/28.m3u8"
+  },
+  {
+   "name": "America TV | Peru",
+   "slug": "magma-america-tv-peru",
+   "logo_url": "http://i.tvcluboficial.com/americaperu.png",
+   "category_id": 12,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/35.m3u8"
+  },
+  {
+   "name": "America | Argentina",
+   "slug": "magma-america-argentina",
+   "logo_url": "http://i.tvcluboficial.com/ar_america.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1068.m3u8"
+  },
+  {
+   "name": "Animal Planet",
+   "slug": "magma-animal-planet",
+   "logo_url": "http://i.tvcluboficial.com/animalplanet.png",
+   "category_id": 17,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/41.m3u8"
+  },
+  {
+   "name": "Animal Planet HD",
+   "slug": "magma-animal-planet-hd",
+   "logo_url": "http://i.tvcluboficial.com/animalplanet.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/42.m3u8"
+  },
+  {
+   "name": "Animaniacs 24/7",
+   "slug": "magma-animaniacs-24-7",
+   "logo_url": "http://i.tvcluboficial.com/animaniacs.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/43.m3u8"
+  },
+  {
+   "name": "Antena 3",
+   "slug": "magma-antena-3",
+   "logo_url": "http://i.tvcluboficial.com/antena3.png",
+   "category_id": 18,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/45.m3u8"
+  },
+  {
+   "name": "Argentina vs Islandia",
+   "slug": "magma-argentina-vs-islandia",
+   "logo_url": "https://i.tvcluboficial.com/event/argentinavsislandia.jpg",
+   "category_id": 22,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/874.m3u8"
+  },
+  {
+   "name": "AyM Sports",
+   "slug": "magma-aym-sports",
+   "logo_url": "http://i.tvcluboficial.com/aymsports.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/62.m3u8"
+  },
+  {
+   "name": "Az Cinema",
+   "slug": "magma-az-cinema",
+   "logo_url": "http://i.tvcluboficial.com/azcinema.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/63.m3u8"
+  },
+  {
+   "name": "Az Clic",
+   "slug": "magma-az-clic",
+   "logo_url": "http://i.tvcluboficial.com/azclic.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/64.m3u8"
+  },
+  {
+   "name": "Az Corazón HD",
+   "slug": "magma-az-corazon-hd",
+   "logo_url": "http://i.tvcluboficial.com/azcorazon.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/68.m3u8"
+  },
+  {
+   "name": "Azteca 7",
+   "slug": "magma-azteca-7",
+   "logo_url": "http://i.tvcluboficial.com/azteca7.png",
+   "category_id": 9,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/72.m3u8"
+  },
+  {
+   "name": "Azteca 7 HD",
+   "slug": "magma-azteca-7-hd",
+   "logo_url": "http://i.tvcluboficial.com/azteca7.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/74.m3u8"
+  },
+  {
+   "name": "Azteca Guate",
+   "slug": "magma-azteca-guate",
+   "logo_url": "http://i.tvcluboficial.com/aztecaguate.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1098.m3u8"
+  },
+  {
+   "name": "Azteca Uno",
+   "slug": "magma-azteca-uno",
+   "logo_url": "http://i.tvcluboficial.com/azteca1.png",
+   "category_id": 9,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/76.m3u8"
+  },
+  {
+   "name": "Azteca Uno HD",
+   "slug": "magma-azteca-uno-hd",
+   "logo_url": "http://i.tvcluboficial.com/azteca1.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/78.m3u8"
+  },
+  {
+   "name": "Baby TV",
+   "slug": "magma-baby-tv",
+   "logo_url": "http://i.tvcluboficial.com/babytv.png",
+   "category_id": 19,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/79.m3u8"
+  },
+  {
+   "name": "Bandamax",
+   "slug": "magma-bandamax",
+   "logo_url": "http://i.tvcluboficial.com/bandamax.png",
+   "category_id": 5,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/83.m3u8"
+  },
+  {
+   "name": "Bandamax HD",
+   "slug": "magma-bandamax-hd",
+   "logo_url": "http://i.tvcluboficial.com/bandamax.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/84.m3u8"
+  },
+  {
+   "name": "Bayblade 24/7",
+   "slug": "magma-bayblade-24-7",
+   "logo_url": "http://i.tvcluboficial.com/247.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/85.m3u8"
+  },
+  {
+   "name": "BeinSports",
+   "slug": "magma-beinsports",
+   "logo_url": "http://i.tvcluboficial.com/beinsports.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/88.m3u8"
+  },
+  {
+   "name": "BeinSports HD",
+   "slug": "magma-beinsports-hd",
+   "logo_url": "http://i.tvcluboficial.com/beinsports.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/89.m3u8"
+  },
+  {
+   "name": "BeinSports Ñ",
+   "slug": "magma-beinsports-n",
+   "logo_url": "http://i.tvcluboficial.com/beinsportsn.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/90.m3u8"
+  },
+  {
+   "name": "BeinSports Ñ HD",
+   "slug": "magma-beinsports-n-hd",
+   "logo_url": "http://i.tvcluboficial.com/beinsportsn.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/91.m3u8"
+  },
+  {
+   "name": "BitMe",
+   "slug": "magma-bitme",
+   "logo_url": "http://i.tvcluboficial.com/bitme.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/92.m3u8"
+  },
+  {
+   "name": "Bob Esponja 24/7",
+   "slug": "magma-bob-esponja-24-7",
+   "logo_url": "http://i.tvcluboficial.com/bobesponja.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/96.m3u8"
+  },
+  {
+   "name": "Breaking Bad 24/7",
+   "slug": "magma-breaking-bad-24-7",
+   "logo_url": "http://i.tvcluboficial.com/breakingbad.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/98.m3u8"
+  },
+  {
+   "name": "C5N",
+   "slug": "magma-c5n",
+   "logo_url": "http://i.tvcluboficial.com/c5n.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1162.m3u8"
+  },
+  {
+   "name": "CBS HD",
+   "slug": "magma-cbs-hd",
+   "logo_url": "http://i.tvcluboficial.com/cbs.png",
+   "category_id": 2,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/140.m3u8"
+  },
+  {
+   "name": "CBeebies",
+   "slug": "magma-cbeebies",
+   "logo_url": "http://i.tvcluboficial.com/cbeebies.png",
+   "category_id": 19,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/139.m3u8"
+  },
+  {
+   "name": "CDF Premium HD",
+   "slug": "magma-cdf-premium-hd",
+   "logo_url": "http://i.tvcluboficial.com/cdfpremium.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/143.m3u8"
+  },
+  {
+   "name": "CDN Sportsmax",
+   "slug": "magma-cdn-sportsmax",
+   "logo_url": "http://i.tvcluboficial.com/cdnsportsmax.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/146.m3u8"
+  },
+  {
+   "name": "Caballeros del Zodiaco 24/7",
+   "slug": "magma-caballeros-del-zodiaco-24-7",
+   "logo_url": "http://i.tvcluboficial.com/caballeroszodiaco.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/100.m3u8"
+  },
+  {
+   "name": "Calabozos y Dragones 24/7",
+   "slug": "magma-calabozos-y-dragones-24-7",
+   "logo_url": "http://i.tvcluboficial.com/247.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/103.m3u8"
+  },
+  {
+   "name": "Canal 10 | Nicaragua",
+   "slug": "magma-canal-10-nicaragua",
+   "logo_url": "http://i.tvcluboficial.com/ni_canal10.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1076.m3u8"
+  },
+  {
+   "name": "Canal 12 | El Salvador",
+   "slug": "magma-canal-12-el-salvador",
+   "logo_url": "http://i.tvcluboficial.com/sa_canal12.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1083.m3u8"
+  },
+  {
+   "name": "Canal 2 | Nicaragua",
+   "slug": "magma-canal-2-nicaragua",
+   "logo_url": "http://i.tvcluboficial.com/ni_canal2.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1075.m3u8"
+  },
+  {
+   "name": "Canal 3 | El Salvador",
+   "slug": "magma-canal-3-el-salvador",
+   "logo_url": "http://i.tvcluboficial.com/sa_canal3.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1080.m3u8"
+  },
+  {
+   "name": "Canal 4 | El Salvador",
+   "slug": "magma-canal-4-el-salvador",
+   "logo_url": "http://i.tvcluboficial.com/sa_canal4.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1081.m3u8"
+  },
+  {
+   "name": "Canal 5",
+   "slug": "magma-canal-5",
+   "logo_url": "http://i.tvcluboficial.com/canal5.png",
+   "category_id": 9,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/106.m3u8"
+  },
+  {
+   "name": "Canal 5 HD",
+   "slug": "magma-canal-5-hd",
+   "logo_url": "http://i.tvcluboficial.com/canal5.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/108.m3u8"
+  },
+  {
+   "name": "Canal 5 Honduras",
+   "slug": "magma-canal-5-honduras",
+   "logo_url": "http://i.tvcluboficial.com/ho_canal5.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/109.m3u8"
+  },
+  {
+   "name": "Canal 6 | Costa Rica",
+   "slug": "magma-canal-6-costa-rica",
+   "logo_url": "http://i.tvcluboficial.com/cr_canal6.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1084.m3u8"
+  },
+  {
+   "name": "Canal 6 | El Salvador",
+   "slug": "magma-canal-6-el-salvador",
+   "logo_url": "http://i.tvcluboficial.com/sa_canal6.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1082.m3u8"
+  },
+  {
+   "name": "Canal N | Peru",
+   "slug": "magma-canal-n-peru",
+   "logo_url": "http://i.tvcluboficial.com/pe_canaln.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1065.m3u8"
+  },
+  {
+   "name": "Canal Uno (1) | Colombia",
+   "slug": "magma-canal-uno-1-colombia",
+   "logo_url": "http://i.tvcluboficial.com/co_uno.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1014.m3u8"
+  },
+  {
+   "name": "Canal de las Estrellas",
+   "slug": "magma-canal-de-las-estrellas",
+   "logo_url": "http://i.tvcluboficial.com/mx_lasestrellas.png",
+   "category_id": 9,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/114.m3u8"
+  },
+  {
+   "name": "Canal de las Estrellas HD",
+   "slug": "magma-canal-de-las-estrellas-hd",
+   "logo_url": "http://i.tvcluboficial.com/mx_lasestrellas.png",
+   "category_id": 12,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/118.m3u8"
+  },
+  {
+   "name": "Canal+ Toros",
+   "slug": "magma-canal-toros",
+   "logo_url": "http://i.tvcluboficial.com/toros.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/121.m3u8"
+  },
+  {
+   "name": "Cantinflas 24/7",
+   "slug": "magma-cantinflas-24-7",
+   "logo_url": "http://i.tvcluboficial.com/cantinflas.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/123.m3u8"
+  },
+  {
+   "name": "Caracol Internacional",
+   "slug": "magma-caracol-internacional",
+   "logo_url": "http://i.tvcluboficial.com/caracol.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/127.m3u8"
+  },
+  {
+   "name": "Caracol | Colombia",
+   "slug": "magma-caracol-colombia",
+   "logo_url": "http://i.tvcluboficial.com/caracol.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/126.m3u8"
+  },
+  {
+   "name": "Cartoon Network",
+   "slug": "magma-cartoon-network",
+   "logo_url": "http://i.tvcluboficial.com/cartoonnetwork.png",
+   "category_id": 19,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/128.m3u8"
+  },
+  {
+   "name": "Cartoon Network HD",
+   "slug": "magma-cartoon-network-hd",
+   "logo_url": "http://i.tvcluboficial.com/cartoonnetwork.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/132.m3u8"
+  },
+  {
+   "name": "Cartoonito",
+   "slug": "magma-cartoonito",
+   "logo_url": "http://i.tvcluboficial.com/cartoonito.png",
+   "category_id": 19,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/134.m3u8"
+  },
+  {
+   "name": "Cartoonito HD",
+   "slug": "magma-cartoonito-hd",
+   "logo_url": "http://i.tvcluboficial.com/cartoonito.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/137.m3u8"
+  },
+  {
+   "name": "Caso Cerrado 24/7",
+   "slug": "magma-caso-cerrado-24-7",
+   "logo_url": "http://i.tvcluboficial.com/casocerrado.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/138.m3u8"
+  },
+  {
+   "name": "Chapulin Colorado 24/7",
+   "slug": "magma-chapulin-colorado-24-7",
+   "logo_url": "http://i.tvcluboficial.com/chapulincolorado.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/152.m3u8"
+  },
+  {
+   "name": "Chespirito 24/7",
+   "slug": "magma-chespirito-24-7",
+   "logo_url": "http://i.tvcluboficial.com/chespirito.jpg",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/153.m3u8"
+  },
+  {
+   "name": "Chilevision (CHV) | Chile",
+   "slug": "magma-chilevision-chv-chile",
+   "logo_url": "http://i.tvcluboficial.com/ch_chilevision.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/155.m3u8"
+  },
+  {
+   "name": "Cine 2024",
+   "slug": "magma-cine-2024",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 12,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1099.m3u8"
+  },
+  {
+   "name": "Cine 2025",
+   "slug": "magma-cine-2025",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 12,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1159.m3u8"
+  },
+  {
+   "name": "Cine Accion",
+   "slug": "magma-cine-accion",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 14,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/157.m3u8"
+  },
+  {
+   "name": "Cine Accion HD",
+   "slug": "magma-cine-accion-hd",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 14,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/158.m3u8"
+  },
+  {
+   "name": "Cine Accion Sagas",
+   "slug": "magma-cine-accion-sagas",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 14,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/159.m3u8"
+  },
+  {
+   "name": "Cine Accion Sagas HD",
+   "slug": "magma-cine-accion-sagas-hd",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 14,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/160.m3u8"
+  },
+  {
+   "name": "Cine Comedia",
+   "slug": "magma-cine-comedia",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 14,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/161.m3u8"
+  },
+  {
+   "name": "Cine Comedia 1 HD",
+   "slug": "magma-cine-comedia-1-hd",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 14,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/162.m3u8"
+  },
+  {
+   "name": "Cine Comedia 2",
+   "slug": "magma-cine-comedia-2",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 14,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/163.m3u8"
+  },
+  {
+   "name": "Cine Comedia 2 HD",
+   "slug": "magma-cine-comedia-2-hd",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 14,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/164.m3u8"
+  },
+  {
+   "name": "Cine Ficcion/Fantasia",
+   "slug": "magma-cine-ficcion-fantasia",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 14,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/165.m3u8"
+  },
+  {
+   "name": "Cine Ficcion/Fantasia 2",
+   "slug": "magma-cine-ficcion-fantasia-2",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 14,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/166.m3u8"
+  },
+  {
+   "name": "Cine Ficcion/Fantasia 2 HD",
+   "slug": "magma-cine-ficcion-fantasia-2-hd",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 14,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/167.m3u8"
+  },
+  {
+   "name": "Cine Ficcion/Fantasia HD",
+   "slug": "magma-cine-ficcion-fantasia-hd",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 14,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/168.m3u8"
+  },
+  {
+   "name": "Cine Infantil",
+   "slug": "magma-cine-infantil",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 14,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/169.m3u8"
+  },
+  {
+   "name": "Cine Infantil HD",
+   "slug": "magma-cine-infantil-hd",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 14,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/170.m3u8"
+  },
+  {
+   "name": "Cine Infantil Sagas",
+   "slug": "magma-cine-infantil-sagas",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 14,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/171.m3u8"
+  },
+  {
+   "name": "Cine Infantil Sagas HD",
+   "slug": "magma-cine-infantil-sagas-hd",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 14,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/172.m3u8"
+  },
+  {
+   "name": "Cine Latino",
+   "slug": "magma-cine-latino",
+   "logo_url": "http://i.tvcluboficial.com/cinelatino.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/173.m3u8"
+  },
+  {
+   "name": "Cine Marvel",
+   "slug": "magma-cine-marvel",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 14,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/176.m3u8"
+  },
+  {
+   "name": "Cine Marvel HD",
+   "slug": "magma-cine-marvel-hd",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 14,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/177.m3u8"
+  },
+  {
+   "name": "Cine Romance",
+   "slug": "magma-cine-romance",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 14,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/178.m3u8"
+  },
+  {
+   "name": "Cine Romance HD",
+   "slug": "magma-cine-romance-hd",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 14,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/179.m3u8"
+  },
+  {
+   "name": "Cine Terror",
+   "slug": "magma-cine-terror",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 14,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/180.m3u8"
+  },
+  {
+   "name": "Cine Terror HD",
+   "slug": "magma-cine-terror-hd",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 14,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/181.m3u8"
+  },
+  {
+   "name": "Cine Terror Sagas HD",
+   "slug": "magma-cine-terror-sagas-hd",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 14,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/182.m3u8"
+  },
+  {
+   "name": "Cine Zombis",
+   "slug": "magma-cine-zombis",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 14,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/183.m3u8"
+  },
+  {
+   "name": "Cine Zombis HD",
+   "slug": "magma-cine-zombis-hd",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 14,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/184.m3u8"
+  },
+  {
+   "name": "Cinecanal",
+   "slug": "magma-cinecanal",
+   "logo_url": "http://i.tvcluboficial.com/cinecanal.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/185.m3u8"
+  },
+  {
+   "name": "Cinecanal HD",
+   "slug": "magma-cinecanal-hd",
+   "logo_url": "http://i.tvcluboficial.com/cinecanal.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/188.m3u8"
+  },
+  {
+   "name": "Cinema Dinamita",
+   "slug": "magma-cinema-dinamita",
+   "logo_url": "http://i.tvcluboficial.com/cinemadinamita.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1153.m3u8"
+  },
+  {
+   "name": "Cinemax",
+   "slug": "magma-cinemax",
+   "logo_url": "http://i.tvcluboficial.com/cinemax.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/190.m3u8"
+  },
+  {
+   "name": "Cinemax HD",
+   "slug": "magma-cinemax-hd",
+   "logo_url": "http://i.tvcluboficial.com/cinemax.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/196.m3u8"
+  },
+  {
+   "name": "Claro Sports",
+   "slug": "magma-claro-sports",
+   "logo_url": "http://i.tvcluboficial.com/clarosports.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/201.m3u8"
+  },
+  {
+   "name": "Claro Sports 3 HD",
+   "slug": "magma-claro-sports-3-hd",
+   "logo_url": "http://i.tvcluboficial.com/clarosports.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1056.m3u8"
+  },
+  {
+   "name": "Claro Sports 4 HD",
+   "slug": "magma-claro-sports-4-hd",
+   "logo_url": "http://i.tvcluboficial.com/clarosports.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1057.m3u8"
+  },
+  {
+   "name": "Comedy Central",
+   "slug": "magma-comedy-central",
+   "logo_url": "http://i.tvcluboficial.com/comedycentral.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/216.m3u8"
+  },
+  {
+   "name": "Comedy Central (ES)",
+   "slug": "magma-comedy-central-es",
+   "logo_url": "http://i.tvcluboficial.com/comedycentral.png",
+   "category_id": 18,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/219.m3u8"
+  },
+  {
+   "name": "Comedy Central HD",
+   "slug": "magma-comedy-central-hd",
+   "logo_url": "http://i.tvcluboficial.com/comedycentral.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/220.m3u8"
+  },
+  {
+   "name": "Coraje el Perro Cobarde 24/7",
+   "slug": "magma-coraje-el-perro-cobarde-24-7",
+   "logo_url": "http://i.tvcluboficial.com/coraje.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/223.m3u8"
+  },
+  {
+   "name": "DAZN 2",
+   "slug": "magma-dazn-2",
+   "logo_url": "http://i.tvcluboficial.com/dazn.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1126.m3u8"
+  },
+  {
+   "name": "DAZN HD",
+   "slug": "magma-dazn-hd",
+   "logo_url": "http://i.tvcluboficial.com/dazn.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1148.m3u8"
+  },
+  {
+   "name": "DHE",
+   "slug": "magma-dhe",
+   "logo_url": "http://i.tvcluboficial.com/dhe.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/242.m3u8"
+  },
+  {
+   "name": "DSports",
+   "slug": "magma-dsports",
+   "logo_url": "http://i.tvcluboficial.com/directvsports.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/312.m3u8"
+  },
+  {
+   "name": "DSports +",
+   "slug": "magma-dsports-1",
+   "logo_url": "http://i.tvcluboficial.com/directvplus.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/314.m3u8"
+  },
+  {
+   "name": "DSports 2",
+   "slug": "magma-dsports-2",
+   "logo_url": "http://i.tvcluboficial.com/directvsports2.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/315.m3u8"
+  },
+  {
+   "name": "DSports 2 HD",
+   "slug": "magma-dsports-2-hd",
+   "logo_url": "http://i.tvcluboficial.com/directvsports2.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/317.m3u8"
+  },
+  {
+   "name": "DSports HD",
+   "slug": "magma-dsports-hd",
+   "logo_url": "http://i.tvcluboficial.com/directvsports.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/324.m3u8"
+  },
+  {
+   "name": "DSports HD op. 2",
+   "slug": "magma-dsports-hd-op-2",
+   "logo_url": "http://i.tvcluboficial.com/directvsports.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1144.m3u8"
+  },
+  {
+   "name": "DW",
+   "slug": "magma-dw",
+   "logo_url": "http://i.tvcluboficial.com/dw.png",
+   "category_id": 17,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1091.m3u8"
+  },
+  {
+   "name": "De Pelicula",
+   "slug": "magma-de-pelicula",
+   "logo_url": "http://i.tvcluboficial.com/depelicula.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/234.m3u8"
+  },
+  {
+   "name": "De Pelicula Clasico",
+   "slug": "magma-de-pelicula-clasico",
+   "logo_url": "http://i.tvcluboficial.com/dpeliculaclasico.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/236.m3u8"
+  },
+  {
+   "name": "De Pelicula HD",
+   "slug": "magma-de-pelicula-hd",
+   "logo_url": "http://i.tvcluboficial.com/depelicula.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/237.m3u8"
+  },
+  {
+   "name": "De Pelicula Plus HD",
+   "slug": "magma-de-pelicula-plus-hd",
+   "logo_url": "http://i.tvcluboficial.com/dpeliculaplus.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/239.m3u8"
+  },
+  {
+   "name": "Deportes TVC | Honduras",
+   "slug": "magma-deportes-tvc-honduras",
+   "logo_url": "http://i.tvcluboficial.com/ho_deportestvc.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1071.m3u8"
+  },
+  {
+   "name": "Dinosaurios 24/7",
+   "slug": "magma-dinosaurios-24-7",
+   "logo_url": "http://i.tvcluboficial.com/dinosaurios.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/244.m3u8"
+  },
+  {
+   "name": "Discovery Channel",
+   "slug": "magma-discovery-channel",
+   "logo_url": "http://i.tvcluboficial.com/discoverychannel.png",
+   "category_id": 17,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/247.m3u8"
+  },
+  {
+   "name": "Discovery Channel HD",
+   "slug": "magma-discovery-channel-hd",
+   "logo_url": "http://i.tvcluboficial.com/discoverychannel.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/251.m3u8"
+  },
+  {
+   "name": "Discovery Civilization",
+   "slug": "magma-discovery-civilization",
+   "logo_url": "http://i.tvcluboficial.com/discoverycivilization.png",
+   "category_id": 17,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/252.m3u8"
+  },
+  {
+   "name": "Discovery H&H",
+   "slug": "magma-discovery-h-h",
+   "logo_url": "http://i.tvcluboficial.com/discoveryhh.png",
+   "category_id": 17,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/254.m3u8"
+  },
+  {
+   "name": "Discovery H&H HD",
+   "slug": "magma-discovery-h-h-hd",
+   "logo_url": "http://i.tvcluboficial.com/discoveryhh.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/258.m3u8"
+  },
+  {
+   "name": "Discovery Kids",
+   "slug": "magma-discovery-kids",
+   "logo_url": "http://i.tvcluboficial.com/discoverykids.png",
+   "category_id": 19,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/264.m3u8"
+  },
+  {
+   "name": "Discovery Kids HD",
+   "slug": "magma-discovery-kids-hd",
+   "logo_url": "http://i.tvcluboficial.com/discoverykids.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/266.m3u8"
+  },
+  {
+   "name": "Discovery SCI",
+   "slug": "magma-discovery-sci",
+   "logo_url": "http://i.tvcluboficial.com/discoverysci.png",
+   "category_id": 17,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/267.m3u8"
+  },
+  {
+   "name": "Discovery Theater HD",
+   "slug": "magma-discovery-theater-hd",
+   "logo_url": "http://i.tvcluboficial.com/discoverytheater.png",
+   "category_id": 17,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/271.m3u8"
+  },
+  {
+   "name": "Discovery Turbo",
+   "slug": "magma-discovery-turbo",
+   "logo_url": "http://i.tvcluboficial.com/discoveryturbo.png",
+   "category_id": 17,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/274.m3u8"
+  },
+  {
+   "name": "Discovery Turbo HD",
+   "slug": "magma-discovery-turbo-hd",
+   "logo_url": "http://i.tvcluboficial.com/discoveryturbo.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/275.m3u8"
+  },
+  {
+   "name": "Discovery World",
+   "slug": "magma-discovery-world",
+   "logo_url": "http://i.tvcluboficial.com/discoveryworld.png",
+   "category_id": 17,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/276.m3u8"
+  },
+  {
+   "name": "Disney Channel",
+   "slug": "magma-disney-channel",
+   "logo_url": "http://i.tvcluboficial.com/disneychannel.png",
+   "category_id": 19,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/280.m3u8"
+  },
+  {
+   "name": "Disney Junior",
+   "slug": "magma-disney-junior",
+   "logo_url": "http://i.tvcluboficial.com/disneyjr.png",
+   "category_id": 19,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/284.m3u8"
+  },
+  {
+   "name": "Disney Junior HD",
+   "slug": "magma-disney-junior-hd",
+   "logo_url": "http://i.tvcluboficial.com/disneyjr.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/287.m3u8"
+  },
+  {
+   "name": "Disney XD",
+   "slug": "magma-disney-xd",
+   "logo_url": "http://i.tvcluboficial.com/disneyxd.png",
+   "category_id": 19,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/289.m3u8"
+  },
+  {
+   "name": "Distrito Comedia",
+   "slug": "magma-distrito-comedia",
+   "logo_url": "http://i.tvcluboficial.com/distritocomedia.png",
+   "category_id": 12,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/293.m3u8"
+  },
+  {
+   "name": "Doraemon 24/7",
+   "slug": "magma-doraemon-24-7",
+   "logo_url": "http://i.tvcluboficial.com/doraemon.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/297.m3u8"
+  },
+  {
+   "name": "Doug 24/7",
+   "slug": "magma-doug-24-7",
+   "logo_url": "http://i.tvcluboficial.com/247.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/298.m3u8"
+  },
+  {
+   "name": "Dr. House 24/7",
+   "slug": "magma-dr-house-24-7",
+   "logo_url": "http://i.tvcluboficial.com/drhouse.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/299.m3u8"
+  },
+  {
+   "name": "Dragon Ball 24/7",
+   "slug": "magma-dragon-ball-24-7",
+   "logo_url": "http://i.tvcluboficial.com/dragonball.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/301.m3u8"
+  },
+  {
+   "name": "Dragon Ball GT 24/7",
+   "slug": "magma-dragon-ball-gt-24-7",
+   "logo_url": "http://i.tvcluboficial.com/dragonballgt.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/303.m3u8"
+  },
+  {
+   "name": "Dragon Ball Super 24/7",
+   "slug": "magma-dragon-ball-super-24-7",
+   "logo_url": "http://i.tvcluboficial.com/dragonballsuper.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/305.m3u8"
+  },
+  {
+   "name": "Dragon Ball Z 24/7",
+   "slug": "magma-dragon-ball-z-24-7",
+   "logo_url": "http://i.tvcluboficial.com/dragonballz.png",
+   "category_id": 12,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/307.m3u8"
+  },
+  {
+   "name": "Dragon Ball Z 24/7 Op.2",
+   "slug": "magma-dragon-ball-z-24-7-op-2",
+   "logo_url": "https://puu.sh/xdUYa/051eb44501.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/308.m3u8"
+  },
+  {
+   "name": "Duelo Xiaolin 24/7",
+   "slug": "magma-duelo-xiaolin-24-7",
+   "logo_url": "http://i.tvcluboficial.com/247.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/330.m3u8"
+  },
+  {
+   "name": "E!",
+   "slug": "magma-e",
+   "logo_url": "http://i.tvcluboficial.com/e.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/333.m3u8"
+  },
+  {
+   "name": "E! HD",
+   "slug": "magma-e-hd",
+   "logo_url": "http://i.tvcluboficial.com/e.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/336.m3u8"
+  },
+  {
+   "name": "ESPN (Ahorro de datos)",
+   "slug": "magma-espn-ahorro-de-datos",
+   "logo_url": "http://i.tvcluboficial.com/espn.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1113.m3u8"
+  },
+  {
+   "name": "ESPN 1 | Argentina",
+   "slug": "magma-espn-1-argentina",
+   "logo_url": "http://i.tvcluboficial.com/espn.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1111.m3u8"
+  },
+  {
+   "name": "ESPN 1 | Chile",
+   "slug": "magma-espn-1-chile",
+   "logo_url": "http://i.tvcluboficial.com/espn.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1132.m3u8"
+  },
+  {
+   "name": "ESPN 1 | Colombia",
+   "slug": "magma-espn-1-colombia",
+   "logo_url": "http://i.tvcluboficial.com/espn.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1107.m3u8"
+  },
+  {
+   "name": "ESPN 1 | Mexico",
+   "slug": "magma-espn-1-mexico",
+   "logo_url": "http://i.tvcluboficial.com/espn.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/401.m3u8"
+  },
+  {
+   "name": "ESPN 1 | Sur",
+   "slug": "magma-espn-1-sur",
+   "logo_url": "http://i.tvcluboficial.com/espn.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/368.m3u8"
+  },
+  {
+   "name": "ESPN 2 HD",
+   "slug": "magma-espn-2-hd",
+   "logo_url": "http://i.tvcluboficial.com/espn2.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/375.m3u8"
+  },
+  {
+   "name": "ESPN 2 | Mexico",
+   "slug": "magma-espn-2-mexico",
+   "logo_url": "http://i.tvcluboficial.com/espn2.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/378.m3u8"
+  },
+  {
+   "name": "ESPN 2 | Sur",
+   "slug": "magma-espn-2-sur",
+   "logo_url": "http://i.tvcluboficial.com/espn2.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/372.m3u8"
+  },
+  {
+   "name": "ESPN 3 HD",
+   "slug": "magma-espn-3-hd",
+   "logo_url": "http://i.tvcluboficial.com/espn3.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/386.m3u8"
+  },
+  {
+   "name": "ESPN 3 | Mexico",
+   "slug": "magma-espn-3-mexico",
+   "logo_url": "http://i.tvcluboficial.com/espn3.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1110.m3u8"
+  },
+  {
+   "name": "ESPN 3 | Sur",
+   "slug": "magma-espn-3-sur",
+   "logo_url": "http://i.tvcluboficial.com/espn3.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1127.m3u8"
+  },
+  {
+   "name": "ESPN 4 | Sur",
+   "slug": "magma-espn-4-sur",
+   "logo_url": "http://i.tvcluboficial.com/espn4.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1069.m3u8"
+  },
+  {
+   "name": "ESPN 5 HD",
+   "slug": "magma-espn-5-hd",
+   "logo_url": "http://i.tvcluboficial.com/espn.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1104.m3u8"
+  },
+  {
+   "name": "ESPN 6 HD",
+   "slug": "magma-espn-6-hd",
+   "logo_url": "http://i.tvcluboficial.com/espn.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1105.m3u8"
+  },
+  {
+   "name": "ESPN 7 HD",
+   "slug": "magma-espn-7-hd",
+   "logo_url": "http://i.tvcluboficial.com/espn.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1106.m3u8"
+  },
+  {
+   "name": "ESPN Deportes",
+   "slug": "magma-espn-deportes",
+   "logo_url": "http://i.tvcluboficial.com/espn.png",
+   "category_id": 12,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1165.m3u8"
+  },
+  {
+   "name": "ESPN HD",
+   "slug": "magma-espn-hd",
+   "logo_url": "http://i.tvcluboficial.com/espn.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/400.m3u8"
+  },
+  {
+   "name": "ESPN HD | Colombia",
+   "slug": "magma-espn-hd-colombia",
+   "logo_url": "http://i.tvcluboficial.com/espn.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1161.m3u8"
+  },
+  {
+   "name": "ESPN Plus",
+   "slug": "magma-espn-plus",
+   "logo_url": "http://i.tvcluboficial.com/espnplus.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/404.m3u8"
+  },
+  {
+   "name": "ESPN Plus HD",
+   "slug": "magma-espn-plus-hd",
+   "logo_url": "http://i.tvcluboficial.com/espnplus.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/405.m3u8"
+  },
+  {
+   "name": "ESPN Premium HD",
+   "slug": "magma-espn-premium-hd",
+   "logo_url": "http://i.tvcluboficial.com/espnpremium.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/408.m3u8"
+  },
+  {
+   "name": "EWTN",
+   "slug": "magma-ewtn",
+   "logo_url": "http://i.tvcluboficial.com/ewtn.png",
+   "category_id": 21,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1093.m3u8"
+  },
+  {
+   "name": "Ecuavisa | Ecuador",
+   "slug": "magma-ecuavisa-ecuador",
+   "logo_url": "http://i.tvcluboficial.com/ecuavisa.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/338.m3u8"
+  },
+  {
+   "name": "Ed, Edd y Eddy 24/7",
+   "slug": "magma-ed-edd-y-eddy-24-7",
+   "logo_url": "http://i.tvcluboficial.com/247.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/339.m3u8"
+  },
+  {
+   "name": "El Canal Del Futbol",
+   "slug": "magma-el-canal-del-futbol",
+   "logo_url": "http://i.tvcluboficial.com/canaldelfutbol.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/342.m3u8"
+  },
+  {
+   "name": "El Canal del Futbol (ECDF)",
+   "slug": "magma-el-canal-del-futbol-ecdf",
+   "logo_url": "http://i.tvcluboficial.com/canaldelfutbol.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1133.m3u8"
+  },
+  {
+   "name": "El Chavo del 8 24/7",
+   "slug": "magma-el-chavo-del-8-24-7",
+   "logo_url": "http://i.tvcluboficial.com/elchavodel8.png",
+   "category_id": 12,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/344.m3u8"
+  },
+  {
+   "name": "El Conde Patula 24/7",
+   "slug": "magma-el-conde-patula-24-7",
+   "logo_url": "http://i.tvcluboficial.com/elcondepatula.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/345.m3u8"
+  },
+  {
+   "name": "El Coyote y el Correcaminos 24/7",
+   "slug": "magma-el-coyote-y-el-correcaminos-24-7",
+   "logo_url": "http://i.tvcluboficial.com/elcoyote.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/346.m3u8"
+  },
+  {
+   "name": "El Gallo Claudio 24/7",
+   "slug": "magma-el-gallo-claudio-24-7",
+   "logo_url": "http://i.tvcluboficial.com/elgalloclaudio.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/347.m3u8"
+  },
+  {
+   "name": "El Gourmet",
+   "slug": "magma-el-gourmet",
+   "logo_url": "http://i.tvcluboficial.com/elgourmet.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/349.m3u8"
+  },
+  {
+   "name": "El Nueve (9) | Argentina",
+   "slug": "magma-el-nueve-9-argentina",
+   "logo_url": "http://i.tvcluboficial.com/elnueveargentina.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/353.m3u8"
+  },
+  {
+   "name": "El Pajaro Loco 24/7",
+   "slug": "magma-el-pajaro-loco-24-7",
+   "logo_url": "http://i.tvcluboficial.com/elpajaroloco.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/355.m3u8"
+  },
+  {
+   "name": "El Pato Darkwing 24/7",
+   "slug": "magma-el-pato-darkwing-24-7",
+   "logo_url": "http://i.tvcluboficial.com/247.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/356.m3u8"
+  },
+  {
+   "name": "El Principe del Rap 24/7",
+   "slug": "magma-el-principe-del-rap-24-7",
+   "logo_url": "http://i.tvcluboficial.com/elprincipedelrap.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/357.m3u8"
+  },
+  {
+   "name": "El Trece (13) Argentina",
+   "slug": "magma-el-trece-13-argentina",
+   "logo_url": "http://i.tvcluboficial.com/el13argentina.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/362.m3u8"
+  },
+  {
+   "name": "El Trece (13) Chile",
+   "slug": "magma-el-trece-13-chile",
+   "logo_url": "http://i.tvcluboficial.com/eltrecechile.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/360.m3u8"
+  },
+  {
+   "name": "El chavo del 8 HD",
+   "slug": "magma-el-chavo-del-8-hd",
+   "logo_url": "http://i.tvcluboficial.com/elchavodel8.png",
+   "category_id": 12,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1173.m3u8"
+  },
+  {
+   "name": "Elementary 24/7",
+   "slug": "magma-elementary-24-7",
+   "logo_url": "http://i.tvcluboficial.com/247.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/363.m3u8"
+  },
+  {
+   "name": "Enlace",
+   "slug": "magma-enlace",
+   "logo_url": "http://i.tvcluboficial.com/enlace.png",
+   "category_id": 21,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1092.m3u8"
+  },
+  {
+   "name": "Estrella TV",
+   "slug": "magma-estrella-tv",
+   "logo_url": "http://i.tvcluboficial.com/estrellatv.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/409.m3u8"
+  },
+  {
+   "name": "Europa Europa",
+   "slug": "magma-europa-europa",
+   "logo_url": "http://i.tvcluboficial.com/europa.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/413.m3u8"
+  },
+  {
+   "name": "Evento",
+   "slug": "magma-evento",
+   "logo_url": "http://i.tvcluboficial.com/espn.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/325.m3u8"
+  },
+  {
+   "name": "FS1 USA HD",
+   "slug": "magma-fs1-usa-hd",
+   "logo_url": "http://i.tvcluboficial.com/fs1.png",
+   "category_id": 20,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/471.m3u8"
+  },
+  {
+   "name": "FS2 USA HD",
+   "slug": "magma-fs2-usa-hd",
+   "logo_url": "http://i.tvcluboficial.com/fs2.png",
+   "category_id": 20,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/472.m3u8"
+  },
+  {
+   "name": "FX",
+   "slug": "magma-fx",
+   "logo_url": "http://i.tvcluboficial.com/fx.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/474.m3u8"
+  },
+  {
+   "name": "FX HD",
+   "slug": "magma-fx-hd",
+   "logo_url": "http://i.tvcluboficial.com/fx.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/477.m3u8"
+  },
+  {
+   "name": "FXM",
+   "slug": "magma-fxm",
+   "logo_url": "http://i.tvcluboficial.com/fxm.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/478.m3u8"
+  },
+  {
+   "name": "FXM HD",
+   "slug": "magma-fxm-hd",
+   "logo_url": "http://i.tvcluboficial.com/fxm.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/480.m3u8"
+  },
+  {
+   "name": "Fear The Walking Dead 24/7",
+   "slug": "magma-fear-the-walking-dead-24-7",
+   "logo_url": "http://i.tvcluboficial.com/fearthewalkingdead.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/415.m3u8"
+  },
+  {
+   "name": "Film & Arts HD",
+   "slug": "magma-film-arts-hd",
+   "logo_url": "http://i.tvcluboficial.com/filmarts.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/419.m3u8"
+  },
+  {
+   "name": "Food Network",
+   "slug": "magma-food-network",
+   "logo_url": "http://i.tvcluboficial.com/foodnetwork.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/424.m3u8"
+  },
+  {
+   "name": "Formula 1 TV (F1)",
+   "slug": "magma-formula-1-tv-f1",
+   "logo_url": "http://i.tvcluboficial.com/f1.png",
+   "category_id": 9,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/426.m3u8"
+  },
+  {
+   "name": "Formula 1 TV (F1) HD",
+   "slug": "magma-formula-1-tv-f1-hd",
+   "logo_url": "http://i.tvcluboficial.com/f1.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/427.m3u8"
+  },
+  {
+   "name": "Foro TV",
+   "slug": "magma-foro-tv",
+   "logo_url": "http://i.tvcluboficial.com/forotv.png",
+   "category_id": 2,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/429.m3u8"
+  },
+  {
+   "name": "Fox (ES) HD",
+   "slug": "magma-fox-es-hd",
+   "logo_url": "http://i.tvcluboficial.com/fox.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/430.m3u8"
+  },
+  {
+   "name": "Fox Deportes",
+   "slug": "magma-fox-deportes",
+   "logo_url": "http://i.tvcluboficial.com/foxdeportes.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1114.m3u8"
+  },
+  {
+   "name": "Fox News",
+   "slug": "magma-fox-news",
+   "logo_url": "http://i.tvcluboficial.com/foxnews.png",
+   "category_id": 2,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/433.m3u8"
+  },
+  {
+   "name": "Fox Sports 1 | HD Sur",
+   "slug": "magma-fox-sports-1-hd-sur",
+   "logo_url": "http://i.tvcluboficial.com/foxsports.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/452.m3u8"
+  },
+  {
+   "name": "Fox Sports 1 | Mexico",
+   "slug": "magma-fox-sports-1-mexico",
+   "logo_url": "http://i.tvcluboficial.com/foxsports.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/456.m3u8"
+  },
+  {
+   "name": "Fox Sports 1 | Sur",
+   "slug": "magma-fox-sports-1-sur",
+   "logo_url": "http://i.tvcluboficial.com/foxsportssur.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/435.m3u8"
+  },
+  {
+   "name": "Fox Sports 2 | Chile",
+   "slug": "magma-fox-sports-2-chile",
+   "logo_url": "http://i.tvcluboficial.com/foxsports2sur.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1123.m3u8"
+  },
+  {
+   "name": "Fox Sports 2 | HD",
+   "slug": "magma-fox-sports-2-hd",
+   "logo_url": "http://i.tvcluboficial.com/foxsports2.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/439.m3u8"
+  },
+  {
+   "name": "Fox Sports 2 | HD Sur",
+   "slug": "magma-fox-sports-2-hd-sur",
+   "logo_url": "http://i.tvcluboficial.com/foxsports2.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/438.m3u8"
+  },
+  {
+   "name": "Fox Sports 2 | Mexico",
+   "slug": "magma-fox-sports-2-mexico",
+   "logo_url": "http://i.tvcluboficial.com/foxsports2.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/441.m3u8"
+  },
+  {
+   "name": "Fox Sports 2 | Sur",
+   "slug": "magma-fox-sports-2-sur",
+   "logo_url": "http://i.tvcluboficial.com/foxsports2sur.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/436.m3u8"
+  },
+  {
+   "name": "Fox Sports 3 | HD",
+   "slug": "magma-fox-sports-3-hd",
+   "logo_url": "http://i.tvcluboficial.com/foxsports3.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/446.m3u8"
+  },
+  {
+   "name": "Fox Sports 3 | Mexico",
+   "slug": "magma-fox-sports-3-mexico",
+   "logo_url": "http://i.tvcluboficial.com/foxsports3.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/448.m3u8"
+  },
+  {
+   "name": "Fox Sports 3 | Sur",
+   "slug": "magma-fox-sports-3-sur",
+   "logo_url": "http://i.tvcluboficial.com/foxsports3sur.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/468.m3u8"
+  },
+  {
+   "name": "Fox Sports HD",
+   "slug": "magma-fox-sports-hd",
+   "logo_url": "http://i.tvcluboficial.com/foxsports.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/454.m3u8"
+  },
+  {
+   "name": "Fox Sports Premium",
+   "slug": "magma-fox-sports-premium",
+   "logo_url": "http://i.tvcluboficial.com/foxsportspremium.png",
+   "category_id": 9,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/461.m3u8"
+  },
+  {
+   "name": "Fox Sports Premium HD",
+   "slug": "magma-fox-sports-premium-hd",
+   "logo_url": "http://i.tvcluboficial.com/foxsportspremium.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/463.m3u8"
+  },
+  {
+   "name": "Fox Sports Premium HD",
+   "slug": "magma-fox-sports-premium-hd-1",
+   "logo_url": "http://i.tvcluboficial.com/foxsportspremium.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/464.m3u8"
+  },
+  {
+   "name": "Fox Sports Sur",
+   "slug": "magma-fox-sports-sur",
+   "logo_url": "http://i.tvcluboficial.com/foxsports.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/465.m3u8"
+  },
+  {
+   "name": "Friends 24/7",
+   "slug": "magma-friends-24-7",
+   "logo_url": "http://i.tvcluboficial.com/247.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/470.m3u8"
+  },
+  {
+   "name": "Futurama 24/7",
+   "slug": "magma-futurama-24-7",
+   "logo_url": null,
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/473.m3u8"
+  },
+  {
+   "name": "Futv | Costa Rica",
+   "slug": "magma-futv-costa-rica",
+   "logo_url": "http://i.tvcluboficial.com/cr_futv.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1074.m3u8"
+  },
+  {
+   "name": "Gala TV",
+   "slug": "magma-gala-tv",
+   "logo_url": "http://i.tvcluboficial.com/galatv.png",
+   "category_id": 9,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/481.m3u8"
+  },
+  {
+   "name": "Gala TV HD",
+   "slug": "magma-gala-tv-hd",
+   "logo_url": "http://i.tvcluboficial.com/galatv.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/482.m3u8"
+  },
+  {
+   "name": "Gamavision",
+   "slug": "magma-gamavision",
+   "logo_url": "http://i.tvcluboficial.com/gamavision.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/483.m3u8"
+  },
+  {
+   "name": "Game of Thrones 24/7",
+   "slug": "magma-game-of-thrones-24-7",
+   "logo_url": "http://i.tvcluboficial.com/gameofthrones.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/484.m3u8"
+  },
+  {
+   "name": "Garage TV HD",
+   "slug": "magma-garage-tv-hd",
+   "logo_url": "http://i.tvcluboficial.com/garagetv.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/485.m3u8"
+  },
+  {
+   "name": "Garfield 24/7",
+   "slug": "magma-garfield-24-7",
+   "logo_url": null,
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/486.m3u8"
+  },
+  {
+   "name": "Gol Peru",
+   "slug": "magma-gol-peru",
+   "logo_url": "http://i.tvcluboficial.com/golperu.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/490.m3u8"
+  },
+  {
+   "name": "Gol TV Ecuador",
+   "slug": "magma-gol-tv-ecuador",
+   "logo_url": "http://i.tvcluboficial.com/golperu.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1060.m3u8"
+  },
+  {
+   "name": "Gol TV HD",
+   "slug": "magma-gol-tv-hd",
+   "logo_url": "http://i.tvcluboficial.com/goltv.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/492.m3u8"
+  },
+  {
+   "name": "Gol TV | España",
+   "slug": "magma-gol-tv-espana",
+   "logo_url": "http://i.tvcluboficial.com/goltv.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1125.m3u8"
+  },
+  {
+   "name": "Golden",
+   "slug": "magma-golden",
+   "logo_url": "http://i.tvcluboficial.com/golden.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/494.m3u8"
+  },
+  {
+   "name": "Golden Edge",
+   "slug": "magma-golden-edge",
+   "logo_url": "http://i.tvcluboficial.com/goldenedge.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/495.m3u8"
+  },
+  {
+   "name": "Golden HD",
+   "slug": "magma-golden-hd",
+   "logo_url": "http://i.tvcluboficial.com/golden.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/497.m3u8"
+  },
+  {
+   "name": "Golden Premier",
+   "slug": "magma-golden-premier",
+   "logo_url": "http://i.tvcluboficial.com/golden.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/500.m3u8"
+  },
+  {
+   "name": "Golf Channel HD",
+   "slug": "magma-golf-channel-hd",
+   "logo_url": "http://i.tvcluboficial.com/golfchannel.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/504.m3u8"
+  },
+  {
+   "name": "Greys Anatomy 24/7",
+   "slug": "magma-greys-anatomy-24-7",
+   "logo_url": "http://i.tvcluboficial.com/greysanatomy.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/505.m3u8"
+  },
+  {
+   "name": "Guatevision",
+   "slug": "magma-guatevision",
+   "logo_url": "http://i.tvcluboficial.com/guatevision.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1089.m3u8"
+  },
+  {
+   "name": "H2",
+   "slug": "magma-h2",
+   "logo_url": "http://i.tvcluboficial.com/h2.png",
+   "category_id": 17,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/509.m3u8"
+  },
+  {
+   "name": "HBO",
+   "slug": "magma-hbo",
+   "logo_url": "http://i.tvcluboficial.com/hbo.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/512.m3u8"
+  },
+  {
+   "name": "HBO 2",
+   "slug": "magma-hbo-2",
+   "logo_url": "http://i.tvcluboficial.com/hbo2.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/518.m3u8"
+  },
+  {
+   "name": "HBO 2 HD",
+   "slug": "magma-hbo-2-hd",
+   "logo_url": "http://i.tvcluboficial.com/hbo2.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/520.m3u8"
+  },
+  {
+   "name": "HBO Family",
+   "slug": "magma-hbo-family",
+   "logo_url": "http://i.tvcluboficial.com/hbofamily.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/525.m3u8"
+  },
+  {
+   "name": "HBO Family HD",
+   "slug": "magma-hbo-family-hd",
+   "logo_url": "http://i.tvcluboficial.com/hbofamily.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/526.m3u8"
+  },
+  {
+   "name": "HBO HD",
+   "slug": "magma-hbo-hd",
+   "logo_url": "http://i.tvcluboficial.com/hbo.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/527.m3u8"
+  },
+  {
+   "name": "HBO Mundi",
+   "slug": "magma-hbo-mundi",
+   "logo_url": "https://i.tvcluboficial.com/hbomundi.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1101.m3u8"
+  },
+  {
+   "name": "HBO Plus",
+   "slug": "magma-hbo-plus",
+   "logo_url": "http://i.tvcluboficial.com/hboplus.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/531.m3u8"
+  },
+  {
+   "name": "HBO Plus HD",
+   "slug": "magma-hbo-plus-hd",
+   "logo_url": "http://i.tvcluboficial.com/hboplus.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/534.m3u8"
+  },
+  {
+   "name": "HBO Plus Oeste HD",
+   "slug": "magma-hbo-plus-oeste-hd",
+   "logo_url": "http://i.tvcluboficial.com/hboplus.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/536.m3u8"
+  },
+  {
+   "name": "HBO Pop",
+   "slug": "magma-hbo-pop",
+   "logo_url": "http://i.tvcluboficial.com/hbopop.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/538.m3u8"
+  },
+  {
+   "name": "HBO Xtreme",
+   "slug": "magma-hbo-xtreme",
+   "logo_url": "http://i.tvcluboficial.com/hboxtreme.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/543.m3u8"
+  },
+  {
+   "name": "HBO Xtreme HD",
+   "slug": "magma-hbo-xtreme-hd",
+   "logo_url": "http://i.tvcluboficial.com/hboxtreme.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/545.m3u8"
+  },
+  {
+   "name": "HCH",
+   "slug": "magma-hch",
+   "logo_url": "http://i.tvcluboficial.com/hchhonduras.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/547.m3u8"
+  },
+  {
+   "name": "HTV",
+   "slug": "magma-htv",
+   "logo_url": "http://i.tvcluboficial.com/htv.png",
+   "category_id": 5,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/568.m3u8"
+  },
+  {
+   "name": "Happy Tree Friends 24/7",
+   "slug": "magma-happy-tree-friends-24-7",
+   "logo_url": "http://i.tvcluboficial.com/happytreefriends.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/511.m3u8"
+  },
+  {
+   "name": "Hercules 24/7",
+   "slug": "magma-hercules-24-7",
+   "logo_url": "http://i.tvcluboficial.com/247.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/550.m3u8"
+  },
+  {
+   "name": "Hey Arnold 24/7",
+   "slug": "magma-hey-arnold-24-7",
+   "logo_url": "http://i.tvcluboficial.com/heyarnold.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/551.m3u8"
+  },
+  {
+   "name": "Historia (ES)",
+   "slug": "magma-historia-es",
+   "logo_url": "http://i.tvcluboficial.com/history.png",
+   "category_id": 18,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/554.m3u8"
+  },
+  {
+   "name": "History Channel",
+   "slug": "magma-history-channel",
+   "logo_url": "http://i.tvcluboficial.com/history.png",
+   "category_id": 17,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/558.m3u8"
+  },
+  {
+   "name": "History Channel HD",
+   "slug": "magma-history-channel-hd",
+   "logo_url": "http://i.tvcluboficial.com/history.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/560.m3u8"
+  },
+  {
+   "name": "Hola TV",
+   "slug": "magma-hola-tv",
+   "logo_url": "http://i.tvcluboficial.com/hola.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/564.m3u8"
+  },
+  {
+   "name": "ITV Deportes",
+   "slug": "magma-itv-deportes",
+   "logo_url": "http://i.tvcluboficial.com/itv.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1095.m3u8"
+  },
+  {
+   "name": "Imagen Television",
+   "slug": "magma-imagen-television",
+   "logo_url": "http://i.tvcluboficial.com/imagentv.png",
+   "category_id": 9,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/576.m3u8"
+  },
+  {
+   "name": "Imagen Televisión HD",
+   "slug": "magma-imagen-television-hd",
+   "logo_url": "http://i.tvcluboficial.com/imagentv.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/577.m3u8"
+  },
+  {
+   "name": "Investigation Discovery",
+   "slug": "magma-investigation-discovery",
+   "logo_url": "http://i.tvcluboficial.com/investigationdiscovery.png",
+   "category_id": 17,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/579.m3u8"
+  },
+  {
+   "name": "Investigation Discovery HD",
+   "slug": "magma-investigation-discovery-hd",
+   "logo_url": "http://i.tvcluboficial.com/investigationdiscovery.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/581.m3u8"
+  },
+  {
+   "name": "Ironman 24/7",
+   "slug": "magma-ironman-24-7",
+   "logo_url": "http://i.tvcluboficial.com/ironman.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/582.m3u8"
+  },
+  {
+   "name": "Johnny Bravo 24/7",
+   "slug": "magma-johnny-bravo-24-7",
+   "logo_url": "http://i.tvcluboficial.com/johnnybravo.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/584.m3u8"
+  },
+  {
+   "name": "Justicia TV",
+   "slug": "magma-justicia-tv",
+   "logo_url": "http://i.tvcluboficial.com/mx_justiciatv.png",
+   "category_id": 9,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1094.m3u8"
+  },
+  {
+   "name": "La 1 HD",
+   "slug": "magma-la-1-hd",
+   "logo_url": "http://i.tvcluboficial.com/la1.png",
+   "category_id": 18,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/588.m3u8"
+  },
+  {
+   "name": "La 2 HD",
+   "slug": "magma-la-2-hd",
+   "logo_url": "http://i.tvcluboficial.com/la2hd.png",
+   "category_id": 18,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/589.m3u8"
+  },
+  {
+   "name": "La Casa de los Dibujos 24/7",
+   "slug": "magma-la-casa-de-los-dibujos-24-7",
+   "logo_url": "http://i.tvcluboficial.com/247.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/590.m3u8"
+  },
+  {
+   "name": "La Familia Monster 24/7",
+   "slug": "magma-la-familia-monster-24-7",
+   "logo_url": "http://i.tvcluboficial.com/lafamiliamonster.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/591.m3u8"
+  },
+  {
+   "name": "La Hora Pico 24/7",
+   "slug": "magma-la-hora-pico-24-7",
+   "logo_url": "http://i.tvcluboficial.com/lahorapico.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/593.m3u8"
+  },
+  {
+   "name": "La Pantera Rosa 24/7",
+   "slug": "magma-la-pantera-rosa-24-7",
+   "logo_url": "http://i.tvcluboficial.com/lapanterarosa.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/597.m3u8"
+  },
+  {
+   "name": "La Sexta HD",
+   "slug": "magma-la-sexta-hd",
+   "logo_url": "http://i.tvcluboficial.com/lasexta.png",
+   "category_id": 18,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/603.m3u8"
+  },
+  {
+   "name": "La Vaca y ElPollito 24/7",
+   "slug": "magma-la-vaca-y-elpollito-24-7",
+   "logo_url": "http://i.tvcluboficial.com/lavacayelpollito.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/606.m3u8"
+  },
+  {
+   "name": "Las Aventuras de Tom Sawyer 24/7",
+   "slug": "magma-las-aventuras-de-tom-sawyer-24-7",
+   "logo_url": "http://i.tvcluboficial.com/247.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/607.m3u8"
+  },
+  {
+   "name": "Las Chicas Super Poderosas 24/7",
+   "slug": "magma-las-chicas-super-poderosas-24-7",
+   "logo_url": "http://i.tvcluboficial.com/247.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/608.m3u8"
+  },
+  {
+   "name": "Latina | Peru",
+   "slug": "magma-latina-peru",
+   "logo_url": "http://i.tvcluboficial.com/latinatv.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/765.m3u8"
+  },
+  {
+   "name": "Latina | Uruguay",
+   "slug": "magma-latina-uruguay",
+   "logo_url": "http://i.tvcluboficial.com/latinatv.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/609.m3u8"
+  },
+  {
+   "name": "Le Temes a la Oscuridad 24/7",
+   "slug": "magma-le-temes-a-la-oscuridad-24-7",
+   "logo_url": "http://i.tvcluboficial.com/letemesalaoscuridad.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/611.m3u8"
+  },
+  {
+   "name": "Lifetime",
+   "slug": "magma-lifetime",
+   "logo_url": "http://i.tvcluboficial.com/lifetime.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/615.m3u8"
+  },
+  {
+   "name": "Liga 1 Max | Peru",
+   "slug": "magma-liga-1-max-peru",
+   "logo_url": "http://i.tvcluboficial.com/pe_liga1max.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1070.m3u8"
+  },
+  {
+   "name": "Liga de Campeones",
+   "slug": "magma-liga-de-campeones",
+   "logo_url": "http://i.tvcluboficial.com/ligadecampeones.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/616.m3u8"
+  },
+  {
+   "name": "Liga de Campeones 2",
+   "slug": "magma-liga-de-campeones-2",
+   "logo_url": "http://i.tvcluboficial.com/ligadecampeones.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/617.m3u8"
+  },
+  {
+   "name": "Locomotion",
+   "slug": "magma-locomotion",
+   "logo_url": "http://i.tvcluboficial.com/locomotion.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1096.m3u8"
+  },
+  {
+   "name": "Looney Tunes 24/7",
+   "slug": "magma-looney-tunes-24-7",
+   "logo_url": "http://i.tvcluboficial.com/looneytunes.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/618.m3u8"
+  },
+  {
+   "name": "Los 3 Chiflados 24/7",
+   "slug": "magma-los-3-chiflados-24-7",
+   "logo_url": "http://i.tvcluboficial.com/los3chiflados.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/619.m3u8"
+  },
+  {
+   "name": "Los Años Maravillosos 24/7",
+   "slug": "magma-los-anos-maravillosos-24-7",
+   "logo_url": "http://i.tvcluboficial.com/losaniosmaravillosos.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/621.m3u8"
+  },
+  {
+   "name": "Los Chicos del Barrio 24/7",
+   "slug": "magma-los-chicos-del-barrio-24-7",
+   "logo_url": "http://i.tvcluboficial.com/247.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/622.m3u8"
+  },
+  {
+   "name": "Los Expedientes Secretos X 24/7",
+   "slug": "magma-los-expedientes-secretos-x-24-7",
+   "logo_url": "http://i.tvcluboficial.com/247.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/623.m3u8"
+  },
+  {
+   "name": "Los Picapiedra 24/7",
+   "slug": "magma-los-picapiedra-24-7",
+   "logo_url": "http://i.tvcluboficial.com/lospicapiedra.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/625.m3u8"
+  },
+  {
+   "name": "Los Pinguinos de Madagascar 24/7",
+   "slug": "magma-los-pinguinos-de-madagascar-24-7",
+   "logo_url": "http://i.tvcluboficial.com/lospinguinosdemadagascar.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/626.m3u8"
+  },
+  {
+   "name": "Los Pitufos 24/7",
+   "slug": "magma-los-pitufos-24-7",
+   "logo_url": "http://i.tvcluboficial.com/lospitufos.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/627.m3u8"
+  },
+  {
+   "name": "Los Simpson 24/7",
+   "slug": "magma-los-simpson-24-7",
+   "logo_url": "http://i.tvcluboficial.com/lossimpsons.png",
+   "category_id": 12,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/635.m3u8"
+  },
+  {
+   "name": "Los Vengadores Unidos 24/7",
+   "slug": "magma-los-vengadores-unidos-24-7",
+   "logo_url": "http://i.tvcluboficial.com/losvengadoresunidos.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/638.m3u8"
+  },
+  {
+   "name": "MLB Network",
+   "slug": "magma-mlb-network",
+   "logo_url": "http://i.tvcluboficial.com/mlb.png",
+   "category_id": 20,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/658.m3u8"
+  },
+  {
+   "name": "MTV (ES)",
+   "slug": "magma-mtv-es",
+   "logo_url": "http://i.tvcluboficial.com/mtv.png",
+   "category_id": 18,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/674.m3u8"
+  },
+  {
+   "name": "MTV Live",
+   "slug": "magma-mtv-live",
+   "logo_url": "http://i.tvcluboficial.com/mtvlive.png",
+   "category_id": 5,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/683.m3u8"
+  },
+  {
+   "name": "Malcolm 24/7",
+   "slug": "magma-malcolm-24-7",
+   "logo_url": "http://i.tvcluboficial.com/malcolm.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/640.m3u8"
+  },
+  {
+   "name": "Malcolm HD 24/7",
+   "slug": "magma-malcolm-hd-24-7",
+   "logo_url": "http://i.tvcluboficial.com/malcolm.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/641.m3u8"
+  },
+  {
+   "name": "Maria Vision",
+   "slug": "magma-maria-vision",
+   "logo_url": "http://i.tvcluboficial.com/mariavision.png",
+   "category_id": 21,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1097.m3u8"
+  },
+  {
+   "name": "Max Prime HD",
+   "slug": "magma-max-prime-hd",
+   "logo_url": "http://i.tvcluboficial.com/play.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/646.m3u8"
+  },
+  {
+   "name": "Max Steel 24/7",
+   "slug": "magma-max-steel-24-7",
+   "logo_url": "http://i.tvcluboficial.com/maxsteel.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/647.m3u8"
+  },
+  {
+   "name": "Max Up HD",
+   "slug": "magma-max-up-hd",
+   "logo_url": "http://i.tvcluboficial.com/play.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/648.m3u8"
+  },
+  {
+   "name": "Mazinger Z 24/7",
+   "slug": "magma-mazinger-z-24-7",
+   "logo_url": "http://i.tvcluboficial.com/mazingerz.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/649.m3u8"
+  },
+  {
+   "name": "Mega",
+   "slug": "magma-mega",
+   "logo_url": "http://i.tvcluboficial.com/mega.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/652.m3u8"
+  },
+  {
+   "name": "Mega ES HD",
+   "slug": "magma-mega-es-hd",
+   "logo_url": "http://i.tvcluboficial.com/mega.png",
+   "category_id": 18,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/653.m3u8"
+  },
+  {
+   "name": "Mega | Chile",
+   "slug": "magma-mega-chile",
+   "logo_url": "http://i.tvcluboficial.com/mega.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/651.m3u8"
+  },
+  {
+   "name": "Morbido TV",
+   "slug": "magma-morbido-tv",
+   "logo_url": "http://i.tvcluboficial.com/morbidotv.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/659.m3u8"
+  },
+  {
+   "name": "Movie Max",
+   "slug": "magma-movie-max",
+   "logo_url": "http://i.tvcluboficial.com/moviemax.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/660.m3u8"
+  },
+  {
+   "name": "Movistar Accion HD",
+   "slug": "magma-movistar-accion-hd",
+   "logo_url": "http://i.tvcluboficial.com/maccion.png",
+   "category_id": 18,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/661.m3u8"
+  },
+  {
+   "name": "Movistar Cine Ñ",
+   "slug": "magma-movistar-cine-n",
+   "logo_url": "http://i.tvcluboficial.com/movistar_comedia.png",
+   "category_id": 18,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/662.m3u8"
+  },
+  {
+   "name": "Movistar Comedia",
+   "slug": "magma-movistar-comedia",
+   "logo_url": "http://i.tvcluboficial.com/movistar_comedia.png",
+   "category_id": 18,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/663.m3u8"
+  },
+  {
+   "name": "Movistar Deportes 2 HD",
+   "slug": "magma-movistar-deportes-2-hd",
+   "logo_url": "http://i.tvcluboficial.com/movistar_deportes2.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/664.m3u8"
+  },
+  {
+   "name": "Movistar Deportes HD",
+   "slug": "magma-movistar-deportes-hd",
+   "logo_url": "http://i.tvcluboficial.com/movistar_deportes.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/665.m3u8"
+  },
+  {
+   "name": "Movistar Deportes | Peru",
+   "slug": "magma-movistar-deportes-peru",
+   "logo_url": "http://i.tvcluboficial.com/movistar_deportes.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/666.m3u8"
+  },
+  {
+   "name": "Movistar Estrenos HD",
+   "slug": "magma-movistar-estrenos-hd",
+   "logo_url": "http://i.tvcluboficial.com/movistar_estrenos.png",
+   "category_id": 18,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/667.m3u8"
+  },
+  {
+   "name": "Movistar LaLiga",
+   "slug": "magma-movistar-laliga",
+   "logo_url": "http://i.tvcluboficial.com/movistar_laliga.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1100.m3u8"
+  },
+  {
+   "name": "Movistar LaLiga HD",
+   "slug": "magma-movistar-laliga-hd",
+   "logo_url": "http://i.tvcluboficial.com/movistar_laliga.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/668.m3u8"
+  },
+  {
+   "name": "Movistar Series HD",
+   "slug": "magma-movistar-series-hd",
+   "logo_url": "http://i.tvcluboficial.com/movistar_series.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/669.m3u8"
+  },
+  {
+   "name": "Mr. Bean 24/7",
+   "slug": "magma-mr-bean-24-7",
+   "logo_url": "http://i.tvcluboficial.com/mrbean.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/670.m3u8"
+  },
+  {
+   "name": "Much Music",
+   "slug": "magma-much-music",
+   "logo_url": "http://i.tvcluboficial.com/muchmusic.png",
+   "category_id": 5,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/686.m3u8"
+  },
+  {
+   "name": "MultiPremier",
+   "slug": "magma-multipremier",
+   "logo_url": "http://i.tvcluboficial.com/multipremier.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/696.m3u8"
+  },
+  {
+   "name": "Multimedios",
+   "slug": "magma-multimedios",
+   "logo_url": "http://i.tvcluboficial.com/multimedios.png",
+   "category_id": 9,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/690.m3u8"
+  },
+  {
+   "name": "Multimedios (Monterrey)",
+   "slug": "magma-multimedios-monterrey",
+   "logo_url": "http://i.tvcluboficial.com/multimedios.png",
+   "category_id": 9,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/691.m3u8"
+  },
+  {
+   "name": "Multimedios (Monterrey) HD",
+   "slug": "magma-multimedios-monterrey-hd",
+   "logo_url": "http://i.tvcluboficial.com/multimedios.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/692.m3u8"
+  },
+  {
+   "name": "Multimedios HD",
+   "slug": "magma-multimedios-hd",
+   "logo_url": "http://i.tvcluboficial.com/multimedios.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/693.m3u8"
+  },
+  {
+   "name": "Multimedios Plus",
+   "slug": "magma-multimedios-plus",
+   "logo_url": "http://i.tvcluboficial.com/multimedios.png",
+   "category_id": 9,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/694.m3u8"
+  },
+  {
+   "name": "Music Now",
+   "slug": "magma-music-now",
+   "logo_url": "http://i.tvcluboficial.com/play.png",
+   "category_id": 5,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/698.m3u8"
+  },
+  {
+   "name": "Music Top",
+   "slug": "magma-music-top",
+   "logo_url": "http://i.tvcluboficial.com/musictop.png",
+   "category_id": 5,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/699.m3u8"
+  },
+  {
+   "name": "Más chic",
+   "slug": "magma-mas-chic",
+   "logo_url": "http://i.tvcluboficial.com/maschic.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/643.m3u8"
+  },
+  {
+   "name": "NBA",
+   "slug": "magma-nba",
+   "logo_url": "http://i.tvcluboficial.com/nba.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/710.m3u8"
+  },
+  {
+   "name": "NBC Golf",
+   "slug": "magma-nbc-golf",
+   "logo_url": "http://i.tvcluboficial.com/nbcgolf.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/712.m3u8"
+  },
+  {
+   "name": "NBC HD",
+   "slug": "magma-nbc-hd",
+   "logo_url": "http://i.tvcluboficial.com/nbc.png",
+   "category_id": 2,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/713.m3u8"
+  },
+  {
+   "name": "NBC Universo",
+   "slug": "magma-nbc-universo",
+   "logo_url": "http://i.tvcluboficial.com/nbcuniverso.png",
+   "category_id": 20,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/714.m3u8"
+  },
+  {
+   "name": "NFL Network",
+   "slug": "magma-nfl-network",
+   "logo_url": "http://i.tvcluboficial.com/nfl.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/720.m3u8"
+  },
+  {
+   "name": "NHL Network",
+   "slug": "magma-nhl-network",
+   "logo_url": "http://i.tvcluboficial.com/nhl.png",
+   "category_id": 20,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/723.m3u8"
+  },
+  {
+   "name": "Naruto 24/7",
+   "slug": "magma-naruto-24-7",
+   "logo_url": "http://i.tvcluboficial.com/naruto.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/702.m3u8"
+  },
+  {
+   "name": "Nat Geo",
+   "slug": "magma-nat-geo",
+   "logo_url": "http://i.tvcluboficial.com/natgeo.png",
+   "category_id": 17,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/703.m3u8"
+  },
+  {
+   "name": "Nat Geo HD",
+   "slug": "magma-nat-geo-hd",
+   "logo_url": "http://i.tvcluboficial.com/natgeo.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/706.m3u8"
+  },
+  {
+   "name": "Nat Geo Wild",
+   "slug": "magma-nat-geo-wild",
+   "logo_url": "http://i.tvcluboficial.com/natgeowild.png",
+   "category_id": 17,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/709.m3u8"
+  },
+  {
+   "name": "Neon Genesis Evangelion 24/7",
+   "slug": "magma-neon-genesis-evangelion-24-7",
+   "logo_url": "http://i.tvcluboficial.com/neongenesis.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/716.m3u8"
+  },
+  {
+   "name": "Nick 2 HD",
+   "slug": "magma-nick-2-hd",
+   "logo_url": "http://i.tvcluboficial.com/nick2.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/726.m3u8"
+  },
+  {
+   "name": "Nick HD",
+   "slug": "magma-nick-hd",
+   "logo_url": "http://i.tvcluboficial.com/nick.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/728.m3u8"
+  },
+  {
+   "name": "Nick JR",
+   "slug": "magma-nick-jr",
+   "logo_url": "http://i.tvcluboficial.com/nickjr.png",
+   "category_id": 19,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/729.m3u8"
+  },
+  {
+   "name": "Nick JR HD",
+   "slug": "magma-nick-jr-hd",
+   "logo_url": "http://i.tvcluboficial.com/nickjr.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/732.m3u8"
+  },
+  {
+   "name": "Nick Toons",
+   "slug": "magma-nick-toons",
+   "logo_url": "http://i.tvcluboficial.com/nicktoons.png",
+   "category_id": 19,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/735.m3u8"
+  },
+  {
+   "name": "Nickelodeon",
+   "slug": "magma-nickelodeon",
+   "logo_url": "http://i.tvcluboficial.com/nickelodeon.png",
+   "category_id": 19,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/736.m3u8"
+  },
+  {
+   "name": "Nosotros los Guapos 24/7",
+   "slug": "magma-nosotros-los-guapos-24-7",
+   "logo_url": "http://i.tvcluboficial.com/247.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/739.m3u8"
+  },
+  {
+   "name": "Nova (ES)",
+   "slug": "magma-nova-es",
+   "logo_url": "http://i.tvcluboficial.com/nova.png",
+   "category_id": 18,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/740.m3u8"
+  },
+  {
+   "name": "Novelisima",
+   "slug": "magma-novelisima",
+   "logo_url": "http://i.tvcluboficial.com/novelisima.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1149.m3u8"
+  },
+  {
+   "name": "Novelisima HD",
+   "slug": "magma-novelisima-hd",
+   "logo_url": "http://i.tvcluboficial.com/novelisima.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1150.m3u8"
+  },
+  {
+   "name": "One Punch Man 24/7",
+   "slug": "magma-one-punch-man-24-7",
+   "logo_url": "http://i.tvcluboficial.com/onepunchman.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/744.m3u8"
+  },
+  {
+   "name": "PAC12 HD",
+   "slug": "magma-pac12-hd",
+   "logo_url": "http://i.tvcluboficial.com/pac12.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/746.m3u8"
+  },
+  {
+   "name": "PX TV",
+   "slug": "magma-px-tv",
+   "logo_url": "http://i.tvcluboficial.com/pxtv.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/778.m3u8"
+  },
+  {
+   "name": "Padre de Familia 24/7",
+   "slug": "magma-padre-de-familia-24-7",
+   "logo_url": "http://i.tvcluboficial.com/padredefamilia.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/747.m3u8"
+  },
+  {
+   "name": "PakaPaka",
+   "slug": "magma-pakapaka",
+   "logo_url": "http://i.tvcluboficial.com/pakapaka.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/748.m3u8"
+  },
+  {
+   "name": "Panamericana | Peru",
+   "slug": "magma-panamericana-peru",
+   "logo_url": "http://i.tvcluboficial.com/pe_panamericana.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1064.m3u8"
+  },
+  {
+   "name": "Paramount HD",
+   "slug": "magma-paramount-hd",
+   "logo_url": "http://i.tvcluboficial.com/paramount.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/753.m3u8"
+  },
+  {
+   "name": "Paramount HD (ES)",
+   "slug": "magma-paramount-hd-es",
+   "logo_url": "http://i.tvcluboficial.com/paramount.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/754.m3u8"
+  },
+  {
+   "name": "Pasiones HD",
+   "slug": "magma-pasiones-hd",
+   "logo_url": "http://i.tvcluboficial.com/pasiones.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/757.m3u8"
+  },
+  {
+   "name": "Patoaventuras 24/7",
+   "slug": "magma-patoaventuras-24-7",
+   "logo_url": "http://i.tvcluboficial.com/patoaventuras.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/758.m3u8"
+  },
+  {
+   "name": "Patrulla Canina 24/7",
+   "slug": "magma-patrulla-canina-24-7",
+   "logo_url": "http://i.tvcluboficial.com/patrullacanina.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/759.m3u8"
+  },
+  {
+   "name": "Peppa Pig 24/7",
+   "slug": "magma-peppa-pig-24-7",
+   "logo_url": "http://i.tvcluboficial.com/peppapig.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/760.m3u8"
+  },
+  {
+   "name": "Pinky y Cerebro 24/7",
+   "slug": "magma-pinky-y-cerebro-24-7",
+   "logo_url": "http://i.tvcluboficial.com/pinkyycerebro.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/771.m3u8"
+  },
+  {
+   "name": "Pokemon 24/7",
+   "slug": "magma-pokemon-24-7",
+   "logo_url": "http://i.tvcluboficial.com/pokemon.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/773.m3u8"
+  },
+  {
+   "name": "PopCornFlix HD",
+   "slug": "magma-popcornflix-hd",
+   "logo_url": "http://i.tvcluboficial.com/popcornflix.png",
+   "category_id": 20,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/775.m3u8"
+  },
+  {
+   "name": "Quiero Musica",
+   "slug": "magma-quiero-musica",
+   "logo_url": "http://i.tvcluboficial.com/quieromusica.png",
+   "category_id": 5,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/779.m3u8"
+  },
+  {
+   "name": "RCN HD | Colombia",
+   "slug": "magma-rcn-hd-colombia",
+   "logo_url": "http://i.tvcluboficial.com/rcn.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1146.m3u8"
+  },
+  {
+   "name": "RCN Novelas",
+   "slug": "magma-rcn-novelas",
+   "logo_url": "http://i.tvcluboficial.com/rcnnovelas.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/788.m3u8"
+  },
+  {
+   "name": "RCN | Colombia",
+   "slug": "magma-rcn-colombia",
+   "logo_url": "http://i.tvcluboficial.com/rcn.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/785.m3u8"
+  },
+  {
+   "name": "RPC Panama",
+   "slug": "magma-rpc-panama",
+   "logo_url": "http://i.tvcluboficial.com/pa_rpc.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1158.m3u8"
+  },
+  {
+   "name": "RTS | Ecuador",
+   "slug": "magma-rts-ecuador",
+   "logo_url": "http://i.tvcluboficial.com/ec_rts.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1090.m3u8"
+  },
+  {
+   "name": "Ranma 1/2 24/7",
+   "slug": "magma-ranma-1-2-24-7",
+   "logo_url": "http://i.tvcluboficial.com/ranma.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/782.m3u8"
+  },
+  {
+   "name": "Reforma TV | Venezuela",
+   "slug": "magma-reforma-tv-venezuela",
+   "logo_url": "http://i.tvcluboficial.com/ve_reformatv.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1088.m3u8"
+  },
+  {
+   "name": "Retro Music",
+   "slug": "magma-retro-music",
+   "logo_url": "http://i.tvcluboficial.com/retromusic.png",
+   "category_id": 5,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/791.m3u8"
+  },
+  {
+   "name": "Rick y Morty",
+   "slug": "magma-rick-y-morty",
+   "logo_url": "http://i.tvcluboficial.com/rickymorty.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1168.m3u8"
+  },
+  {
+   "name": "Ritmoson Latino",
+   "slug": "magma-ritmoson-latino",
+   "logo_url": "http://i.tvcluboficial.com/ritmoson.png",
+   "category_id": 5,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/792.m3u8"
+  },
+  {
+   "name": "Rugrats 24/7",
+   "slug": "magma-rugrats-24-7",
+   "logo_url": "http://i.tvcluboficial.com/247.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/797.m3u8"
+  },
+  {
+   "name": "Rugrats Crecidos 24/7",
+   "slug": "magma-rugrats-crecidos-24-7",
+   "logo_url": "http://i.tvcluboficial.com/247.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/798.m3u8"
+  },
+  {
+   "name": "SKY Sports Premier HD",
+   "slug": "magma-sky-sports-premier-hd",
+   "logo_url": "http://i.tvcluboficial.com/skysports.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/811.m3u8"
+  },
+  {
+   "name": "Sailor Moon 24/7",
+   "slug": "magma-sailor-moon-24-7",
+   "logo_url": "http://i.tvcluboficial.com/sailormoon.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/799.m3u8"
+  },
+  {
+   "name": "Sakura Card Captor 24/7",
+   "slug": "magma-sakura-card-captor-24-7",
+   "logo_url": "http://i.tvcluboficial.com/sakura.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/800.m3u8"
+  },
+  {
+   "name": "Samurai X 24/7",
+   "slug": "magma-samurai-x-24-7",
+   "logo_url": "http://i.tvcluboficial.com/samuraix.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/802.m3u8"
+  },
+  {
+   "name": "Scooby Doo 24/7",
+   "slug": "magma-scooby-doo-24-7",
+   "logo_url": "http://i.tvcluboficial.com/scoobydoo.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/804.m3u8"
+  },
+  {
+   "name": "Series Comedia 24/7",
+   "slug": "magma-series-comedia-24-7",
+   "logo_url": "http://i.tvcluboficial.com/cine247.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/807.m3u8"
+  },
+  {
+   "name": "Sky Sports Bundesliga",
+   "slug": "magma-sky-sports-bundesliga",
+   "logo_url": "http://i.tvcluboficial.com/skysports.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1124.m3u8"
+  },
+  {
+   "name": "Sky Sports LaLiga",
+   "slug": "magma-sky-sports-laliga",
+   "logo_url": "http://i.tvcluboficial.com/skysports.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1079.m3u8"
+  },
+  {
+   "name": "Smallville 24/7",
+   "slug": "magma-smallville-24-7",
+   "logo_url": "http://i.tvcluboficial.com/smallville.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/812.m3u8"
+  },
+  {
+   "name": "Sony",
+   "slug": "magma-sony",
+   "logo_url": "http://i.tvcluboficial.com/sony.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/815.m3u8"
+  },
+  {
+   "name": "Sony HD",
+   "slug": "magma-sony-hd",
+   "logo_url": "http://i.tvcluboficial.com/sony.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/818.m3u8"
+  },
+  {
+   "name": "South Park 24/7",
+   "slug": "magma-south-park-24-7",
+   "logo_url": "http://i.tvcluboficial.com/southpark.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/820.m3u8"
+  },
+  {
+   "name": "Space",
+   "slug": "magma-space",
+   "logo_url": "http://i.tvcluboficial.com/space.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/823.m3u8"
+  },
+  {
+   "name": "Space HD",
+   "slug": "magma-space-hd",
+   "logo_url": "http://i.tvcluboficial.com/space.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/826.m3u8"
+  },
+  {
+   "name": "Spiderman 24/7",
+   "slug": "magma-spiderman-24-7",
+   "logo_url": "http://i.tvcluboficial.com/spiderman.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/827.m3u8"
+  },
+  {
+   "name": "Star Channel",
+   "slug": "magma-star-channel",
+   "logo_url": "http://i.tvcluboficial.com/star.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/832.m3u8"
+  },
+  {
+   "name": "Star Channel HD",
+   "slug": "magma-star-channel-hd",
+   "logo_url": "http://i.tvcluboficial.com/star.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/834.m3u8"
+  },
+  {
+   "name": "Star Channel HD",
+   "slug": "magma-star-channel-hd-1",
+   "logo_url": "http://i.tvcluboficial.com/star.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/835.m3u8"
+  },
+  {
+   "name": "Star Fun",
+   "slug": "magma-star-fun",
+   "logo_url": "http://i.tvcluboficial.com/star_fun.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/836.m3u8"
+  },
+  {
+   "name": "Star Hits HD",
+   "slug": "magma-star-hits-hd",
+   "logo_url": "http://i.tvcluboficial.com/star_hits.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/837.m3u8"
+  },
+  {
+   "name": "StarTVE",
+   "slug": "magma-startve",
+   "logo_url": "http://i.tvcluboficial.com/startve.png",
+   "category_id": 18,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/838.m3u8"
+  },
+  {
+   "name": "Starz Cinema",
+   "slug": "magma-starz-cinema",
+   "logo_url": "http://i.tvcluboficial.com/starz_cinema.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/839.m3u8"
+  },
+  {
+   "name": "Starz Comedy",
+   "slug": "magma-starz-comedy",
+   "logo_url": "http://i.tvcluboficial.com/starz_comedy.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/840.m3u8"
+  },
+  {
+   "name": "Starz Encore Action",
+   "slug": "magma-starz-encore-action",
+   "logo_url": "http://i.tvcluboficial.com/starz_encoreaction.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/841.m3u8"
+  },
+  {
+   "name": "Starz Encore Black",
+   "slug": "magma-starz-encore-black",
+   "logo_url": "http://i.tvcluboficial.com/starz_encoreblack.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/842.m3u8"
+  },
+  {
+   "name": "Starz Encore Family",
+   "slug": "magma-starz-encore-family",
+   "logo_url": "http://i.tvcluboficial.com/starz_encorefamily.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/843.m3u8"
+  },
+  {
+   "name": "Starz HD",
+   "slug": "magma-starz-hd",
+   "logo_url": "http://i.tvcluboficial.com/starz_hd.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/844.m3u8"
+  },
+  {
+   "name": "Studio Universal",
+   "slug": "magma-studio-universal",
+   "logo_url": "http://i.tvcluboficial.com/studiouniversal.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/845.m3u8"
+  },
+  {
+   "name": "Studio Universal HD",
+   "slug": "magma-studio-universal-hd",
+   "logo_url": "http://i.tvcluboficial.com/studiouniversal.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/848.m3u8"
+  },
+  {
+   "name": "Sunderland vs Chelsea",
+   "slug": "magma-sunderland-vs-chelsea",
+   "logo_url": "http://i.tvcluboficial.com/espn.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1130.m3u8"
+  },
+  {
+   "name": "Super Campeones 24/7",
+   "slug": "magma-super-campeones-24-7",
+   "logo_url": "http://i.tvcluboficial.com/supercampeones.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/850.m3u8"
+  },
+  {
+   "name": "Supernatural 24/7",
+   "slug": "magma-supernatural-24-7",
+   "logo_url": "http://i.tvcluboficial.com/supernatural.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/851.m3u8"
+  },
+  {
+   "name": "SyFy",
+   "slug": "magma-syfy",
+   "logo_url": "http://i.tvcluboficial.com/syfy.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/853.m3u8"
+  },
+  {
+   "name": "SyFy (ES) HD",
+   "slug": "magma-syfy-es-hd",
+   "logo_url": "http://i.tvcluboficial.com/syfy.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/856.m3u8"
+  },
+  {
+   "name": "SyFy HD",
+   "slug": "magma-syfy-hd",
+   "logo_url": "http://i.tvcluboficial.com/syfy.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/857.m3u8"
+  },
+  {
+   "name": "TBS Very Funny",
+   "slug": "magma-tbs-very-funny",
+   "logo_url": "http://i.tvcluboficial.com/tbs.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/859.m3u8"
+  },
+  {
+   "name": "TC | Ecuador",
+   "slug": "magma-tc-ecuador",
+   "logo_url": "http://i.tvcluboficial.com/tc.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/861.m3u8"
+  },
+  {
+   "name": "TCM",
+   "slug": "magma-tcm",
+   "logo_url": "http://i.tvcluboficial.com/tcm.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/862.m3u8"
+  },
+  {
+   "name": "TLC",
+   "slug": "magma-tlc",
+   "logo_url": "http://i.tvcluboficial.com/tlc.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/911.m3u8"
+  },
+  {
+   "name": "TLR (Teleritmo)",
+   "slug": "magma-tlr-teleritmo",
+   "logo_url": "http://i.tvcluboficial.com/teleritmo.png",
+   "category_id": 5,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/916.m3u8"
+  },
+  {
+   "name": "TLR HD",
+   "slug": "magma-tlr-hd",
+   "logo_url": "http://i.tvcluboficial.com/teleritmo.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/917.m3u8"
+  },
+  {
+   "name": "TLR HD",
+   "slug": "magma-tlr-hd-1",
+   "logo_url": "http://i.tvcluboficial.com/teleritmo.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/918.m3u8"
+  },
+  {
+   "name": "TN",
+   "slug": "magma-tn",
+   "logo_url": "http://i.tvcluboficial.com/tn.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1164.m3u8"
+  },
+  {
+   "name": "TNT",
+   "slug": "magma-tnt",
+   "logo_url": "http://i.tvcluboficial.com/tnt.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/921.m3u8"
+  },
+  {
+   "name": "TNT HD",
+   "slug": "magma-tnt-hd",
+   "logo_url": "http://i.tvcluboficial.com/tnt.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/926.m3u8"
+  },
+  {
+   "name": "TNT HD (ES)",
+   "slug": "magma-tnt-hd-es",
+   "logo_url": "http://i.tvcluboficial.com/tnt.png",
+   "category_id": 18,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/927.m3u8"
+  },
+  {
+   "name": "TNT Novelas",
+   "slug": "magma-tnt-novelas",
+   "logo_url": "http://i.tvcluboficial.com/tnt.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1176.m3u8"
+  },
+  {
+   "name": "TNT Series",
+   "slug": "magma-tnt-series",
+   "logo_url": "http://i.tvcluboficial.com/tntseries.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/929.m3u8"
+  },
+  {
+   "name": "TNT Series HD",
+   "slug": "magma-tnt-series-hd",
+   "logo_url": "http://i.tvcluboficial.com/tntseries.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/933.m3u8"
+  },
+  {
+   "name": "TNT Sports  HD | Argentina",
+   "slug": "magma-tnt-sports-hd-argentina",
+   "logo_url": "http://i.tvcluboficial.com/tntsports.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1128.m3u8"
+  },
+  {
+   "name": "TNT Sports | Argentina",
+   "slug": "magma-tnt-sports-argentina",
+   "logo_url": "http://i.tvcluboficial.com/tntsports.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/934.m3u8"
+  },
+  {
+   "name": "TNT Sports | Chile",
+   "slug": "magma-tnt-sports-chile",
+   "logo_url": "http://i.tvcluboficial.com/tntsports.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/938.m3u8"
+  },
+  {
+   "name": "TUDN",
+   "slug": "magma-tudn",
+   "logo_url": "http://i.tvcluboficial.com/tudn.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/952.m3u8"
+  },
+  {
+   "name": "TUDN HD",
+   "slug": "magma-tudn-hd",
+   "logo_url": "http://i.tvcluboficial.com/tudn.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/955.m3u8"
+  },
+  {
+   "name": "TUDN HD | Usa",
+   "slug": "magma-tudn-hd-usa",
+   "logo_url": "http://i.tvcluboficial.com/tudn.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/957.m3u8"
+  },
+  {
+   "name": "TUDN | Usa",
+   "slug": "magma-tudn-usa",
+   "logo_url": "http://i.tvcluboficial.com/tudn.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/956.m3u8"
+  },
+  {
+   "name": "TV Chile",
+   "slug": "magma-tv-chile",
+   "logo_url": "http://i.tvcluboficial.com/tvchile.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/958.m3u8"
+  },
+  {
+   "name": "TV Publica | Arg",
+   "slug": "magma-tv-publica-arg",
+   "logo_url": "http://i.tvcluboficial.com/ar_tvp.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1171.m3u8"
+  },
+  {
+   "name": "TVC Deportes",
+   "slug": "magma-tvc-deportes",
+   "logo_url": "http://i.tvcluboficial.com/tvcdeportes.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/965.m3u8"
+  },
+  {
+   "name": "TVE",
+   "slug": "magma-tve",
+   "logo_url": "http://i.tvcluboficial.com/tve.png",
+   "category_id": 18,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/968.m3u8"
+  },
+  {
+   "name": "TVE HD",
+   "slug": "magma-tve-hd",
+   "logo_url": "http://i.tvcluboficial.com/tve.png",
+   "category_id": 18,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/969.m3u8"
+  },
+  {
+   "name": "TeenNick",
+   "slug": "magma-teennick",
+   "logo_url": "http://i.tvcluboficial.com/teennick.png",
+   "category_id": 19,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/865.m3u8"
+  },
+  {
+   "name": "Tele",
+   "slug": "magma-tele",
+   "logo_url": "http://i.tvcluboficial.com/play.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/866.m3u8"
+  },
+  {
+   "name": "TeleAmazonas | Ecuador",
+   "slug": "magma-teleamazonas-ecuador",
+   "logo_url": "http://i.tvcluboficial.com/teleamazonas.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/867.m3u8"
+  },
+  {
+   "name": "Telecaribe | Colombia",
+   "slug": "magma-telecaribe-colombia",
+   "logo_url": "http://i.tvcluboficial.com/co_telecaribe.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1066.m3u8"
+  },
+  {
+   "name": "Telecinco HD",
+   "slug": "magma-telecinco-hd",
+   "logo_url": "http://i.tvcluboficial.com/telecinco.png",
+   "category_id": 18,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/871.m3u8"
+  },
+  {
+   "name": "Teledeporte HD (ES)",
+   "slug": "magma-teledeporte-hd-es",
+   "logo_url": "http://i.tvcluboficial.com/teledeporte.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/872.m3u8"
+  },
+  {
+   "name": "Telefe HD",
+   "slug": "magma-telefe-hd",
+   "logo_url": "http://i.tvcluboficial.com/telefe.png",
+   "category_id": 12,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1172.m3u8"
+  },
+  {
+   "name": "Telefe | Argentina",
+   "slug": "magma-telefe-argentina",
+   "logo_url": "http://i.tvcluboficial.com/telefe.png",
+   "category_id": 12,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/874.m3u8"
+  },
+  {
+   "name": "Telefe | Internacional",
+   "slug": "magma-telefe-internacional",
+   "logo_url": "http://i.tvcluboficial.com/telefe.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1166.m3u8"
+  },
+  {
+   "name": "Telehit",
+   "slug": "magma-telehit",
+   "logo_url": "http://i.tvcluboficial.com/telehitmusica.png",
+   "category_id": 5,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/878.m3u8"
+  },
+  {
+   "name": "Telehit HD",
+   "slug": "magma-telehit-hd",
+   "logo_url": "http://i.tvcluboficial.com/telehitmusica.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/879.m3u8"
+  },
+  {
+   "name": "Telemax",
+   "slug": "magma-telemax",
+   "logo_url": "http://i.tvcluboficial.com/telemax.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/883.m3u8"
+  },
+  {
+   "name": "Telemundo",
+   "slug": "magma-telemundo",
+   "logo_url": "http://i.tvcluboficial.com/telemundo.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/888.m3u8"
+  },
+  {
+   "name": "Telemundo HD",
+   "slug": "magma-telemundo-hd",
+   "logo_url": "http://i.tvcluboficial.com/telemundo.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/889.m3u8"
+  },
+  {
+   "name": "Telemundo Internacional",
+   "slug": "magma-telemundo-internacional",
+   "logo_url": "http://i.tvcluboficial.com/telemundo.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1108.m3u8"
+  },
+  {
+   "name": "Teletica (Canal 7) | Costa Rica",
+   "slug": "magma-teletica-canal-7-costa-rica",
+   "logo_url": "http://i.tvcluboficial.com/cr_teletica.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1073.m3u8"
+  },
+  {
+   "name": "Televicentro (TVC) | Ecuador",
+   "slug": "magma-televicentro-tvc-ecuador",
+   "logo_url": "http://i.tvcluboficial.com/televicentro.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/966.m3u8"
+  },
+  {
+   "name": "Televisiete (Canal 7) | Guatemala",
+   "slug": "magma-televisiete-canal-7-guatemala",
+   "logo_url": "http://i.tvcluboficial.com/gt_televisiete.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1067.m3u8"
+  },
+  {
+   "name": "The Big Bang Theory 24/7",
+   "slug": "magma-the-big-bang-theory-24-7",
+   "logo_url": "http://i.tvcluboficial.com/thebigbangtheory.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/899.m3u8"
+  },
+  {
+   "name": "Tigo Sports Guatemala",
+   "slug": "magma-tigo-sports-guatemala",
+   "logo_url": "http://i.tvcluboficial.com/tigosports.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/904.m3u8"
+  },
+  {
+   "name": "TigoSports Bolivia",
+   "slug": "magma-tigosports-bolivia",
+   "logo_url": "http://i.tvcluboficial.com/tigosports.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/905.m3u8"
+  },
+  {
+   "name": "TigoSports Paraguay",
+   "slug": "magma-tigosports-paraguay",
+   "logo_url": "http://i.tvcluboficial.com/tigosports.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/906.m3u8"
+  },
+  {
+   "name": "TigoSports | Costa Rica",
+   "slug": "magma-tigosports-costa-rica",
+   "logo_url": "http://i.tvcluboficial.com/tigosports.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1077.m3u8"
+  },
+  {
+   "name": "Tiin",
+   "slug": "magma-tiin",
+   "logo_url": "http://i.tvcluboficial.com/tiin.png",
+   "category_id": 19,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/907.m3u8"
+  },
+  {
+   "name": "Tlnovelas",
+   "slug": "magma-tlnovelas",
+   "logo_url": "http://i.tvcluboficial.com/tlnovelas.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/912.m3u8"
+  },
+  {
+   "name": "Tlnovelas HD",
+   "slug": "magma-tlnovelas-hd",
+   "logo_url": "http://i.tvcluboficial.com/tlnovelas.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/915.m3u8"
+  },
+  {
+   "name": "Tom y Jerry 24/7",
+   "slug": "magma-tom-y-jerry-24-7",
+   "logo_url": "http://i.tvcluboficial.com/tomyjerry.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/940.m3u8"
+  },
+  {
+   "name": "Tooncast",
+   "slug": "magma-tooncast",
+   "logo_url": "http://i.tvcluboficial.com/tooncast.png",
+   "category_id": 19,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/941.m3u8"
+  },
+  {
+   "name": "Trece",
+   "slug": "magma-trece",
+   "logo_url": "http://i.tvcluboficial.com/trece_colombia.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/943.m3u8"
+  },
+  {
+   "name": "TrollHunters 24/7",
+   "slug": "magma-trollhunters-24-7",
+   "logo_url": "http://i.tvcluboficial.com/trollhunters.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/945.m3u8"
+  },
+  {
+   "name": "TruTV",
+   "slug": "magma-trutv",
+   "logo_url": "http://i.tvcluboficial.com/trutv.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/949.m3u8"
+  },
+  {
+   "name": "TruTv HD",
+   "slug": "magma-trutv-hd",
+   "logo_url": "http://i.tvcluboficial.com/trutv.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/950.m3u8"
+  },
+  {
+   "name": "Tu Musica HD",
+   "slug": "magma-tu-musica-hd",
+   "logo_url": "http://i.tvcluboficial.com/tumusicahd.png",
+   "category_id": 5,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/951.m3u8"
+  },
+  {
+   "name": "Two And a Half Men 24/7",
+   "slug": "magma-two-and-a-half-men-24-7",
+   "logo_url": "http://i.tvcluboficial.com/twoandhalfmen.png",
+   "category_id": 12,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/973.m3u8"
+  },
+  {
+   "name": "TyC Sports HD",
+   "slug": "magma-tyc-sports-hd",
+   "logo_url": "http://i.tvcluboficial.com/tycsports.png",
+   "category_id": 12,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1143.m3u8"
+  },
+  {
+   "name": "Tyc Sports",
+   "slug": "magma-tyc-sports",
+   "logo_url": "http://i.tvcluboficial.com/tycsports.png",
+   "category_id": 12,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/974.m3u8"
+  },
+  {
+   "name": "UFC Network",
+   "slug": "magma-ufc-network",
+   "logo_url": "http://i.tvcluboficial.com/ufc.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/977.m3u8"
+  },
+  {
+   "name": "UniMas",
+   "slug": "magma-unimas",
+   "logo_url": "http://i.tvcluboficial.com/unimas.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/982.m3u8"
+  },
+  {
+   "name": "Unicable",
+   "slug": "magma-unicable",
+   "logo_url": "http://i.tvcluboficial.com/unicable.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/978.m3u8"
+  },
+  {
+   "name": "Unicable HD",
+   "slug": "magma-unicable-hd",
+   "logo_url": "http://i.tvcluboficial.com/unicable.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/980.m3u8"
+  },
+  {
+   "name": "Unicable HD",
+   "slug": "magma-unicable-hd-1",
+   "logo_url": "http://i.tvcluboficial.com/unicable.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/981.m3u8"
+  },
+  {
+   "name": "Universal Channel",
+   "slug": "magma-universal-channel",
+   "logo_url": "http://i.tvcluboficial.com/universal.png",
+   "category_id": 4,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/984.m3u8"
+  },
+  {
+   "name": "Universal Cinema HD",
+   "slug": "magma-universal-cinema-hd",
+   "logo_url": "http://i.tvcluboficial.com/universal_cinema.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/988.m3u8"
+  },
+  {
+   "name": "Universal Comedy HD",
+   "slug": "magma-universal-comedy-hd",
+   "logo_url": "http://i.tvcluboficial.com/universal_comedy.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/992.m3u8"
+  },
+  {
+   "name": "Universal Crime HD",
+   "slug": "magma-universal-crime-hd",
+   "logo_url": "http://i.tvcluboficial.com/universal_crime.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/996.m3u8"
+  },
+  {
+   "name": "Universal HD",
+   "slug": "magma-universal-hd",
+   "logo_url": "http://i.tvcluboficial.com/universal.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/998.m3u8"
+  },
+  {
+   "name": "Universal Premiere HD",
+   "slug": "magma-universal-premiere-hd",
+   "logo_url": "http://i.tvcluboficial.com/universal_premier.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1003.m3u8"
+  },
+  {
+   "name": "Universal Reality HD",
+   "slug": "magma-universal-reality-hd",
+   "logo_url": "http://i.tvcluboficial.com/universal_reality.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1006.m3u8"
+  },
+  {
+   "name": "Univision",
+   "slug": "magma-univision",
+   "logo_url": "http://i.tvcluboficial.com/univision.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1009.m3u8"
+  },
+  {
+   "name": "Univision Tlnovelas",
+   "slug": "magma-univision-tlnovelas",
+   "logo_url": "http://i.tvcluboficial.com/tlnovelasunivision.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1013.m3u8"
+  },
+  {
+   "name": "Univisión Deportes",
+   "slug": "magma-univision-deportes",
+   "logo_url": "http://i.tvcluboficial.com/univisiondeportes.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1010.m3u8"
+  },
+  {
+   "name": "Univisión TDN",
+   "slug": "magma-univision-tdn",
+   "logo_url": "http://i.tvcluboficial.com/play.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1012.m3u8"
+  },
+  {
+   "name": "VH1",
+   "slug": "magma-vh1",
+   "logo_url": "http://i.tvcluboficial.com/vh1.png",
+   "category_id": 5,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1016.m3u8"
+  },
+  {
+   "name": "VH1 HD",
+   "slug": "magma-vh1-hd",
+   "logo_url": "http://i.tvcluboficial.com/vh1.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1017.m3u8"
+  },
+  {
+   "name": "VTV Plus HD",
+   "slug": "magma-vtv-plus-hd",
+   "logo_url": "http://i.tvcluboficial.com/ur_vtvplus.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1142.m3u8"
+  },
+  {
+   "name": "VTV Plus | Uruguay",
+   "slug": "magma-vtv-plus-uruguay",
+   "logo_url": "http://i.tvcluboficial.com/ur_vtvplus.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1072.m3u8"
+  },
+  {
+   "name": "VTV | Uruaguay",
+   "slug": "magma-vtv-uruaguay",
+   "logo_url": "http://i.tvcluboficial.com/vtv.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1028.m3u8"
+  },
+  {
+   "name": "Vamos HD",
+   "slug": "magma-vamos-hd",
+   "logo_url": "http://i.tvcluboficial.com/vamos.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1015.m3u8"
+  },
+  {
+   "name": "Vix Deportes",
+   "slug": "magma-vix-deportes",
+   "logo_url": "http://i.tvcluboficial.com/vix.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1116.m3u8"
+  },
+  {
+   "name": "Vix Deportes 2",
+   "slug": "magma-vix-deportes-2",
+   "logo_url": "http://i.tvcluboficial.com/vix.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1136.m3u8"
+  },
+  {
+   "name": "Vix Deportes 4",
+   "slug": "magma-vix-deportes-4",
+   "logo_url": "http://i.tvcluboficial.com/vix.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1137.m3u8"
+  },
+  {
+   "name": "Vix Deportes 5",
+   "slug": "magma-vix-deportes-5",
+   "logo_url": "http://i.tvcluboficial.com/vix.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1152.m3u8"
+  },
+  {
+   "name": "Vix Deportes 7",
+   "slug": "magma-vix-deportes-7",
+   "logo_url": "http://i.tvcluboficial.com/vix.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1138.m3u8"
+  },
+  {
+   "name": "WWE Network",
+   "slug": "magma-wwe-network",
+   "logo_url": "http://i.tvcluboficial.com/wwe.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1047.m3u8"
+  },
+  {
+   "name": "Wapa PR",
+   "slug": "magma-wapa-pr",
+   "logo_url": "http://i.tvcluboficial.com/wapa.png",
+   "category_id": 15,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1030.m3u8"
+  },
+  {
+   "name": "Warner Channel",
+   "slug": "magma-warner-channel",
+   "logo_url": "http://i.tvcluboficial.com/warnerchannel.png",
+   "category_id": 3,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1032.m3u8"
+  },
+  {
+   "name": "Warner Channel HD",
+   "slug": "magma-warner-channel-hd",
+   "logo_url": "http://i.tvcluboficial.com/warnerchannel.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1034.m3u8"
+  },
+  {
+   "name": "Win Sports",
+   "slug": "magma-win-sports-1",
+   "logo_url": "http://i.tvcluboficial.com/winsports.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1039.m3u8"
+  },
+  {
+   "name": "Win Sports +",
+   "slug": "magma-win-sports",
+   "logo_url": "http://i.tvcluboficial.com/winsportsplus.png",
+   "category_id": 1,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1041.m3u8"
+  },
+  {
+   "name": "Win Sports + HD",
+   "slug": "magma-win-sports-hd",
+   "logo_url": "http://i.tvcluboficial.com/winsportsplus.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1042.m3u8"
+  },
+  {
+   "name": "Win Sports HD",
+   "slug": "magma-win-sports-hd-1",
+   "logo_url": "http://i.tvcluboficial.com/winsports.png",
+   "category_id": 16,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1044.m3u8"
+  },
+  {
+   "name": "Yogui 24/7",
+   "slug": "magma-yogui-24-7",
+   "logo_url": "http://i.tvcluboficial.com/247.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1051.m3u8"
+  },
+  {
+   "name": "Yu-Gi-Oh! 24/7",
+   "slug": "magma-yu-gi-oh-24-7",
+   "logo_url": "http://i.tvcluboficial.com/yugioh.png",
+   "category_id": 13,
+   "is_active": true,
+   "region": "Magma",
+   "stream_url": "http://tv.m3uts.xyz/stream/secure/vr5Tqs43/1052.m3u8"
+  }
+ ],
+ "categories": [
+  {
+   "id": 1,
+   "name": "Deportes",
+   "slug": "deportes",
+   "icon": "fa-futbol"
+  },
+  {
+   "id": 2,
+   "name": "Noticias",
+   "slug": "noticias",
+   "icon": "fa-newspaper"
+  },
+  {
+   "id": 3,
+   "name": "Entretenimiento",
+   "slug": "entretenimiento",
+   "icon": "fa-film"
+  },
+  {
+   "id": 4,
+   "name": "Películas",
+   "slug": "peliculas",
+   "icon": "fa-clapperboard"
+  },
+  {
+   "id": 5,
+   "name": "Música",
+   "slug": "musica",
+   "icon": "fa-music"
+  },
+  {
+   "id": 6,
+   "name": "Infantil",
+   "slug": "infantil",
+   "icon": "fa-child"
+  },
+  {
+   "id": 7,
+   "name": "Documentales",
+   "slug": "documentales",
+   "icon": "fa-book"
+  },
+  {
+   "id": 8,
+   "name": "Educativo",
+   "slug": "educativo",
+   "icon": "fa-graduation-cap"
+  },
+  {
+   "id": 9,
+   "name": "General",
+   "slug": "general",
+   "icon": "fa-globe"
+  },
+  {
+   "id": 10,
+   "name": "Series",
+   "slug": "series",
+   "icon": "fa-list"
+  },
+  {
+   "id": 11,
+   "name": "Reality",
+   "slug": "reality",
+   "icon": "fa-tv"
+  },
+  {
+   "id": 12,
+   "name": "Mas vistos",
+   "slug": "mas-vistos",
+   "icon": null
+  },
+  {
+   "id": 13,
+   "name": "24/7",
+   "slug": "24-7",
+   "icon": null
+  },
+  {
+   "id": 14,
+   "name": "Cine 24/7",
+   "slug": "cine-24-7",
+   "icon": null
+  },
+  {
+   "id": 15,
+   "name": "Nacionales",
+   "slug": "nacionales",
+   "icon": null
+  },
+  {
+   "id": 16,
+   "name": "HD",
+   "slug": "hd",
+   "icon": null
+  },
+  {
+   "id": 17,
+   "name": "Cultura",
+   "slug": "cultura",
+   "icon": null
+  },
+  {
+   "id": 18,
+   "name": "España",
+   "slug": "espana",
+   "icon": null
+  },
+  {
+   "id": 19,
+   "name": "Infantiles",
+   "slug": "infantiles",
+   "icon": null
+  },
+  {
+   "id": 20,
+   "name": "USA",
+   "slug": "usa",
+   "icon": null
+  },
+  {
+   "id": 21,
+   "name": "Religion",
+   "slug": "religion",
+   "icon": null
+  },
+  {
+   "id": 22,
+   "name": "Eventos",
+   "slug": "eventos",
+   "icon": null
+  }
+ ]
 }

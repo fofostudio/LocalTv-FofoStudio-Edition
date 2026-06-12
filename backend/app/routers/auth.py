@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
-SECRET_KEY = os.getenv("SECRET_API_KEY", "bustatv-dev-secret-key-changeme")
+SECRET_KEY = os.getenv("SECRET_API_KEY", "fofolocaltv-dev-secret-key-changeme")
 ALGORITHM = "HS256"
 
 def create_access_token(data: dict, expires_delta: timedelta = None):

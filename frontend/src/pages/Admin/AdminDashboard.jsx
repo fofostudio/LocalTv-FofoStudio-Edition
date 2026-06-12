@@ -13,6 +13,16 @@ export default function AdminDashboard() {
   const [selectedChannel, setSelectedChannel] = useState(null);
   const [syncStatus, setSyncStatus] = useState(null);
   const [syncing, setSyncing] = useState(false);
+  const [iptvStatus, setIptvStatus] = useState(null);
+  const [importing, setImporting] = useState(false);
+  const [importingAll, setImportingAll] = useState(false);
+  const [iptvAllStatus, setIptvAllStatus] = useState(null);
+  const [iptvCategories, setIptvCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [xtreamCfg, setXtreamCfg] = useState(null);
+  const [xtreamStatus, setXtreamStatus] = useState(null);
+  const [xtreamImporting, setXtreamImporting] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,6 +40,10 @@ export default function AdminDashboard() {
       const data = await api.validateApiKey(apiKey);
       setChannels(data);
       setError('');
+      // Cargar categorías iptv-org disponibles
+      api.getIptvCategories().then(setIptvCategories).catch(() => {});
+      // Estado de la integración Xtream (Magma)
+      api.xtreamStatus(apiKey).then(setXtreamCfg).catch(() => {});
     } catch (err) {
       setError('Error al cargar los canales');
     } finally {
@@ -90,6 +104,79 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleIptvImport = async () => {
+    if (!selectedCategory) return;
+    setImporting(true);
+    setIptvStatus(null);
+    try {
+      const result = await api.importFromIptv(selectedCategory, apiKey);
+      setIptvStatus({
+        type: 'ok',
+        text: `Importación iptv-org (${selectedCategory}) — ${result.created} nuevos, ${result.skipped} omitidos (${result.total} totales).`,
+      });
+      await loadChannels();
+    } catch (err) {
+      setIptvStatus({ type: 'error', text: err.message || 'Error importando' });
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const handleIptvImportAll = async () => {
+    setImportingAll(true);
+    setIptvAllStatus(null);
+    try {
+      const result = await api.importAllFromIptv(apiKey);
+      setIptvAllStatus({
+        type: 'ok',
+        text: `Importación masiva completada — ${result.created} nuevos, ${result.skipped} omitidos de ${result.categories_imported.length} categorías.`,
+      });
+      await loadChannels();
+    } catch (err) {
+      setIptvAllStatus({ type: 'error', text: err.message || 'Error en importación masiva' });
+    } finally {
+      setImportingAll(false);
+    }
+  };
+
+  const handleXtreamImport = async (live) => {
+    setXtreamImporting(true);
+    setXtreamStatus(null);
+    try {
+      const result = await api.importXtream({ provider: 'Magma', live }, apiKey);
+      const playable = result.configured
+        ? `${result.created + result.updated} reproducibles`
+        : `inactivos (faltan credenciales XTREAM_* en el .env)`;
+      setXtreamStatus({
+        type: 'ok',
+        text: `Magma — ${result.created} nuevos, ${result.updated} actualizados, ${result.not_spanish} no-español omitidos · ${playable}.`,
+      });
+      api.xtreamStatus(apiKey).then(setXtreamCfg).catch(() => {});
+      await loadChannels();
+    } catch (err) {
+      setXtreamStatus({ type: 'error', text: err.message || 'Error importando Magma' });
+    } finally {
+      setXtreamImporting(false);
+    }
+  };
+
+  const handleVerify = async () => {
+    setVerifying(true);
+    setXtreamStatus(null);
+    try {
+      const r = await api.verifyChannels('', apiKey);
+      setXtreamStatus({
+        type: 'ok',
+        text: `Verificación — ${r.alive} reproducen, ${r.dead} muertos desactivados (${r.checked} revisados).`,
+      });
+      await loadChannels();
+    } catch (err) {
+      setXtreamStatus({ type: 'error', text: err.message || 'Error verificando' });
+    } finally {
+      setVerifying(false);
+    }
+  };
+
   if (!apiKey) return null;
 
   return (
@@ -117,6 +204,84 @@ export default function AdminDashboard() {
             {syncStatus.text}
           </p>
         )}
+
+        <div className={styles.iptvSection}>
+          <h3>Importar desde iptv-org</h3>
+          <div className={styles.iptvRow}>
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className={styles.input}
+              style={{ maxWidth: 300 }}
+              disabled={importing}
+            >
+              <option value="">Selecciona categoría</option>
+              {iptvCategories.map((cat) => (
+                <option key={cat.slug} value={cat.slug}>{cat.label}</option>
+              ))}
+            </select>
+            <button onClick={handleIptvImport} className={styles.buttonSecondary} disabled={importing || !selectedCategory}>
+              {importing ? 'Importando...' : '⬇ Importar'}
+            </button>
+            <button onClick={handleIptvImportAll} className={styles.button} disabled={importingAll} style={{ width: 'auto' }}>
+              {importingAll ? 'Importando todas...' : '⬇ Importar Todas'}
+            </button>
+          </div>
+          {iptvStatus && (
+            <p className={iptvStatus.type === 'ok' ? styles.successText : styles.error}>
+              {iptvStatus.text}
+            </p>
+          )}
+          {iptvAllStatus && (
+            <p className={iptvAllStatus.type === 'ok' ? styles.successText : styles.error}>
+              {iptvAllStatus.text}
+            </p>
+          )}
+        </div>
+
+        <div className={styles.iptvSection}>
+          <h3>
+            Importar Xtream — Magma{' '}
+            {xtreamCfg && (
+              <span className={xtreamCfg.configured ? styles.badgeActive : styles.badgeInactive}>
+                {xtreamCfg.configured ? 'credenciales OK' : 'sin credenciales'}
+              </span>
+            )}
+          </h3>
+          <p className={styles.loadingText} style={{ marginTop: 0 }}>
+            {xtreamCfg ? `${xtreamCfg.catalog_channels} canales en el catálogo local (solo español).` : ''}
+            {xtreamCfg && !xtreamCfg.configured && (
+              <> Define <code>XTREAM_HOST</code>, <code>XTREAM_USERNAME</code> y <code>XTREAM_PASSWORD</code> en el <code>.env</code> del backend para reproducirlos.</>
+            )}
+          </p>
+          <div className={styles.iptvRow}>
+            <button onClick={() => handleXtreamImport(false)} className={styles.buttonSecondary} disabled={xtreamImporting}>
+              {xtreamImporting ? 'Importando...' : '⬇ Importar catálogo (offline)'}
+            </button>
+            <button
+              onClick={() => handleXtreamImport(true)}
+              className={styles.button}
+              disabled={xtreamImporting || !(xtreamCfg && xtreamCfg.configured)}
+              style={{ width: 'auto' }}
+              title={xtreamCfg && xtreamCfg.configured ? 'Consulta el panel con tus credenciales' : 'Requiere credenciales XTREAM_* en el .env'}
+            >
+              {xtreamImporting ? 'Importando...' : '⬇ Importar en vivo'}
+            </button>
+            <button
+              onClick={handleVerify}
+              className={styles.buttonSecondary}
+              disabled={verifying}
+              title="Prueba las URLs y deja activos solo los que reproducen"
+            >
+              {verifying ? 'Verificando...' : '✓ Verificar y limpiar'}
+            </button>
+          </div>
+          {xtreamStatus && (
+            <p className={xtreamStatus.type === 'ok' ? styles.successText : styles.error}>
+              {xtreamStatus.text}
+            </p>
+          )}
+        </div>
 
         {error && <p className={styles.error}>{error}</p>}
 

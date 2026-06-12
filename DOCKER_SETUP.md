@@ -1,4 +1,4 @@
-# Ejecutar bustaTv en Docker
+# Ejecutar FofoLocalTv en Docker
 
 ## Requisitos
 
@@ -54,7 +54,7 @@ Accede a:
 - **Frontend**: http://localhost:5173
 - **Backend API**: http://localhost:8000
 - **API Docs**: http://localhost:8000/docs
-- **Admin**: http://localhost:5173/admin (API key: `bustatv-dev-secret-key-changeme`)
+- **Admin**: http://localhost:5173/admin (API key: `fofolocaltv-dev-secret-key-changeme`)
 
 ## Troubleshooting
 

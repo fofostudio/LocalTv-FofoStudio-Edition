@@ -58,7 +58,10 @@ function ChannelLogo({ ch, size = 40, radius = 12 }) {
     return () => { cancelled = true; };
   }, [logo, lite]);
 
-  if (!logo || failed) {
+  // En TV (lite) NO cargamos el logo remoto: mostramos las iniciales de color.
+  // Evita decenas/cientos de requests de imagen + decodes que ahogan al
+  // navegador de Smart TV. Es la mayor ganancia de carga en TV.
+  if (!logo || failed || lite) {
     return (
       <span
         className={styles.fallback}

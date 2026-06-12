@@ -62,6 +62,35 @@ const webApi = {
     headers: { 'X-API-Key': apiKey },
   }),
 
+  getIptvCategories: () => jsonFetch('/api/admin/iptv-categories', {
+    headers: { 'X-API-Key': localStorage.getItem('apiKey') || '' },
+  }),
+
+  importFromIptv: (category, apiKey) => jsonFetch(`/api/admin/import-iptv?category=${encodeURIComponent(category)}`, {
+    method: 'POST',
+    headers: { 'X-API-Key': apiKey },
+  }),
+
+  importAllFromIptv: (apiKey) => jsonFetch('/api/admin/import-iptv-all', {
+    method: 'POST',
+    headers: { 'X-API-Key': apiKey },
+  }),
+
+  // Xtream (Magma): estado + importación del catálogo (solo español).
+  xtreamStatus: (apiKey) => jsonFetch('/api/admin/xtream-status', {
+    headers: { 'X-API-Key': apiKey || localStorage.getItem('apiKey') || '' },
+  }),
+
+  importXtream: ({ provider = 'Magma', live = false, strict = false } = {}, apiKey) => jsonFetch(
+    `/api/admin/import-xtream?provider=${encodeURIComponent(provider)}&live=${live}&strict=${strict}`,
+    { method: 'POST', headers: { 'X-API-Key': apiKey }, timeout: 60000 },
+  ),
+
+  verifyChannels: (provider = '', apiKey) => jsonFetch(
+    `/api/admin/verify-channels?provider=${encodeURIComponent(provider)}`,
+    { method: 'POST', headers: { 'X-API-Key': apiKey }, timeout: 120000 },
+  ),
+
   getStreamHealth: () => jsonFetch('/api/streams/health'),
 
   getNetworkInfo: () => jsonFetch('/api/network/info'),
@@ -122,6 +151,12 @@ const mobileApi = {
     const scraped = await fetchChannels({ force: true });
     return upsertChannels(scraped);
   },
+
+  getIptvCategories: async () => [],
+  importFromIptv: async () => ({}),
+  xtreamStatus: async () => ({ configured: false, catalog_channels: 0 }),
+  importXtream: async () => ({ ok: false, created: 0 }),
+  verifyChannels: async () => ({ ok: false, alive: 0, dead: 0 }),
 
   async getStreamHealth() {
     const [{ checkHealth }, { getChannels }] = await Promise.all([

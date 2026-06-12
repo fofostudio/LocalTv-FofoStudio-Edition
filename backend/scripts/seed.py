@@ -124,31 +124,53 @@ def _channels_for(category_id: int) -> list[Channel]:
     ]
 
 
+DEFAULT_CATEGORIES = [
+    Category(name="Deportes", slug="deportes", icon="fa-futbol"),
+    Category(name="Noticias", slug="noticias", icon="fa-newspaper"),
+    Category(name="Entretenimiento", slug="entretenimiento", icon="fa-film"),
+    Category(name="Películas", slug="peliculas", icon="fa-clapperboard"),
+    Category(name="Música", slug="musica", icon="fa-music"),
+    Category(name="Infantil", slug="infantil", icon="fa-child"),
+    Category(name="Documentales", slug="documentales", icon="fa-book"),
+    Category(name="Educativo", slug="educativo", icon="fa-graduation-cap"),
+    Category(name="General", slug="general", icon="fa-globe"),
+    Category(name="Series", slug="series", icon="fa-list"),
+    Category(name="Reality", slug="reality", icon="fa-tv"),
+]
+
+
+def _ensure_categories(db) -> None:
+    """Agrega categorías faltantes en cada arranque."""
+    existing = {c.slug for c in db.query(Category).all()}
+    added = []
+    for cat in DEFAULT_CATEGORIES:
+        if cat.slug not in existing:
+            db.add(cat)
+            added.append(cat.slug)
+    if added:
+        db.commit()
+
+
 def seed():
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
-        if db.query(Category).count() > 0:
-            # Ya hay datos. Sólo enriquecemos regiones si FALTAN: así no
-            # bloqueamos el arranque con un fetch a tvtvhd en cada boot cuando
-            # ya están todas cargadas.
-            missing = db.query(Channel).filter(
-                (Channel.region.is_(None)) | (Channel.region == "")
-            ).count()
-            if missing:
-                _enrich_regions_safe(db)
-            return
+        _ensure_categories(db)
 
-        deportes = Category(name="Deportes", slug="deportes", icon="fa-futbol")
-        reality = Category(name="Reality", slug="reality", icon="fa-tv")
-        db.add_all([deportes, reality])
-        db.flush()
+        had_channels = db.query(Channel).count() > 0
 
-        db.add_all(_channels_for(deportes.id))
-        db.commit()
+        if not had_channels:
+            deportes = db.query(Category).filter(Category.slug == "deportes").first()
+            if deportes:
+                db.add_all(_channels_for(deportes.id))
+                db.commit()
 
-        # Después del seed inicial, enriquecer con regiones desde status.json
-        _enrich_regions_safe(db)
+        # Enriquece regiones desde tvtvhd si faltan
+        missing = db.query(Channel).filter(
+            (Channel.region.is_(None)) | (Channel.region == "")
+        ).count()
+        if missing:
+            _enrich_regions_safe(db)
     finally:
         db.close()
 
@@ -176,6 +198,50 @@ def _enrich_regions_safe(db) -> None:
             updated += 1
     if updated:
         db.commit()
+
+
+async def seed_iptv():
+    """Importa canales de iptv-org (solo español) en primer arranque.
+    Se ejecuta como startup event de FastAPI, ya con event loop disponible."""
+    from app.database import SessionLocal
+    from app.services.iptv_scraper import (
+        fetch_all_categories,
+        import_all_to_db,
+    )
+
+    db = SessionLocal()
+    try:
+        # Solo importar si es primer arranque (seed channels creados justo ahora)
+        # y no hay canales iptv-org todavía (< 100 canales = solo seed deportes)
+        total = db.query(Channel).count()
+        if total > 100:
+            return
+
+        print("  iptv-org: descargando listas...")
+        all_channels = await fetch_all_categories()
+        if all_channels:
+            stats = import_all_to_db(db, all_channels)
+            print(
+                f"  iptv-org: {stats['created']} creados, "
+                f"{stats['skipped']} omitidos"
+            )
+
+        # Catálogo Magma (Xtream). Solo se auto-importa si hay credenciales
+        # XTREAM_* en el .env (si no, ensuciaría la lista con canales inactivos).
+        # Sin credenciales el usuario puede importarlo manualmente desde el panel.
+        try:
+            from app.services import xtream_scraper
+            if xtream_scraper.is_configured():
+                dump = xtream_scraper.load_catalog_dump()
+                if dump:
+                    ms = xtream_scraper.import_xtream(db, dump, provider="Magma")
+                    print(f"  magma/xtream: {ms['created']} creados (reproducibles)")
+        except Exception as e:
+            print(f"  magma/xtream: error ({e})")
+    except Exception as e:
+        print(f"  iptv-org: error ({e})")
+    finally:
+        db.close()
 
 
 if __name__ == "__main__":

@@ -89,8 +89,15 @@ async function tryAutoUpdate(url, assetName) {
   }
 }
 
+// Si el usuario ya eligió "seguir sin actualizar" para una versión, no volvemos
+// a bloquear por esa versión (se recuerda por versión publicada).
+function skippedVersion(v) {
+  try { return localStorage.getItem('localtv_skip_update') === v; } catch { return false; }
+}
+
 export default function UpdateGate({ children }) {
   const [state, setState] = useState(IS_DEV ? { status: 'ok' } : { status: 'checking' });
+  const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
     if (IS_DEV) return; // dev/localhost: nunca bloquear
@@ -111,7 +118,8 @@ export default function UpdateGate({ children }) {
           return;
         }
         const cmp = compareVersions(latest, CURRENT_VERSION);
-        if (cmp <= 0) {
+        if (cmp <= 0 || skippedVersion(latest)) {
+          // Al día, o el usuario ya eligió seguir sin actualizar esta versión.
           setState({ status: 'ok', latest, current: CURRENT_VERSION });
           return;
         }
@@ -144,13 +152,21 @@ export default function UpdateGate({ children }) {
       </div>
     );
   }
-  if (state.status === 'outdated') {
-    return <UpdatePrompt {...state} />;
+  if (state.status === 'outdated' && !dismissed) {
+    return (
+      <UpdatePrompt
+        {...state}
+        onDismiss={() => {
+          try { localStorage.setItem('localtv_skip_update', state.latest); } catch { /* ignore */ }
+          setDismissed(true);
+        }}
+      />
+    );
   }
   return children;
 }
 
-function UpdatePrompt({ latest, current, asset, notes, platform, releaseUrl }) {
+function UpdatePrompt({ latest, current, asset, notes, platform, releaseUrl, onDismiss }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState(null);
   const [progress, setProgress] = useState(null); // 'downloading' | 'installing'
@@ -232,9 +248,8 @@ function UpdatePrompt({ latest, current, asset, notes, platform, releaseUrl }) {
         </div>
 
         <p className={styles.subtitle}>
-          Esta versión incluye mejoras y correcciones importantes. Para seguir
-          usando la app necesitás actualizar a la última versión disponible
-          para {platformLabel}.
+          Hay una versión nueva con mejoras y correcciones para {platformLabel}.
+          Puedes actualizar ahora, o seguir usando esta versión si prefieres.
         </p>
 
         {asset ? (
@@ -273,6 +288,11 @@ function UpdatePrompt({ latest, current, asset, notes, platform, releaseUrl }) {
           >
             Ver release en GitHub
           </a>
+          {onDismiss && (
+            <button className={styles.btnGhost} onClick={onDismiss} disabled={busy}>
+              Seguir sin actualizar
+            </button>
+          )}
         </div>
 
         {progress === 'installing' && (
@@ -292,7 +312,7 @@ function UpdatePrompt({ latest, current, asset, notes, platform, releaseUrl }) {
         )}
 
         <div className={styles.footer}>
-          LocalTv · FofoStudio Edition · No podés usar la app sin actualizar.
+          LocalTv · FofoStudio Edition · Puedes actualizar ahora o seguir usando esta versión.
         </div>
       </div>
     </div>

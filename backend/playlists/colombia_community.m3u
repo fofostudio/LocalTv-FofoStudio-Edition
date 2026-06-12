@@ -1,0 +1,57 @@
+#EXTM3U
+# Consolidated Colombian channels from community sources
+
+#EXTINF:-1 tvg-id="SenalColombia.co" tvg-logo="https://i.imgur.com/XWBYm7f.png" group-title="Colombia",Señal Colombia
+https://streaming.rtvc.gov.co/RTVC/colombia_main.m3u8
+#EXTINF:-1 tvg-id="CanalInstitucional.co" tvg-logo="https://i.imgur.com/VNFxpWC.png" group-title="Colombia",Canal Institucional
+https://streaming.rtvc.gov.co/RTVC/institucional_main.m3u8
+#EXTINF:-1 tvg-id="CanalCongreso.co" tvg-logo="https://i.imgur.com/LMheh6i.png" group-title="Colombia",Canal Congreso
+https://cdn.colombiawebs.com/congreso/live.m3u8
+#EXTINF:-1 tvg-id="Teleantioquia.co" tvg-logo="https://i.imgur.com/fes0YvX.png" group-title="Colombia",Teleantioquia
+https://streaming.teveo.com.co/live/TATV/index.m3u8
+#EXTINF:-1 tvg-id="Telemedellin.co" tvg-logo="https://i.imgur.com/7tlZC7z.png" group-title="Colombia",Telemedellín
+https://mdstrm.com/live-stream/5d1f49eab8e8f307348f8f90.m3u8
+#EXTINF:-1 tvg-id="Telepacifico.co" tvg-logo="https://i.imgur.com/43dpblX.png" group-title="Colombia",Telepacífico
+https://mdstrm.com/live-stream/57d1a220dbbfc7f86c6bb7b3.m3u8
+#EXTINF:-1 tvg-id="Telecaribe.co" tvg-logo="https://i.imgur.com/AKYvV0w.png" group-title="Colombia",Telecaribe
+https://streamer1.streamhost.org:1936/salive/GMTV/playlist.m3u8
+#EXTINF:-1 tvg-id="CanalTRO.co" tvg-logo="https://i.imgur.com/oy8cvL1.png" group-title="Colombia",Canal TRO
+https://streaming.tro.com.co/hls/live.m3u8
+#EXTINF:-1 tvg-id="CanalCapital.co" tvg-logo="https://i.imgur.com/jF0O1zj.png" group-title="Colombia",Canal Capital
+https://live.canalcapital.gov.co/live-channel/stream_720p.m3u8
+#EXTINF:-1 tvg-id="CityTV.co" tvg-logo="https://i.imgur.com/iLUQZ7p.png" group-title="Colombia",CityTV
+https://mdstrm.com/live-stream/5e4f85c3f9659f08d647f4f3.m3u8
+#EXTINF:-1 tvg-id="ATNTelevision.co" tvg-logo="" group-title="Colombia",ATN Televisión
+https://streaming5.globalhostla.com/rtplive/atntelevision/playlist.m3u8
+#EXTINF:-1 tvg-id="AvivamientoTV.co" tvg-logo="" group-title="Colombia",Avivamiento TV
+https://s1.abntelevision.com/avivamientoabr/stream/avivamientohd/avivamientohd/playlist.m3u8
+#EXTINF:-1 tvg-id="CaliTV.co" tvg-logo="" group-title="Colombia",Cali TV
+https://5ab772334c39c.streamlock.net/live-calitv/calitv1/playlist.m3u8
+#EXTINF:-1 tvg-id="Canal1.co" tvg-logo="" group-title="Colombia",Canal 1
+https://mdstrm.com/live-stream-playlist/5a5e1c2568b1910913db5fe2.m3u8
+#EXTINF:-1 tvg-id="CanalTROPlus.co" tvg-logo="" group-title="Colombia",Canal TRO Plus
+https://liveingesta118.cdnmedia.tv/canaltro2live/smil:troplus.smil/playlist.m3u8
+#EXTINF:-1 tvg-id="CMBTelevision.co" tvg-logo="" group-title="Colombia",CMB Televisión
+https://cdn1.cmbcolombia.tv/bethesda/video.m3u8
+#EXTINF:-1 tvg-id="Cosmovision.co" tvg-logo="" group-title="Colombia",Cosmovision
+https://videohls2.cosmovision.tv/hls/sd.m3u8
+#EXTINF:-1 tvg-id="Noticiero90Minutos.co" tvg-logo="" group-title="Colombia",Noticiero 90 Minutos
+https://play.cdn.enetres.net/621B146D29C541AFB1507809F038F471021/021/playlist.m3u8
+#EXTINF:-1 tvg-id="SenalColombia.co2" tvg-logo="" group-title="Colombia",Señal Colombia (alt)
+https://streaming.rtvc.gov.co/TV_Senal_Colombia_live/smil:live.smil/playlist.m3u8
+#EXTINF:-1 tvg-id="Teleantioquia.co2" tvg-logo="" group-title="Colombia",Teleantioquia (alt)
+https://liveingesta118.cdnmedia.tv/teleantioquialive/smil:dvrlive.smil/playlist.m3u8
+#EXTINF:-1 tvg-id="Telecafe.co" tvg-logo="" group-title="Colombia",Telecafé
+https://liveingesta318.cdnmedia.tv/telecafelive/smil:rtmp01.smil/playlist.m3u8
+#EXTINF:-1 tvg-id="Telecaribe.co2" tvg-logo="" group-title="Colombia",Telecaribe (alt)
+https://liveingesta118.cdnmedia.tv/telecaribetvlive/smil:rtmp01.smil/playlist.m3u8
+#EXTINF:-1 tvg-id="Telemedellin.co2" tvg-logo="" group-title="Colombia",Telemedellín (alt)
+https://liveingesta118.cdnmedia.tv/tvtelemedellinlive/smil:rtmp01.smil/playlist.m3u8
+#EXTINF:-1 tvg-id="Trece.co" tvg-logo="" group-title="Colombia",Trece
+https://liveingesta118.cdnmedia.tv/trecetvlive/smil:rtmp01.smil/playlist.m3u8
+#EXTINF:-1 tvg-id="Telepacifico.co2" tvg-logo="" group-title="Colombia",Telepacífico (alt)
+https://play.cdn.enetres.net/6E5C615AA5FF4123ACAF0DAB57B7B8DC021/022/playlist.m3u8
+#EXTINF:-1 tvg-id="Teleislas.co" tvg-logo="" group-title="Colombia",Teleislas
+https://5ab772334c39c.streamlock.net/live-teleislas/teleislas/playlist.m3u8
+#EXTINF:-1 tvg-id="CanalSantaMartaTV.co" tvg-logo="" group-title="Colombia",Canal Santa Marta TV
+https://stream.amelbasoluciones.co/live/santamartalive.m3u8

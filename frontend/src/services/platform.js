@@ -115,11 +115,21 @@ export async function getProxyDiagnostics(slug) {
   return diag;
 }
 
-export async function streamPlaylistUrl(slug) {
+export async function streamPlaylistUrl(slug, magma = null) {
   if (isCapacitor()) {
     const base = await ensureHlsProxy();
-    return `${base}/stream/${slug}/playlist.m3u8`;
+    let url = `${base}/stream/${slug}/playlist.m3u8`;
+    // Canal Magma: el proxy nativo necesita la m3u8 directa + la firma para
+    // mandar los headers correctos (si no, el panel sirve un placeholder).
+    if (magma?.src) {
+      const q = new URLSearchParams({
+        src: magma.src, xh: magma.xh, xd: magma.xd, xv: magma.xv,
+      });
+      url += `?${q.toString()}`;
+    }
+    return url;
   }
+  // Web/desktop: el backend (streams.py) resuelve Magma con su propia firma.
   return `/api/streams/${slug}/playlist.m3u8`;
 }
 

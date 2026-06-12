@@ -13,6 +13,39 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
 }
 
+/* modo inmersivo: el mismo <video> pasa a pantalla completa para zapping.
+   El UI (ChannelZapper) va por encima con z-index mayor. */
+.immersive {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1200;
+  border-radius: 0;
+  background: #000;
+  animation: immerseIn 0.22s ease;
+}
+@keyframes immerseIn { from { opacity: 0.45; } to { opacity: 1; } }
+
+/* botón de expandir (entrar a inmersivo) en el overlay acoplado de Home */
+.expandBtn {
+  pointer-events: auto;
+  margin-left: auto;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.55);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.12s, transform 0.12s;
+}
+.expandBtn:hover { background: rgba(0, 0, 0, 0.85); transform: scale(1.06); }
+
 /* Home, midiendo el slot: montado pero fuera de vista */
 .pending {
   position: fixed;
@@ -35,7 +68,10 @@
   z-index: 45;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.08);
   animation: pipIn 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  cursor: grab;
+  touch-action: none; /* permite arrastrar con el dedo sin scrollear la página */
 }
+.floating:active { cursor: grabbing; }
 @keyframes pipIn {
   from { transform: translateY(24px) scale(0.95); opacity: 0; }
   to { transform: none; opacity: 1; }

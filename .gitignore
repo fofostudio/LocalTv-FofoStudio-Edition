@@ -64,7 +64,7 @@ Thumbs.db
 
 # Database
 *.db
-bustaTv.db
+FofoLocalTv.db
 
 # Docker
 .docker/
@@ -75,3 +75,31 @@ docker-compose.override.yml
 .env.local
 .env.*.local
 !.env.example
+
+# Artefactos de reversing / análisis (NO se versionan: pesados y reproducibles)
+tools/jadx/
+tools/jadx.zip
+tools/apk/
+tools/*.bin
+magma_src/
+magma_extracted/
+xuper_src/
+xuper_extracted/
+backend/tools/
+*.apk
+analyze_*.py
+dex_*.txt
+magma_*.txt
+magma_*.json
+magma_m3u.txt
+xuper_*.txt
+xuper_*.log
+xtream_channels.csv
+xtream_live.json
+tv.m3u8
+tv.m3u
+SUMMARY.md
+_*.png
+# Dumps de catálogo Magma versionados (whitelist explícita)
+!backend/playlists/magma/xtream_live.json
+!backend/playlists/magma/xtream_channels.csv

@@ -208,7 +208,14 @@ const sqliteBackend = {
 
     const r = await db.query('SELECT COUNT(*) as n FROM channels');
     const n = r?.values?.[0]?.n ?? 0;
-    if (n === 0) await this._seedInitial();
+    if (n === 0) {
+      await this._seedInitial();
+    } else {
+      // Top-up idempotente: BD existente de una versión previa sin Magma. El seed
+      // ahora trae los canales Magma → sembrarlos sin tocar el resto (slug UNIQUE).
+      const m = await db.query("SELECT COUNT(*) as n FROM channels WHERE region='Magma'");
+      if ((m?.values?.[0]?.n ?? 0) === 0) await this._seedInitial();
+    }
   },
 
   async _seedInitial() {
@@ -218,6 +225,14 @@ const sqliteBackend = {
     );
     const seed = await loadSeed();
     if (!seed?.channels?.length) return;
+    // Categorías reales del seed (para agrupar Magma + abiertos por categoría).
+    if (seed.categories?.length) {
+      const catSet = seed.categories.map((c) => ({
+        statement: `INSERT OR IGNORE INTO categories (id, name, slug, icon) VALUES (?, ?, ?, ?)`,
+        values: [c.id, c.name, c.slug, c.icon || null],
+      }));
+      await db.executeSet(catSet);
+    }
     const STMT = `INSERT OR IGNORE INTO channels (name, slug, stream_url, logo_url, category_id, is_active, region)
                   VALUES (?, ?, ?, ?, ?, ?, ?)`;
     const set = seed.channels.map((c) => ({

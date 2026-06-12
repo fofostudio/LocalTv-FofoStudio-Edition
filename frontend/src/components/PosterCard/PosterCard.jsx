@@ -13,6 +13,7 @@ function PosterCard({ item, onOpen }) {
     ? 'anime'
     : (item.media_type === 'tv' || item.name ? 'tv' : 'movie');
   const kindLabel = kind === 'anime' ? 'Anime' : kind === 'tv' ? 'Serie' : 'Película';
+  const kindClass = kind === 'anime' ? styles.kindAnime : kind === 'tv' ? styles.kindTv : styles.kindMovie;
 
   return (
     <button type="button" className={styles.card} onClick={() => onOpen?.(item, kind)}>
@@ -23,7 +24,7 @@ function PosterCard({ item, onOpen }) {
           <div className={styles.posterFallback}>{title}</div>
         )}
         {rating && <span className={styles.rating}>★ {rating}</span>}
-        <span className={styles.kind}>{kindLabel}</span>
+        <span className={`${styles.kind} ${kindClass}`}>{kindLabel}</span>
       </div>
       <div className={styles.meta}>
         <div className={styles.title}>{title}</div>

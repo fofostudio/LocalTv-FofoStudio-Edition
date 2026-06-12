@@ -11,7 +11,7 @@ from app.version import APP_VERSION
 from app.models.category import Category  # noqa: F401 (registra modelo)
 from app.models.channel import Channel    # noqa: F401
 from app.models.user import User          # noqa: F401
-from scripts.seed import seed
+from scripts.seed import seed, seed_iptv
 
 
 def _resource_dir() -> Path:
@@ -42,12 +42,18 @@ def _migrate_add_region_column():
 _migrate_add_region_column()
 seed()
 
-
 app = FastAPI(
     title="LocalTv API",
     description="API de la plataforma de streaming LocalTv (FofoStudio Edition)",
     version=APP_VERSION,
 )
+
+
+@app.on_event("startup")
+async def _seed_iptv_background():
+    """Importa canales de iptv-org (solo español) en background tras el
+    arranque. No bloquea la API — el seed ya dejó los canales base (tvtvhd)."""
+    await seed_iptv()
 
 
 @app.on_event("shutdown")

@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, Fragment } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { ChannelContext } from '../../context/ChannelContext';
 import { LocalTvMark, LocalTvWordmark } from '../Brand/Brand';
@@ -27,7 +27,7 @@ const NAV = [
 
 export default function LtSidebar() {
   const {
-    channels, currentChannel, setCurrentChannel,
+    visibleChannels, currentChannel, setCurrentChannel, categories,
     filteredChannels, searchQuery, setSearchQuery,
     liveSlugs, healthLoading, refreshHealth, healthCheckedAt,
   } = useContext(ChannelContext);
@@ -35,6 +35,18 @@ export default function LtSidebar() {
   const navigate = useNavigate();
 
   const liveCount = liveSlugs.size;
+
+  // Lista a renderizar (en modo TV se acota el DOM) ya viene ordenada desde el
+  // contexto: canal actual → su misma categoría → el resto.
+  const list = isLite() ? filteredChannels.slice(0, LITE_MAX) : filteredChannels;
+  // Nombre de la categoría que se está viendo (para etiquetar el bloque afín).
+  const curCatName = currentChannel
+    ? (categories.find((c) => c.id === currentChannel.category_id)?.name || null)
+    : null;
+  // Primer canal de OTRA categoría (frontera para el divisor "Otros canales").
+  const firstOtherId = currentChannel?.category_id != null
+    ? list.find((c) => c.id !== currentChannel.id && c.category_id !== currentChannel.category_id)?.id
+    : null;
   const lastSync = healthCheckedAt
     ? healthCheckedAt.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
     : 'Listo';
@@ -86,28 +98,43 @@ export default function LtSidebar() {
       </div>
 
       <div className={styles.section}>
-        <span className={styles.sectionTitle}>Canales · {channels.length}</span>
+        <span className={styles.sectionTitle}>
+          {curCatName ? `Viendo · ${curCatName}` : `Canales · ${visibleChannels.length}`}
+        </span>
         <span className={styles.sectionLive}>
           <span className={`${styles.dot} ${styles.dotLive}`} /> en vivo
         </span>
       </div>
 
       <div className={styles.list}>
-        {(isLite() ? filteredChannels.slice(0, LITE_MAX) : filteredChannels).map((ch) => (
-          <button
-            key={ch.id}
-            type="button"
-            className={`${styles.row} ${currentChannel?.id === ch.id ? styles.rowActive : ''}`}
-            onClick={() => pickChannel(ch)}
-          >
-            <ChannelBadge ch={ch} />
-            <span className={styles.rowText}>
-              <span className={styles.rowName}>{ch.name}</span>
-              <span className={styles.rowTag}>{regionLabel(ch.region)}</span>
-            </span>
-            <span className={`${styles.dot} ${styles.dotLive}`} />
-          </button>
-        ))}
+        {list.map((ch) => {
+          const active = currentChannel?.id === ch.id;
+          return (
+            <Fragment key={ch.id}>
+              {ch.id === firstOtherId && (
+                <div className={styles.listDivider}>Otros canales</div>
+              )}
+              <button
+                type="button"
+                className={`${styles.row} ${active ? styles.rowActive : ''}`}
+                onClick={() => pickChannel(ch)}
+              >
+                <ChannelBadge ch={ch} />
+                <span className={styles.rowText}>
+                  <span className={styles.rowName}>{ch.name}</span>
+                  <span className={styles.rowTag}>{regionLabel(ch.region)}</span>
+                </span>
+                {active ? (
+                  <span className={styles.eq} aria-label="En reproducción">
+                    <i /><i /><i />
+                  </span>
+                ) : (
+                  <span className={`${styles.dot} ${styles.dotLive}`} />
+                )}
+              </button>
+            </Fragment>
+          );
+        })}
         {isLite() && filteredChannels.length > LITE_MAX && (
           <p className={styles.empty}>+{filteredChannels.length - LITE_MAX} más · usá la búsqueda</p>
         )}

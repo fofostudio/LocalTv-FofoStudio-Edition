@@ -1,0 +1,240 @@
+/* Overlay de zapping sobre el player inmersivo. El <video> vive debajo
+   (z-index 1200 en PersistentPlayer); este overlay va encima. */
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  color: #fff;
+  /* transparente: el video se ve a través. Captura tap/swipe en todo el área. */
+  background: transparent;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+}
+
+/* ===== Barra superior ===== */
+.topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px calc(16px + 28px);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.35) 60%, transparent 100%);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  z-index: 3;
+}
+.topbar.hidden {
+  opacity: 0;
+  transform: translateY(-16px);
+  pointer-events: none;
+}
+
+.now {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.liveChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  background: var(--lt-orange, #ff6b1a);
+  flex-shrink: 0;
+}
+.dot { width: 6px; height: 6px; border-radius: 50%; background: #fff; }
+.nowName {
+  font-size: 17px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.nowTag {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  flex-shrink: 0;
+}
+
+.actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.iconBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.12);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, transform 0.12s;
+}
+.iconBtn:hover { background: rgba(255, 255, 255, 0.22); }
+.iconBtn:active { transform: scale(0.92); }
+.listBtn {
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 10px;
+  background: var(--lt-blue, #1e7bff);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: filter 0.12s, transform 0.12s;
+}
+.listBtn:hover { filter: brightness(1.12); }
+.listBtn:active { transform: scale(0.96); }
+
+/* ===== Ayuda inferior ===== */
+.hint {
+  position: absolute;
+  bottom: 26px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.6);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.85);
+  z-index: 2;
+  animation: hintIn 0.3s ease;
+}
+@keyframes hintIn { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+/* ===== Drawer de canales ===== */
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 4;
+  animation: fade 0.2s ease;
+}
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+.drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(380px, 86vw);
+  display: flex;
+  flex-direction: column;
+  background: rgba(14, 15, 22, 0.96);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  transform: translateX(100%);
+  transition: transform 0.28s cubic-bezier(0.22, 0.61, 0.36, 1);
+  z-index: 5;
+}
+.drawerOpen { transform: translateX(0); }
+
+.drawerHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  flex-shrink: 0;
+}
+.drawerTitle {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.drawerList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y; /* el scroll vertical del drawer funciona aunque root sea touch-action:none */
+}
+.chRow {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 11px;
+  border-radius: 12px;
+  background: transparent;
+  text-align: left;
+  color: #fff;
+  scroll-margin: 80px;
+  transition: background 0.12s;
+}
+.chRow:hover { background: rgba(255, 255, 255, 0.06); }
+.chRow:focus-visible,
+.chRow:focus {
+  outline: 2px solid var(--lt-blue, #1e7bff);
+  outline-offset: -2px;
+  background: rgba(30, 123, 255, 0.16);
+}
+.chRowActive {
+  background: rgba(30, 123, 255, 0.2);
+  box-shadow: inset 0 0 0 1px rgba(30, 123, 255, 0.45);
+}
+.chText { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.chName {
+  font-size: 13.5px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chTag { font-size: 11px; color: rgba(255, 255, 255, 0.5); }
+.liveMini {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--lt-green, #22c55e);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.28);
+  flex-shrink: 0;
+}
+.empty { padding: 20px; text-align: center; color: rgba(255, 255, 255, 0.5); font-size: 13px; }
+
+/* ===== Celular ===== */
+@media (max-width: 860px) {
+  .nowName { font-size: 15px; }
+  .listBtn span { display: none; } /* solo el icono en pantallas chicas */
+  .drawer { width: min(340px, 90vw); }
+  .hint { font-size: 11.5px; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); }
+}
+
+/* ===== TV (lite): targets y foco más grandes ===== */
+:global(html[data-lite]) .iconBtn { width: 48px; height: 48px; font-size: 26px; }
+:global(html[data-lite]) .listBtn { height: 48px; font-size: 16px; }
+:global(html[data-lite]) .drawer { width: min(440px, 40vw); }
+:global(html[data-lite]) .chRow { padding: 13px 14px; }
+:global(html[data-lite]) .chName { font-size: 16px; }
+:global(html[data-lite]) .chRow:focus {
+  outline: 3px solid var(--lt-blue, #1e7bff);
+  background: rgba(30, 123, 255, 0.22);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .topbar, .drawer, .hint, .scrim { transition: none; animation: none; }
+}

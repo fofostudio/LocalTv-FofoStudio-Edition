@@ -184,3 +184,104 @@ html[data-lite] .lt-glow {
   0%   { background-position: -800px 0; }
   100% { background-position: 800px 0; }
 }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes skelPulse {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 0.9; }
+}
+
+/* ===== Feedback táctil (Android/touch) =====
+   Quitamos el flash gris del tap y damos un "press" físico a botones y cards.
+   Sólo transform/opacity → barato en la WebView. */
+* { -webkit-tap-highlight-color: transparent; }
+button, a, [role="button"], .lt-press {
+  transition: transform 0.12s ease, opacity 0.12s ease, background 0.15s ease;
+  touch-action: manipulation;
+}
+@media (hover: none) and (pointer: coarse) {
+  button:active, a:active, [role="button"]:active, .lt-press:active {
+    transform: scale(0.96);
+  }
+}
+
+/* ===== Transición de página (entrada de cada ruta) =====
+   Solo opacity a propósito: el player persistente se posiciona midiendo el slot
+   con getBoundingClientRect; un translate movería el slot y lo descolocaría. */
+@keyframes pageFade { from { opacity: 0; } to { opacity: 1; } }
+.lt-page {
+  /* Llena la altura del routesContainer para no romper la cadena height:100%
+     de los shells (.shell → .content scrollea). Sin esto el wrapper de la
+     transición tenía altura auto y el scroll de las páginas se rompía. */
+  height: 100%;
+  min-height: 0;
+  animation: pageFade 0.28s ease both;
+}
+
+/* ===== Entrada escalonada para listas/grids cortos =====
+   Aplicar `lt-stagger` al contenedor; los hijos entran con delay creciente.
+   Sólo hasta 14 hijos para no penalizar listas grandes. */
+.lt-stagger > * {
+  animation: fadeUp 0.4s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+.lt-stagger > *:nth-child(1)  { animation-delay: 0.02s; }
+.lt-stagger > *:nth-child(2)  { animation-delay: 0.05s; }
+.lt-stagger > *:nth-child(3)  { animation-delay: 0.08s; }
+.lt-stagger > *:nth-child(4)  { animation-delay: 0.11s; }
+.lt-stagger > *:nth-child(5)  { animation-delay: 0.14s; }
+.lt-stagger > *:nth-child(6)  { animation-delay: 0.17s; }
+.lt-stagger > *:nth-child(7)  { animation-delay: 0.20s; }
+.lt-stagger > *:nth-child(8)  { animation-delay: 0.23s; }
+.lt-stagger > *:nth-child(9)  { animation-delay: 0.26s; }
+.lt-stagger > *:nth-child(10) { animation-delay: 0.29s; }
+.lt-stagger > *:nth-child(11) { animation-delay: 0.32s; }
+.lt-stagger > *:nth-child(12) { animation-delay: 0.35s; }
+.lt-stagger > *:nth-child(13) { animation-delay: 0.38s; }
+.lt-stagger > *:nth-child(n+14) { animation-delay: 0.4s; }
+
+/* ===== Skeleton (placeholders de carga con shimmer) ===== */
+.lt-skeleton {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  animation: skelPulse 1.6s ease-in-out infinite;
+}
+.lt-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.08),
+    transparent
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+/* Entrada simple reutilizable */
+.lt-in { animation: fadeUp 0.32s cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+
+/* ===== Listas con scroll suave en móvil ===== */
+.lt-scroll, .lt-page, [class*="list"], [class*="grid"], [class*="strip"] {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* ===== Respeto a reduce-motion (accesibilidad/batería) ===== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

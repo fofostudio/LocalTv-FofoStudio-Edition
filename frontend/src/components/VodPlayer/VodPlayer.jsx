@@ -1,18 +1,29 @@
 import { useEffect, useRef } from 'react';
-import { IconClose } from '../icons/Icons';
+import { IconClose, IconFullscreen } from '../icons/Icons';
 import styles from './VodPlayer.module.css';
 
 /**
- * Reproductor VOD full-screen. Toca una fuente {url, kind} que entrega
- * /resolve (solo fuentes autorizadas). Soporta HLS (hls.js / nativo), mp4
- * nativo y pistas de subtítulos. Guarda/retoma posición vía onProgress/startAt.
+ * Reproductor VOD. Vive a nivel app (driven por ChannelContext) para que la
+ * reproducción sobreviva al "atrás" y se pueda minimizar a PiP.
+ * - "hls":  .m3u8 → hls.js o nativo
+ * - "mp4":  directo en <video>
+ * - "embed": iframe (embed de terceros)
+ * - minimized: mini-player flotante (PiP); el mismo elemento se mantiene
+ *   montado al alternar, así no se corta la reproducción.
  */
-export default function VodPlayer({ source, title, subtitles = [], startAt = 0, onClose, onProgress }) {
+export default function VodPlayer({
+  source, title, subtitles = [], startAt = 0,
+  minimized = false, onClose, onMinimize, onExpand, onProgress,
+}) {
   const videoRef = useRef(null);
+  const iframeRef = useRef(null);
   const hlsRef = useRef(null);
   const progressRef = useRef(0);
+  const isEmbed = source?.kind === 'embed';
 
+  // Modo video (hls / mp4)
   useEffect(() => {
+    if (isEmbed) return;
     const video = videoRef.current;
     if (!video || !source?.url) return;
 
@@ -34,7 +45,7 @@ export default function VodPlayer({ source, title, subtitles = [], startAt = 0, 
       hls.loadSource(source.url);
       hls.attachMedia(video);
     } else {
-      video.src = source.url; // último intento
+      video.src = source.url;
     }
 
     const onLoaded = () => {
@@ -57,18 +68,59 @@ export default function VodPlayer({ source, title, subtitles = [], startAt = 0, 
     };
   }, [source?.url]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const wrapClass = `${styles.overlay} ${minimized ? styles.mini : ''}`;
+
   return (
-    <div className={styles.overlay}>
+    <div className={wrapClass}>
       <div className={styles.bar}>
         <span className={styles.title}>{title}</span>
-        {source?.demo && <span className={styles.demo}>fuente de demostración (CC)</span>}
-        <button className={styles.close} onClick={onClose} aria-label="Cerrar"><IconClose size={18} color="#fff" /></button>
+        {!minimized && source?.label && <span className={styles.demo}>{source.label}</span>}
+        <span className={styles.barActions}>
+          {minimized ? (
+            <button className={styles.close} onClick={onExpand} aria-label="Expandir" title="Expandir">
+              <IconFullscreen size={16} color="#fff" />
+            </button>
+          ) : (
+            <button className={styles.close} onClick={onMinimize} aria-label="Minimizar" title="Minimizar (seguir en PiP)">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round">
+                <path d="M7 10l5 5 5-5" />
+              </svg>
+            </button>
+          )}
+          <button className={styles.close} onClick={onClose} aria-label="Cerrar" title="Cerrar">
+            <IconClose size={18} color="#fff" />
+          </button>
+        </span>
       </div>
-      <video ref={videoRef} className={styles.video} controls autoPlay playsInline crossOrigin="anonymous">
-        {subtitles.map((s, i) => (
-          <track key={i} kind="subtitles" src={s.url} srcLang={s.lang} label={s.label} default={i === 0} />
-        ))}
-      </video>
+
+      {isEmbed ? (
+        <iframe
+          ref={iframeRef}
+          className={styles.video}
+          src={source.url}
+          allow="autoplay; encrypted-media; fullscreen"
+          allowFullScreen
+          style={{ border: 0, width: '100%', height: '100%' }}
+        />
+      ) : (
+        <video
+          ref={videoRef}
+          className={styles.video}
+          controls={!minimized}
+          autoPlay
+          playsInline
+          crossOrigin="anonymous"
+        >
+          {subtitles.map((s, i) => (
+            <track key={i} kind="subtitles" src={s.url} srcLang={s.lang} label={s.label} default={i === 0} />
+          ))}
+        </video>
+      )}
+
+      {/* En PiP, click sobre el video lo expande. */}
+      {minimized && (
+        <button className={styles.miniExpand} onClick={onExpand} aria-label="Expandir" />
+      )}
     </div>
   );
 }

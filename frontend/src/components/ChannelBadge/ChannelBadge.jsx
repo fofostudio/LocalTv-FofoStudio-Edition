@@ -1,16 +1,18 @@
 import { memo, useState } from 'react';
 import { getLogoFor } from '../../utils/channelLogos';
 import { channelCode, channelHue } from '../../utils/channelDisplay';
+import { isLite } from '../../utils/device';
 
 /**
  * Insignia de canal: usa el logo original (getLogoFor) cuando existe y cae
  * a un cuadro de color con el código del canal si no hay logo o falla la carga.
+ * En TV (lite) usa siempre las iniciales: cero imágenes remotas.
  */
 function ChannelBadge({ ch, size = 28, radius = 6 }) {
   const [failed, setFailed] = useState(false);
   const logo = getLogoFor(ch);
 
-  if (logo && !failed) {
+  if (logo && !failed && !isLite()) {
     return (
       <span
         style={{

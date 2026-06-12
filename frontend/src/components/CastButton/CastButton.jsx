@@ -1,7 +1,11 @@
 import { useChromecast } from '../../hooks/useChromecast';
+import { isCapacitor } from '../../services/platform';
 import styles from './CastButton.module.css';
 
 export default function CastButton({ streamUrl, channelName, logoUrl, loading = false }) {
+  // El cast (transmitir a TV) solo tiene sentido en móvil. En PC (web/exe) el
+  // SDK reporta "disponible" pero falla al elegir dispositivo → lo ocultamos.
+  const mobile = isCapacitor();
   const { isAvailable, isCasting, startCasting, stopCasting } = useChromecast();
 
   const handleClick = async () => {
@@ -31,8 +35,8 @@ export default function CastButton({ streamUrl, channelName, logoUrl, loading = 
     }
   };
 
-  if (!isAvailable) {
-    return null; // Cast no disponible, no mostrar botón
+  if (!mobile || !isAvailable) {
+    return null; // En PC no se muestra; en móvil solo si Cast está disponible.
   }
 
   return (

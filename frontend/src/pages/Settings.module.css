@@ -195,14 +195,36 @@
   border: 1px solid var(--lt-line);
 }
 .cardHead {
+  display: flex;
+  align-items: center;
+  gap: 9px;
   padding: 14px 18px;
   border-bottom: 1px solid var(--lt-line);
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--lt-mute);
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.4px;
 }
+.headIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  font-size: 14px;
+  border-radius: 8px;
+  background: rgba(30, 123, 255, 0.16);
+  border: 1px solid rgba(30, 123, 255, 0.28);
+  flex-shrink: 0;
+}
+.cardNote {
+  padding: 13px 18px 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--lt-mute);
+}
+.card .sports { padding: 13px 18px 16px; }
+.card .shareUrlRow { padding: 13px 18px 16px; }
 .row {
   display: flex;
   align-items: center;

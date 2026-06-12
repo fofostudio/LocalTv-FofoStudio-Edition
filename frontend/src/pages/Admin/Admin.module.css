@@ -415,3 +415,30 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* ===== IPTV IMPORT ===== */
+.iptvSection {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.iptvSection h3 {
+  color: var(--text-primary);
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+}
+
+.iptvRow {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.iptvRow select {
+  flex: 1;
+  min-width: 180px;
+}

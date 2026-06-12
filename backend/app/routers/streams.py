@@ -25,6 +25,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.crud import channels as crud_channels
+from app.config import settings
 
 router = APIRouter(prefix="/api/streams", tags=["streams"])
 
@@ -38,6 +39,39 @@ UPSTREAM_HEADERS = {
     "Origin":  "https://tvtvhd.com",
     "Accept":  "*/*",
 }
+
+# El panel Magma/TVClub exige este User-Agent o devuelve 404. El navegador no
+# puede setearlo → el proxy del backend lo pone al bajar el m3u8 de Magma.
+_MAGMA_UA = "Magma Player/10"
+
+
+def _is_magma_url(url: str | None) -> bool:
+    if not url:
+        return False
+    low = url.lower()
+    return "/stream/secure/" in low or "tvcluboficial.com" in low or "m3uts" in low
+
+
+def _hdr(url: str | None, extra: dict | None = None) -> dict:
+    """Headers correctos según el upstream (Magma vs tvtvhd).
+
+    Para Magma replicamos los headers de firma de la app oficial (X-App/X-Version/
+    X-Hash/X-Did) — sin ellos el panel puede servir un stream placeholder de
+    "actualización" en vez del canal real.
+    """
+    if _is_magma_url(url):
+        h = {"User-Agent": _MAGMA_UA, "Accept": "*/*", "Accept-Encoding": "gzip"}
+        if settings.XTREAM_XHASH:
+            h["X-App"] = "di"
+            h["X-Version"] = settings.XTREAM_XVERSION or "10/1.0.9"
+            h["X-Hash"] = settings.XTREAM_XHASH
+            if settings.XTREAM_XDID:
+                h["X-Did"] = settings.XTREAM_XDID
+    else:
+        h = dict(UPSTREAM_HEADERS)
+    if extra:
+        h.update(extra)
+    return h
 
 # Cliente HTTP compartido con keep-alive/pooling. Crear uno por request (como
 # antes) abría una conexión TLS nueva cada vez — carísimo en vivo, donde el
@@ -92,14 +126,19 @@ def _find_m3u8(html: str) -> str | None:
     return None
 
 
-async def get_stream_url(channel_slug: str) -> str:
+async def get_stream_url(channel_slug: str, db_stream_url: str | None = None) -> str:
     """Resuelve el slug → URL real del manifest .m3u8.
 
+    Si el canal tiene un stream_url directo (.m3u8) en la BD, se usa tal cual.
+    En caso contrario (tvtvhd), se scrapea como antes:
     tvtvhd cambió su arquitectura: la página del player ya no trae el m3u8
     embebido, sino un <iframe> a la18hd.com donde sí está. Seguimos la cadena
     de iframes (hasta 3 niveles) buscando el m3u8 en cada nivel. Reintenta ante
     fallos transitorios del upstream.
     """
+    if db_stream_url and db_stream_url.lower().endswith(".m3u8"):
+        return db_stream_url
+
     url = f"https://tvtvhd.com/vivo/canales.php?stream={channel_slug}"
     referer = "https://tvtvhd.com/"
     last_err: Exception | None = None
@@ -209,14 +248,19 @@ async def _get_retry(url: str, tries: int = 3):
 
 
 # Caché corta de la URL de manifest resuelta por slug, para no re-scrapear
-# tvtvhd en cada refresh del playlist en vivo (cada ~6s) pero igual mantenerlo
+# tvtvhd en cada refresh del playlist en vivo (en cada ~6s) pero igual mantenerlo
 # fresco. La variante (media playlist) sí se re-baja siempre para traer
 # segmentos nuevos.
 _RESOLVE_TTL = 45.0
 _resolve_cache: dict[str, dict] = {}
 
+# Caché de canales no disponibles (404 del CDN) para no re-scrapear
+# innecesariamente — el upstream tarda en volver, no tiene sentido insistir.
+_FAIL_TTL = 60.0
+_fail_cache: dict[str, float] = {}
 
-async def _resolve_media_playlist(slug: str, force: bool = False) -> tuple[str, str]:
+
+async def _resolve_media_playlist(slug: str, force: bool = False, db_stream_url: str | None = None) -> tuple[str, str]:
     """
     Devuelve (texto_media_playlist, base_url). Si el upstream entrega un master
     playlist, baja la variante de mayor calidad y devuelve ESA (aplanado), así
@@ -224,29 +268,86 @@ async def _resolve_media_playlist(slug: str, force: bool = False) -> tuple[str, 
     variante con token que se vuelve inválida → se cortaba la transmisión.
     """
     now = time.time()
+
+    # Si el canal está en fail cache, lo reportamos directamente sin scrapear
+    fail_ts = _fail_cache.get(slug)
+    if not force and fail_ts and now - fail_ts < _FAIL_TTL:
+        raise HTTPException(status_code=503, detail="Canal no disponible (sin señal)")
+
     cached = _resolve_cache.get(slug)
     if not force and cached and now - cached["ts"] < _RESOLVE_TTL:
         master = cached["master"]
     else:
-        master = await get_stream_url(slug)
+        try:
+            master = await get_stream_url(slug, db_stream_url=db_stream_url)
+        except HTTPException:
+            # Falló la resolución (scraper), cacheamos como no disponible
+            _fail_cache[slug] = now
+            raise
 
-    r = await _get_retry(master)
-    text = r.text
+    # No usar _get_retry: queremos manejar 404 como "sin señal" (503),
+    # no como "upstream error" (502). _get_retry convierte 4xx en 502.
+    try:
+        r = await _client().get(master, headers=_hdr(master))
+        if r.status_code not in (200, 206) and r.status_code != 404:
+            # 5xx/timeout → reintentar una vez
+            if r.status_code >= 500 or r.status_code == 429:
+                for _ in range(2):
+                    await asyncio.sleep(0.5)
+                    r = await _client().get(master, headers=_hdr(master))
+                    if r.status_code in (200, 206):
+                        break
+    except httpx.HTTPError as e:
+        raise HTTPException(status_code=502, detail=f"Upstream error: {e}")
+    text = r.text or ""
     ct = (r.headers.get("content-type") or "").lower()
-    if "html" in ct or not (text or "").lstrip().startswith("#EXTM3U"):
-        raise HTTPException(status_code=502, detail="Canal no disponible (manifest inválido)")
+    is_404 = r.status_code == 404
+    is_html = "html" in ct
+    is_bad_manifest = not text.lstrip().startswith("#EXTM3U")
+
+    if is_404 or is_html or is_bad_manifest:
+        # Re-intento: el token de la18hd pudo expirar → re-scrapeamos
+        if not force:
+            _resolve_cache.pop(slug, None)
+            try:
+                master = await get_stream_url(slug, db_stream_url=db_stream_url)
+                r = await _client().get(master, headers=_hdr(master))
+                text = r.text or ""
+                ct = (r.headers.get("content-type") or "").lower()
+                if r.status_code not in (200, 206) or "html" in ct or not text.lstrip().startswith("#EXTM3U"):
+                    raise ValueError("still failing")
+            except HTTPException:
+                raise
+            except Exception:
+                _fail_cache[slug] = now
+                raise HTTPException(status_code=503, detail="Canal no disponible (sin señal)")
+        else:
+            _fail_cache[slug] = now
+            raise HTTPException(status_code=503, detail="Canal no disponible (sin señal)")
 
     base = master
     if _is_master_playlist(text):
         variant = _select_variant(text, master)
         if variant:
-            rv = await _get_retry(variant)
-            vt = rv.text
-            vct = (rv.headers.get("content-type") or "").lower()
-            if "html" not in vct and (vt or "").lstrip().startswith("#EXTM3U"):
+            try:
+                rv = await _client().get(variant, headers=_hdr(variant))
+                if rv.status_code not in (200, 206):
+                    for _ in range(2):
+                        await asyncio.sleep(0.5)
+                        rv = await _client().get(variant, headers=_hdr(variant))
+                        if rv.status_code in (200, 206):
+                            break
+                vt = rv.text or ""
+                vct = (rv.headers.get("content-type") or "").lower()
+                if "html" in vct or not vt.lstrip().startswith("#EXTM3U"):
+                    raise ValueError("variant invalid")
                 text, base = vt, variant
+            except Exception:
+                _fail_cache[slug] = now
+                raise HTTPException(status_code=503, detail="Canal no disponible (variante inválida)")
 
     _resolve_cache[slug] = {"ts": now, "master": master}
+    _fail_cache.pop(slug, None)
     return text, base
 
 
@@ -258,36 +359,37 @@ _health_cache: dict = {"ts": 0.0, "live": set()}
 _health_lock = asyncio.Lock()  # single-flight: evita probes duplicados concurrentes
 
 
-async def _probe_one(client: httpx.AsyncClient, slug: str) -> tuple[str, bool]:
+async def _probe_one(client: httpx.AsyncClient, slug: str, stream_url: str | None = None) -> tuple[str, bool]:
     """
-    Probe ligero, optimizado para mostrar la mayor cantidad de canales
-    realmente disponibles sin matar la lista por ratelimits o timeouts:
-
-    Pide el HTML del player. Si responde 200 y contiene una URL .m3u8
-    embedida → live. Si no → offline.
-
-    NO confiamos sólo en status.json (lo del v1.0.14 daba falsos
-    positivos), pero tampoco hacemos un segundo GET al m3u8 (era
-    demasiado estricto en v1.0.15). Las validaciones de bytes en
-    /segment ya filtran los streams realmente rotos en runtime.
+    Probe real: intenta descargar el manifest .m3u8. No se fía del HTML
+    (la18hd siempre devuelve una URL), valida contra la CDN real.
     """
-    upstream = f"https://tvtvhd.com/vivo/canales.php?stream={slug}"
-    try:
-        r = await client.get(upstream, timeout=8.0)
-        if r.status_code != 200:
+    if stream_url and stream_url.lower().endswith(".m3u8"):
+        try:
+            r = await client.head(stream_url, timeout=8.0)
+            return slug, r.status_code in (200, 206)
+        except (httpx.HTTPError, asyncio.TimeoutError):
             return slug, False
-        html = r.text or ""
-        # El slug está vivo si la página del player tiene un m3u8 embebido O un
-        # <iframe> (tvtvhd ahora mete un iframe a la18hd donde está el m3u8). La
-        # calidad real se valida en /playlist.m3u8 y /segment.
-        if _find_m3u8(html) or _IFRAME_RE.search(html):
-            return slug, True
-        return slug, False
-    except (httpx.HTTPError, asyncio.TimeoutError):
+
+    # Scrapeamos como get_stream_url para obtener la URL real del .m3u8
+    try:
+        master = await get_stream_url(slug, db_stream_url=stream_url)
+        if not master:
+            return slug, False
+        r = await client.get(master, timeout=8.0)
+        if r.status_code not in (200, 206):
+            return slug, False
+        # Validar que sea un manifest HLS de verdad, no HTML
+        text = r.text or ""
+        ct = (r.headers.get("content-type") or "").lower()
+        if "html" in ct or not text.lstrip().startswith("#EXTM3U"):
+            return slug, False
+        return slug, True
+    except Exception:
         return slug, False
 
 
-async def _refresh_health(slugs: list[str]) -> set[str]:
+async def _refresh_health(slugs: list[str], stream_url_map: dict[str, str] | None = None) -> set[str]:
     """Probe en paralelo con concurrency alta (deep probe ~7-10s para 100 canales)."""
     sem = asyncio.Semaphore(40)
 
@@ -297,7 +399,8 @@ async def _refresh_health(slugs: list[str]) -> set[str]:
     ) as client:
         async def task(slug: str):
             async with sem:
-                return await _probe_one(client, slug)
+                su = stream_url_map.get(slug) if stream_url_map else None
+                return await _probe_one(client, slug, stream_url=su)
 
         results = await asyncio.gather(*(task(s) for s in slugs))
     return {slug for slug, ok in results if ok}
@@ -324,9 +427,15 @@ async def health(db: Session = Depends(get_db)):
     def _cached_response():
         age = time.time() - _health_cache["ts"]
         if age < _HEALTH_TTL and _health_cache["live"]:
+            fail_now = time.time()
+            filtered = {s for s in _health_cache["live"]
+                        if s not in _fail_cache or fail_now - _fail_cache[s] >= _FAIL_TTL}
+            if len(filtered) != len(_health_cache["live"]):
+                _health_cache["live"] = filtered
+                _health_cache["ts"] = time.time()
             return {
-                "live": sorted(_health_cache["live"]),
-                "total": len(_health_cache["live"]),
+                "live": sorted(filtered),
+                "total": len(filtered),
                 "cached_age_s": round(age, 1),
                 "source": _health_cache.get("source", "cache"),
             }
@@ -349,6 +458,11 @@ async def health(db: Session = Depends(get_db)):
             from app.services.scraper import fetch_status
             status_map = await fetch_status()  # {slug: is_live}
             live = {slug for slug, is_live in status_map.items() if is_live}
+
+            # Filtrar canales que están en el fail cache (CDN devuelve 404)
+            fail_now = time.time()
+            live = {s for s in live if s not in _fail_cache or fail_now - _fail_cache[s] >= _FAIL_TTL}
+
             _health_cache["ts"] = now
             _health_cache["live"] = live
             _health_cache["source"] = "status.json"
@@ -356,8 +470,10 @@ async def health(db: Session = Depends(get_db)):
                     "source": "status.json"}
         except Exception as e:
             # 2. Fallback: deep probe (más lento)
-            slugs = [c.slug for c in crud_channels.get_channels(db, active_only=False)]
-            live = await _refresh_health(slugs)
+            channels = crud_channels.get_channels(db, active_only=False)
+            slugs = [c.slug for c in channels]
+            stream_url_map = {c.slug: c.stream_url for c in channels if c.stream_url}
+            live = await _refresh_health(slugs, stream_url_map=stream_url_map)
             _health_cache["ts"] = now
             _health_cache["live"] = live
             _health_cache["source"] = "deep-probe"
@@ -369,14 +485,16 @@ async def health(db: Session = Depends(get_db)):
 # Endpoints HLS
 # ---------------------------------------------------------------------------
 @router.get("/{slug}")
-async def get_stream(slug: str):
+async def get_stream(slug: str, db: Session = Depends(get_db)):
     """Devuelve la URL real (útil para debug). El frontend usa /playlist.m3u8."""
-    url = await get_stream_url(slug)
+    ch = crud_channels.get_channel_by_slug(db, slug)
+    db_url = ch.stream_url if ch else None
+    url = await get_stream_url(slug, db_stream_url=db_url)
     return {"url": url, "channel": slug, "proxy_url": f"/api/streams/{slug}/playlist.m3u8"}
 
 
 @router.get("/{slug}/playlist.m3u8")
-async def proxy_playlist(slug: str):
+async def proxy_playlist(slug: str, db: Session = Depends(get_db)):
     """Resuelve el slug, descarga el manifest, reescribe segmentos y lo devuelve.
 
     Validaciones para evitar el bug 'demuxer-error: could not parse' que
@@ -385,14 +503,25 @@ async def proxy_playlist(slug: str):
       - Content-Type del upstream no debe ser text/html
       - El body debe empezar con #EXTM3U (signature obligatoria del HLS)
     """
+    ch = crud_channels.get_channel_by_slug(db, slug)
+    db_url = ch.stream_url if ch else None
     # Resolvemos con reintentos + aplanado master→variante. Si falla, forzamos
     # un re-scrape fresco de tvtvhd y reintentamos una vez más (cubre el caso de
     # token/URL vencidos durante la reproducción en vivo).
     try:
-        text, base = await _resolve_media_playlist(slug)
-    except HTTPException:
+        text, base = await _resolve_media_playlist(slug, db_stream_url=db_url)
+    except HTTPException as e:
+        if e.status_code == 503:
+            raise  # canal sin señal — no reintentar
         _resolve_cache.pop(slug, None)
-        text, base = await _resolve_media_playlist(slug, force=True)
+        try:
+            text, base = await _resolve_media_playlist(slug, force=True, db_stream_url=db_url)
+        except HTTPException as e2:
+            if e2.status_code == 503:
+                raise
+            # Si el reintento forzado da 502 igual, cacheamos como offline
+            _fail_cache[slug] = time.time()
+            raise HTTPException(status_code=503, detail="Canal no disponible (sin señal)")
 
     rewritten = _rewrite_manifest(text, base=base, slug=slug)
     return Response(
@@ -429,7 +558,7 @@ async def proxy_segment(slug: str, u: str, request: Request):
     last_status = None
     for attempt in range(3):
         try:
-            head = await _client().get(u, headers=forward_headers)
+            head = await _client().get(u, headers=_hdr(u, forward_headers))
             last_status = head.status_code
             if head.status_code in (200, 206):
                 break
