@@ -308,7 +308,7 @@ export default function VideoPlayer({ channel }) {
     (async () => {
       let proxyUrl;
       try {
-        proxyUrl = await streamPlaylistUrl(channel.slug, magmaParamsFor(channel));
+        proxyUrl = await streamPlaylistUrl(channel.slug, magmaParamsFor(channel), channel.stream_url);
         if (isCapacitor()) console.info(`[player] proxyUrl=${proxyUrl} engine=${plan[tier]?.e} t=${plan[tier]?.t ?? ''}`);
       } catch (e) {
         if (!cancelled) {

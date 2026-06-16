@@ -44,6 +44,11 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
             "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         private const val REFERER = "https://tvtvhd.com/"
         private const val ORIGIN = "https://tvtvhd.com"
+        // Magma usa su propio UA + firma (X-App/X-Version/X-Hash/X-Did). Sin esto
+        // el panel sirve un placeholder de "actualización obligatoria" en vez del
+        // stream real. La firma se pasa por query (?xh/?xd/?xv) desde el front,
+        // que la lee del seed — así rota sin recompilar Kotlin.
+        private const val MAGMA_UA = "Magma Player/10"
         private const val UPSTREAM_TEMPLATE =
             "https://tvtvhd.com/vivo/canales.php?stream=%s"
         private const val RESOLVE_TTL_MS = 45_000L
@@ -63,8 +68,9 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
             ),
         )
 
-        // tvtvhd ya no embebe el m3u8 directo: mete un <iframe src="...la18hd.com...">
-        // donde vive el m3u8 real. Seguimos esa cadena de iframes.
+        // tvtvhd ya no embebe el m3u8 directo: el <iframe> de /vivo/ apunta a
+        // /tv/canales.php (player Clappr) donde el playbackURL trae el m3u8 real
+        // (CDN externo, hoy fubo18; el host rota → seguimos el iframe genérico).
         private val IFRAME_RE: Pattern = Pattern.compile(
             """<iframe[^>]+src=["']([^"']+)["']""",
             Pattern.CASE_INSENSITIVE
@@ -83,11 +89,36 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
         .callTimeout(20, java.util.concurrent.TimeUnit.SECONDS)
         .build()
 
-    private fun upstreamHeaders(builder: Request.Builder): Request.Builder = builder
-        .header("User-Agent", UA)
-        .header("Referer", REFERER)
-        .header("Origin", ORIGIN)
-        .header("Accept", "*/*")
+    // Firma Magma del stream activo (un canal se reproduce a la vez). Se setea al
+    // pedir el playlist con ?xh/?xd/?xv y se reusa en los segmentos (que sólo
+    // traen ?u=). X-App es constante ("di").
+    private data class MagmaSig(val hash: String, val did: String, val version: String)
+    @Volatile private var magmaSig: MagmaSig? = null
+
+    private fun isMagma(url: String): Boolean =
+        url.contains("/stream/secure/") || url.contains("m3uts") || url.contains("tvcluboficial")
+
+    /**
+     * Headers de upstream según el host. tvtvhd valida Referer/Origin; Magma
+     * valida UA "Magma Player/10" + la firma (X-App/X-Version/X-Hash/X-Did).
+     */
+    private fun upstreamHeaders(builder: Request.Builder, url: String): Request.Builder {
+        if (isMagma(url)) {
+            builder.header("User-Agent", MAGMA_UA).header("Accept", "*/*")
+            magmaSig?.let {
+                builder.header("X-App", "di")
+                    .header("X-Version", it.version)
+                    .header("X-Hash", it.hash)
+                    .header("X-Did", it.did)
+            }
+            return builder
+        }
+        return builder
+            .header("User-Agent", UA)
+            .header("Referer", REFERER)
+            .header("Origin", ORIGIN)
+            .header("Accept", "*/*")
+    }
 
     // ----------------------------------------------------------------------
     // serve()
@@ -101,7 +132,21 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
                 uri == "/health" -> json("""{"ok":true}""")
                 uri.matches(Regex("""^/stream/[^/]+/playlist\.m3u8$""")) -> {
                     val slug = uri.removePrefix("/stream/").removeSuffix("/playlist.m3u8")
-                    handlePlaylist(slug)
+                    // Magma: el front pasa la URL m3u8 directa (?src) + la firma
+                    // (?xh/?xd/?xv). Si no vienen, es un canal tvtvhd normal.
+                    val src = session.parameters["src"]?.firstOrNull()
+                    val xh = session.parameters["xh"]?.firstOrNull()
+                    val xd = session.parameters["xd"]?.firstOrNull()
+                    val xv = session.parameters["xv"]?.firstOrNull()
+                    // tvtvhd: el front pasa la URL `…/canales.php?stream=<param>` en
+                    // ?up porque el param NO siempre = slug ("Liga1 MAX" → slug
+                    // `liga1-max` pero stream `liga1max`). Sin esto reconstruíamos
+                    // `?stream={slug}` y rompía todos los canales multi-palabra.
+                    val up = session.parameters["up"]?.firstOrNull()
+                    if (!xh.isNullOrEmpty() && !xd.isNullOrEmpty()) {
+                        magmaSig = MagmaSig(xh, xd, xv ?: "10/1.0.9")
+                    }
+                    handlePlaylist(slug, src, up)
                 }
                 uri.matches(Regex("""^/stream/[^/]+/segment$""")) -> {
                     val slug = uri.removePrefix("/stream/").removeSuffix("/segment")
@@ -131,13 +176,19 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
     }
 
     /**
-     * slug → URL real del .m3u8. tvtvhd ya no embebe el m3u8: mete un <iframe>
-     * a la18hd.com donde sí está. Seguimos la cadena de iframes (hasta 3 niveles)
-     * buscando el m3u8 en cada nivel. Era la causa de "no carga en Android".
+     * slug → URL real del .m3u8. tvtvhd ya no embebe el m3u8: el <iframe> de
+     * /vivo/ apunta a /tv/canales.php (player Clappr) donde el playbackURL trae
+     * el m3u8 real (CDN externo, hoy fubo18). Seguimos la cadena de iframes
+     * (hasta 3 niveles) buscando el m3u8 en cada nivel.
+     *
+     * `up` = la URL `…/canales.php?stream=<param>` que el front trae del seed.
+     * Se usa como punto de partida porque el param NO siempre = slug; si no
+     * viene, caemos a reconstruir desde el slug (compat).
      */
     @Throws(IOException::class)
-    private fun resolveStreamUrl(slug: String): String {
-        var url = String.format(UPSTREAM_TEMPLATE, slug)
+    private fun resolveStreamUrl(slug: String, up: String? = null): String {
+        var url = if (!up.isNullOrEmpty() && up.contains("canales.php")) up
+                  else String.format(UPSTREAM_TEMPLATE, slug)
         var referer = REFERER
         var lastErr: Exception? = null
         for (level in 0 until 3) {
@@ -179,7 +230,7 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
         var lastErr: Exception? = null
         for (attempt in 0 until tries) {
             try {
-                val b = upstreamHeaders(Request.Builder().url(url).get())
+                val b = upstreamHeaders(Request.Builder().url(url).get(), url)
                 if (range != null) b.header("Range", range)
                 val resp = http.newCall(b.build()).execute()
                 if (resp.code == 200 || resp.code == 206) return resp
@@ -232,11 +283,15 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
      * /playlist.m3u8 (que re-resuelve) en vez de una URL con token que se vence.
      */
     @Throws(IOException::class)
-    private fun resolveMediaPlaylist(slug: String, force: Boolean): Pair<String, String> {
+    private fun resolveMediaPlaylist(slug: String, force: Boolean, src: String?, up: String? = null): Pair<String, String> {
         val now = System.currentTimeMillis()
         val cached = resolveCache[slug]
-        val master = if (!force && cached != null && now - cached.ts < RESOLVE_TTL_MS)
-            cached.master else resolveStreamUrl(slug)
+        // Magma trae la m3u8 directa en `src`: no hay que scrapear tvtvhd.
+        val master = when {
+            !src.isNullOrEmpty() && src.startsWith("http") -> src
+            !force && cached != null && now - cached.ts < RESOLVE_TTL_MS -> cached.master
+            else -> resolveStreamUrl(slug, up)
+        }
 
         getWithRetry(master).use { resp ->
             if (resp.code != 200 && resp.code != 206) throw IOException("Upstream HTTP ${resp.code}")
@@ -316,16 +371,16 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
     // ----------------------------------------------------------------------
     // 3. Handlers
     // ----------------------------------------------------------------------
-    private fun handlePlaylist(slug: String): Response {
+    private fun handlePlaylist(slug: String, src: String?, up: String? = null): Response {
         // Resolución resiliente: reintentos + aplanado master→variante. Si falla,
         // forzamos re-scrape fresco de tvtvhd y reintentamos una vez (cubre el
         // token/URL vencidos durante la reproducción en vivo).
         val pair = try {
-            resolveMediaPlaylist(slug, false)
+            resolveMediaPlaylist(slug, false, src, up)
         } catch (e: Exception) {
             resolveCache.remove(slug)
             try {
-                resolveMediaPlaylist(slug, true)
+                resolveMediaPlaylist(slug, true, src, up)
             } catch (e2: Exception) {
                 return error502("Canal no disponible: ${e2.message}")
             }

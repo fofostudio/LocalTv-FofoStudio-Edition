@@ -111,8 +111,10 @@ _PATTERNS = [
     re.compile(r'<source[^>]+src=["\']([^"\']+\.m3u8[^"\']*)["\']', re.IGNORECASE),
     re.compile(r'(https?://[^"\'<>\s]+\.m3u8[^"\'<>\s]*)', re.IGNORECASE),
 ]
-# tvtvhd dejó de embeber el m3u8 directo: ahora mete un <iframe src="...la18hd.com...">
-# donde vive el m3u8 real. Seguimos esa cadena de iframes.
+# tvtvhd dejó de embeber el m3u8 directo: el <iframe> de /vivo/ apunta a
+# /tv/canales.php (player Clappr) donde el playbackURL trae el m3u8 real desde
+# un CDN externo (Flussonic; hoy familia fubo18.com, antes la18hd.com — el
+# host rota, por eso seguimos el iframe genéricamente en vez de hardcodearlo).
 _IFRAME_RE = re.compile(r'<iframe[^>]+src=["\']([^"\']+)["\']', re.IGNORECASE)
 
 
@@ -130,16 +132,26 @@ async def get_stream_url(channel_slug: str, db_stream_url: str | None = None) ->
     """Resuelve el slug → URL real del manifest .m3u8.
 
     Si el canal tiene un stream_url directo (.m3u8) en la BD, se usa tal cual.
-    En caso contrario (tvtvhd), se scrapea como antes:
-    tvtvhd cambió su arquitectura: la página del player ya no trae el m3u8
-    embebido, sino un <iframe> a la18hd.com donde sí está. Seguimos la cadena
-    de iframes (hasta 3 niveles) buscando el m3u8 en cada nivel. Reintenta ante
-    fallos transitorios del upstream.
+    En caso contrario (tvtvhd), se scrapea siguiendo la cadena de iframes:
+    `…/vivo/canales.php?stream=X` → `<iframe>` → `…/tv/canales.php?stream=X`
+    (player Clappr) donde vive el `playbackURL` con el .m3u8 real (CDN externo,
+    p.ej. fubo18). Seguimos hasta 3 niveles de iframe buscando el m3u8 en cada
+    uno. Reintenta ante fallos transitorios del upstream.
+
+    IMPORTANTE: el parámetro `?stream=` de tvtvhd NO siempre coincide con el
+    slug de la BD (el slug se deriva del nombre: "Liga1 MAX" → `liga1-max`,
+    pero el stream real es `liga1max`). Por eso, si la BD trae el stream_url de
+    tvtvhd, lo usamos tal cual (ya lleva el param correcto) en vez de
+    reconstruirlo desde el slug — reconstruirlo rompía todos los canales
+    multi-palabra (DSports+, Fox Deportes, DAZN Eleven, Sky Bundesliga, …).
     """
     if db_stream_url and db_stream_url.lower().endswith(".m3u8"):
         return db_stream_url
 
-    url = f"https://tvtvhd.com/vivo/canales.php?stream={channel_slug}"
+    if db_stream_url and "canales.php" in db_stream_url.lower():
+        url = db_stream_url
+    else:
+        url = f"https://tvtvhd.com/vivo/canales.php?stream={channel_slug}"
     referer = "https://tvtvhd.com/"
     last_err: Exception | None = None
     for _level in range(3):

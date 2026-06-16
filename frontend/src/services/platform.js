@@ -115,7 +115,7 @@ export async function getProxyDiagnostics(slug) {
   return diag;
 }
 
-export async function streamPlaylistUrl(slug, magma = null) {
+export async function streamPlaylistUrl(slug, magma = null, upstreamUrl = null) {
   if (isCapacitor()) {
     const base = await ensureHlsProxy();
     let url = `${base}/stream/${slug}/playlist.m3u8`;
@@ -126,6 +126,11 @@ export async function streamPlaylistUrl(slug, magma = null) {
         src: magma.src, xh: magma.xh, xd: magma.xd, xv: magma.xv,
       });
       url += `?${q.toString()}`;
+    } else if (upstreamUrl && upstreamUrl.includes('canales.php')) {
+      // Canal tvtvhd: el ?stream=<param> NO siempre coincide con el slug
+      // ("Liga1 MAX" → slug `liga1-max` pero stream `liga1max`). Pasamos la URL
+      // del seed en ?up para que el proxy nativo resuelva con el param correcto.
+      url += `?up=${encodeURIComponent(upstreamUrl)}`;
     }
     return url;
   }
