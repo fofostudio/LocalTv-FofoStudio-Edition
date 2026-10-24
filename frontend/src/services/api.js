@@ -95,11 +95,12 @@ const webApi = {
 
   getNetworkInfo: () => jsonFetch('/api/network/info'),
 
-  getDiaryEvents: async () => {
-    // pltvhd.com fue confiscado junto con tvtvhd (Operation Offsides, julio 2026).
-    // Devolvemos array vacío — la agenda se mostrará vacía en vez de colgar.
-    return [];
-  },
+  getDiaryEvents: () => jsonFetch('/api/diary/events'),
+
+  syncTarjetaRoja: (apiKey) => jsonFetch('/api/admin/sync-tarjetaroja', {
+    method: 'POST',
+    headers: { 'X-API-Key': apiKey },
+  }),
 };
 
 // ---------- Mobile (SQLite + scraper JS) ----------
@@ -181,8 +182,10 @@ const mobileApi = {
   },
 
   async getDiaryEvents() {
-    // pltvhd.com confiscado (Operation Offsides, julio 2026).
-    return [];
+    try {
+      const r = await fetch('https://tarjetarojatvhd.es/agendarojatx.json');
+      return r.json();
+    } catch { return { data: [] }; }
   },
 };
 

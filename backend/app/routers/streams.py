@@ -167,6 +167,10 @@ async def get_stream_url(channel_slug: str, db_stream_url: str | None = None) ->
     if db_stream_url and db_stream_url.startswith("xtream://"):
         raise HTTPException(status_code=503, detail="Canal sin URL de stream configurada")
 
+    # Canales TarjetaRoja se reproducen en iframe, no por proxy HLS
+    if db_stream_url and db_stream_url.startswith("embed:"):
+        raise HTTPException(status_code=503, detail="Canal iframe — se reproduce embebido, no por proxy HLS.")
+
     if db_stream_url and "canales.php" in db_stream_url.lower():
         url = db_stream_url
     else:

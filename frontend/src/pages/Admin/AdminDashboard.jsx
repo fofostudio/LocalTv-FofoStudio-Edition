@@ -23,6 +23,8 @@ export default function AdminDashboard() {
   const [xtreamStatus, setXtreamStatus] = useState(null);
   const [xtreamImporting, setXtreamImporting] = useState(false);
   const [verifying, setVerifying] = useState(false);
+  const [trSyncing, setTrSyncing] = useState(false);
+  const [trStatus, setTrStatus] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -177,6 +179,23 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleTarjetaRojaSync = async () => {
+    setTrSyncing(true);
+    setTrStatus(null);
+    try {
+      const result = await api.syncTarjetaRoja(apiKey);
+      setTrStatus({
+        type: 'ok',
+        text: `TarjetaRoja — ${result.created} nuevos, ${result.updated} actualizados (${result.total} canales en la agenda).`,
+      });
+      await loadChannels();
+    } catch (err) {
+      setTrStatus({ type: 'error', text: err.message || 'Error sincronizando TarjetaRoja' });
+    } finally {
+      setTrSyncing(false);
+    }
+  };
+
   if (!apiKey) return null;
 
   return (
@@ -279,6 +298,25 @@ export default function AdminDashboard() {
           {xtreamStatus && (
             <p className={xtreamStatus.type === 'ok' ? styles.successText : styles.error}>
               {xtreamStatus.text}
+            </p>
+          )}
+        </div>
+
+        <div className={styles.iptvSection}>
+          <h3>Agenda Deportiva — TarjetaRoja</h3>
+          <p className={styles.loadingText} style={{ marginTop: 0 }}>
+            Importa canales deportivos desde la agenda de tarjetarojatvhd.es.
+            Los canales se reproducen embebidos (iframe) — no requieren proxy HLS.
+            La agenda se actualiza automáticamente cada 60 segundos en la pantalla principal.
+          </p>
+          <div className={styles.iptvRow}>
+            <button onClick={handleTarjetaRojaSync} className={styles.buttonSecondary} disabled={trSyncing}>
+              {trSyncing ? 'Sincronizando...' : '⬇ Importar canales de la agenda'}
+            </button>
+          </div>
+          {trStatus && (
+            <p className={trStatus.type === 'ok' ? styles.successText : styles.error}>
+              {trStatus.text}
             </p>
           )}
         </div>

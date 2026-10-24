@@ -118,12 +118,24 @@ export function useDiaryEvents() {
       const streams = embeds.map((e) => {
         const name = e.attributes.embed_name;
         const matched = findChannelByStreamName(name, channels);
+        const embedIframe = e.attributes.embed_iframe;
+        const virtualChannel = !matched && embedIframe ? {
+          id: `tr-${e.id}`,
+          name,
+          slug: `tarjetaroja-${e.id}`,
+          stream_url: `embed:https://tarjetarojatvhd.es${embedIframe.startsWith('/') ? '' : '/'}${embedIframe}`,
+          logo_url: null,
+          is_active: true,
+          region: 'TarjetaRoja',
+          _virtual: true,
+        } : null;
+        const ch = matched || virtualChannel;
         return {
           id: e.id,
           name,
-          channel: matched,
+          channel: ch,
           logo: matched ? getLogoFor(matched) : null,
-          live: matched ? isLive(matched.slug) : false,
+          live: matched ? isLive(matched.slug) : !!virtualChannel,
           isCurrent: matched && currentChannel?.id === matched.id,
         };
       });

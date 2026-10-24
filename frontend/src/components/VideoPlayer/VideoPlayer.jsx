@@ -167,6 +167,9 @@ function hlsConfigForTier(tier) {
 }
 
 export default function VideoPlayer({ channel }) {
+  const isEmbed = channel?.stream_url?.startsWith('embed:');
+  const embedUrl = isEmbed ? channel.stream_url.slice(6) : null;
+
   const { nextLiveChannel, setCurrentChannel, setCurrentChannelSilent, vodActive, immersive } = useContext(ChannelContext);
   const videoRef = useRef(null);
   const hlsRef = useRef(null);
@@ -478,6 +481,22 @@ export default function VideoPlayer({ channel }) {
   // que si no hay IP LAN dejamos null → CastButton queda deshabilitado en vez
   // de castear una URL muerta.
   const finalCastUrl = castUrl || null;
+
+  if (isEmbed && embedUrl) {
+    return (
+      <div className={styles.playerWrapper}>
+        <iframe
+          src={embedUrl}
+          className={styles.player}
+          style={{ border: 'none', background: '#000' }}
+          allowFullScreen
+          allow="autoplay; encrypted-media; fullscreen"
+          referrerPolicy="no-referrer"
+          sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"
+        />
+      </div>
+    );
+  }
 
   const overlayText = (() => {
     if (tier === 0) return 'Cargando…';

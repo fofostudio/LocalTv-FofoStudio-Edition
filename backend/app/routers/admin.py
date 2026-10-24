@@ -309,3 +309,18 @@ def cleanup_non_spanish(db: Session = Depends(get_db)):
     """Elimina de la BD los canales que el clasificador considera no hispanos."""
     stats = iptv_scraper.delete_non_spanish_channels(db)
     return {"ok": True, **stats}
+
+
+@router.post("/sync-tarjetaroja", dependencies=[Depends(require_api_key)])
+async def sync_tarjetaroja(db: Session = Depends(get_db)):
+    """Importa canales deportivos desde TarjetaRoja TV HD (agenda en vivo)."""
+    from app.services import tarjetaroja_scraper
+    try:
+        agenda = await tarjetaroja_scraper.fetch_agenda()
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Error obteniendo agenda TarjetaRoja: {e}")
+    channels = tarjetaroja_scraper.extract_channels(agenda)
+    if not channels:
+        raise HTTPException(status_code=502, detail="No se encontraron canales en la agenda.")
+    stats = tarjetaroja_scraper.import_channels(db, channels)
+    return {"ok": True, **stats}
