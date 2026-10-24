@@ -26,6 +26,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.crud import channels as crud_channels
 from app.config import settings
+from app.security import is_safe_public_url
 
 router = APIRouter(prefix="/api/streams", tags=["streams"])
 
@@ -105,6 +106,20 @@ async def close_shared_client() -> None:
         await _shared_client.aclose()
     _shared_client = None
 
+
+async def _guarded_get(url: str, **kwargs):
+    """GET anti-SSRF: valida que el destino sea público ANTES de pedirlo, y de
+    nuevo la URL FINAL tras seguir redirecciones — así un upstream comprometido
+    no puede usar follow_redirects para saltar a 169.254.169.254 / 192.168.x.x /
+    localhost. Las URLs de manifest/segmento que scrapeamos de tvtvhd o Magma
+    también pasan por acá (no solo el ?u= del cliente)."""
+    if not is_safe_public_url(url):
+        raise HTTPException(status_code=403, detail="Destino no permitido")
+    r = await _client().get(url, **kwargs)
+    if str(r.url) != url and not is_safe_public_url(str(r.url)):
+        raise HTTPException(status_code=403, detail="Redirección a destino no permitido")
+    return r
+
 # Patrones para extraer la URL real del .m3u8 desde el HTML del player
 _PATTERNS = [
     re.compile(r'playbackURL\s*[=:]\s*["\']?([^"\'<>\s]+\.m3u8[^"\'<>\s]*)', re.IGNORECASE),
@@ -148,6 +163,10 @@ async def get_stream_url(channel_slug: str, db_stream_url: str | None = None) ->
     if db_stream_url and db_stream_url.lower().endswith(".m3u8"):
         return db_stream_url
 
+    # Canales con placeholder xtream:// no tienen stream reproducible todavía
+    if db_stream_url and db_stream_url.startswith("xtream://"):
+        raise HTTPException(status_code=503, detail="Canal sin URL de stream configurada")
+
     if db_stream_url and "canales.php" in db_stream_url.lower():
         url = db_stream_url
     else:
@@ -158,7 +177,7 @@ async def get_stream_url(channel_slug: str, db_stream_url: str | None = None) ->
         html: str | None = None
         for attempt in range(3):
             try:
-                r = await _client().get(url, headers={"Referer": referer})
+                r = await _guarded_get(url, headers={"Referer": referer})
                 html = r.text
                 break
             except httpx.HTTPError as e:
@@ -300,13 +319,13 @@ async def _resolve_media_playlist(slug: str, force: bool = False, db_stream_url:
     # No usar _get_retry: queremos manejar 404 como "sin señal" (503),
     # no como "upstream error" (502). _get_retry convierte 4xx en 502.
     try:
-        r = await _client().get(master, headers=_hdr(master))
+        r = await _guarded_get(master, headers=_hdr(master))
         if r.status_code not in (200, 206) and r.status_code != 404:
             # 5xx/timeout → reintentar una vez
             if r.status_code >= 500 or r.status_code == 429:
                 for _ in range(2):
                     await asyncio.sleep(0.5)
-                    r = await _client().get(master, headers=_hdr(master))
+                    r = await _guarded_get(master, headers=_hdr(master))
                     if r.status_code in (200, 206):
                         break
     except httpx.HTTPError as e:
@@ -323,7 +342,7 @@ async def _resolve_media_playlist(slug: str, force: bool = False, db_stream_url:
             _resolve_cache.pop(slug, None)
             try:
                 master = await get_stream_url(slug, db_stream_url=db_stream_url)
-                r = await _client().get(master, headers=_hdr(master))
+                r = await _guarded_get(master, headers=_hdr(master))
                 text = r.text or ""
                 ct = (r.headers.get("content-type") or "").lower()
                 if r.status_code not in (200, 206) or "html" in ct or not text.lstrip().startswith("#EXTM3U"):
@@ -342,11 +361,11 @@ async def _resolve_media_playlist(slug: str, force: bool = False, db_stream_url:
         variant = _select_variant(text, master)
         if variant:
             try:
-                rv = await _client().get(variant, headers=_hdr(variant))
+                rv = await _guarded_get(variant, headers=_hdr(variant))
                 if rv.status_code not in (200, 206):
                     for _ in range(2):
                         await asyncio.sleep(0.5)
-                        rv = await _client().get(variant, headers=_hdr(variant))
+                        rv = await _guarded_get(variant, headers=_hdr(variant))
                         if rv.status_code in (200, 206):
                             break
                 vt = rv.text or ""
@@ -377,6 +396,8 @@ async def _probe_one(client: httpx.AsyncClient, slug: str, stream_url: str | Non
     (la18hd siempre devuelve una URL), valida contra la CDN real.
     """
     if stream_url and stream_url.lower().endswith(".m3u8"):
+        if not is_safe_public_url(stream_url):
+            return slug, False
         try:
             r = await client.head(stream_url, timeout=8.0)
             return slug, r.status_code in (200, 206)
@@ -386,7 +407,7 @@ async def _probe_one(client: httpx.AsyncClient, slug: str, stream_url: str | Non
     # Scrapeamos como get_stream_url para obtener la URL real del .m3u8
     try:
         master = await get_stream_url(slug, db_stream_url=stream_url)
-        if not master:
+        if not master or not is_safe_public_url(master):
             return slug, False
         r = await client.get(master, timeout=8.0)
         if r.status_code not in (200, 206):
@@ -465,32 +486,35 @@ async def health(db: Session = Depends(get_db)):
             return cached
 
         now = time.time()
-        # 1. Fast path: status.json (un solo fetch)
+        # 1. Fast path: status.json (un solo fetch — puede fallar si tvtvhd
+        #    sigue confiscado, en cuyo caso fetch_status devuelve {} vacío).
+        fallback_reason = None
         try:
             from app.services.scraper import fetch_status
-            status_map = await fetch_status()  # {slug: is_live}
-            live = {slug for slug, is_live in status_map.items() if is_live}
-
-            # Filtrar canales que están en el fail cache (CDN devuelve 404)
-            fail_now = time.time()
-            live = {s for s in live if s not in _fail_cache or fail_now - _fail_cache[s] >= _FAIL_TTL}
-
-            _health_cache["ts"] = now
-            _health_cache["live"] = live
-            _health_cache["source"] = "status.json"
-            return {"live": sorted(live), "total": len(live), "cached_age_s": 0.0,
-                    "source": "status.json"}
+            status_map = await fetch_status()
+            if status_map:
+                live = {slug for slug, is_live in status_map.items() if is_live}
+                fail_now = time.time()
+                live = {s for s in live if s not in _fail_cache or fail_now - _fail_cache[s] >= _FAIL_TTL}
+                _health_cache["ts"] = now
+                _health_cache["live"] = live
+                _health_cache["source"] = "status.json"
+                return {"live": sorted(live), "total": len(live), "cached_age_s": 0.0,
+                        "source": "status.json"}
+            fallback_reason = "status.json vacío (tvtvhd no disponible)"
         except Exception as e:
-            # 2. Fallback: deep probe (más lento)
-            channels = crud_channels.get_channels(db, active_only=False)
-            slugs = [c.slug for c in channels]
-            stream_url_map = {c.slug: c.stream_url for c in channels if c.stream_url}
-            live = await _refresh_health(slugs, stream_url_map=stream_url_map)
-            _health_cache["ts"] = now
-            _health_cache["live"] = live
-            _health_cache["source"] = "deep-probe"
-            return {"live": sorted(live), "total": len(live), "cached_age_s": 0.0,
-                    "source": "deep-probe", "fallback_reason": str(e)}
+            fallback_reason = str(e)
+
+        # 2. Fallback: deep probe sobre canales activos (Magma + lo que haya)
+        channels = crud_channels.get_channels(db, active_only=True)
+        slugs = [c.slug for c in channels]
+        stream_url_map = {c.slug: c.stream_url for c in channels if c.stream_url}
+        live = await _refresh_health(slugs, stream_url_map=stream_url_map)
+        _health_cache["ts"] = now
+        _health_cache["live"] = live
+        _health_cache["source"] = "deep-probe"
+        return {"live": sorted(live), "total": len(live), "cached_age_s": 0.0,
+                "source": "deep-probe", "fallback_reason": fallback_reason}
 
 
 # ---------------------------------------------------------------------------
@@ -555,6 +579,12 @@ async def proxy_segment(slug: str, u: str, request: Request):
     """
     if not (u.startswith("http://") or u.startswith("https://")):
         raise HTTPException(status_code=400, detail="URL inválida")
+    # Anti-SSRF: el cliente controla `u`. Si no validáramos el destino, alguien
+    # en la LAN podría usar este proxy como relay contra la red interna del host
+    # (router 192.168.x.x, servicios en localhost, metadata 169.254.169.254…).
+    # Solo permitimos hosts públicos enrutables (las CDN de los streams lo son).
+    if not is_safe_public_url(u):
+        raise HTTPException(status_code=403, detail="Destino no permitido")
 
     # Reenviar Range si el cliente lo manda (importante para seek y buffering)
     forward_headers = {}
@@ -570,7 +600,7 @@ async def proxy_segment(slug: str, u: str, request: Request):
     last_status = None
     for attempt in range(3):
         try:
-            head = await _client().get(u, headers=_hdr(u, forward_headers))
+            head = await _guarded_get(u, headers=_hdr(u, forward_headers))
             last_status = head.status_code
             if head.status_code in (200, 206):
                 break

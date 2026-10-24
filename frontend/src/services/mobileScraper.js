@@ -1,9 +1,9 @@
 /**
- * Scraper de tvtvhd.com en JS — port directo de backend/app/services/scraper.py.
+ * Scraper de canales en JS — port directo de backend/app/services/scraper.py.
  *
- * Antes parseaba HTML. tvtvhd cambió: ahora la home es vacía y los canales
- * se cargan dinámicamente desde https://tvtvhd.com/status.json. Lee ese
- * JSON, devuelve canales + estado live/offline.
+ * Intenta tvtvhd.com/status.json primero; si falla (el dominio fue confiscado
+ * por el DOJ en julio 2026, Operation Offsides) cae al mirror del repo y
+ * devuelve lo que haya sin colgar la app.
  *
  * Usa CapacitorHttp (no fetch del WebView) para evitar CORS y poder pasar
  * el User-Agent de browser que tvtvhd espera.

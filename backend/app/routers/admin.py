@@ -1,12 +1,22 @@
-"""Endpoints administrativos. Requieren X-API-Key."""
+"""Endpoints administrativos. Requieren X-API-Key y, por defecto, que la
+petición venga del propio equipo (loopback) — ver require_local_admin."""
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.auth import require_api_key
 from app.database import get_db
+from app.security import require_local_admin
 from app.services import scraper, iptv_scraper, xtream_scraper
 
-router = APIRouter(prefix="/api/admin", tags=["admin"])
+# require_local_admin a nivel de router: como la API key por defecto es pública
+# (viene horneada para que la app funcione de fábrica), restringimos además la
+# administración al equipo local. Quien quiera administrar desde la LAN puede
+# habilitarlo con LOCALTV_ALLOW_LAN_ADMIN=true (y debería cambiar la API key).
+router = APIRouter(
+    prefix="/api/admin",
+    tags=["admin"],
+    dependencies=[Depends(require_local_admin)],
+)
 
 
 @router.post("/sync-channels", dependencies=[Depends(require_api_key)])

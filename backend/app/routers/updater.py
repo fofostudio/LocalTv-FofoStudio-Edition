@@ -29,12 +29,39 @@ import threading
 from pathlib import Path
 
 import httpx
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
+from app.security import require_local
 from app.version import APP_VERSION
 
 router = APIRouter(prefix="/api/update", tags=["update"])
+
+# Hosts desde los que se acepta descargar el instalador. Las releases de GitHub
+# se sirven desde github.com (redirige) y objects.githubusercontent.com (el CDN
+# real del binario). Restringirlo evita que se use este endpoint para descargar
+# y EJECUTAR un binario desde un dominio arbitrario controlado por un atacante.
+_ALLOWED_UPDATE_HOSTS = {
+    "github.com",
+    "www.github.com",
+    "objects.githubusercontent.com",
+    "release-assets.githubusercontent.com",
+    "codeload.github.com",
+}
+
+
+def _is_allowed_update_url(url: str) -> bool:
+    from urllib.parse import urlparse
+    try:
+        p = urlparse(url)
+    except ValueError:
+        return False
+    # Solo HTTPS: descargar el instalador por HTTP plano lo deja abierto a que
+    # un atacante en la red lo sustituya (MITM) por uno malicioso.
+    if p.scheme != "https" or not p.hostname:
+        return False
+    host = p.hostname.lower()
+    return host in _ALLOWED_UPDATE_HOSTS or host.endswith(".githubusercontent.com")
 
 
 def _is_bundled() -> bool:
@@ -86,8 +113,11 @@ class InstallPayload(BaseModel):
     asset_name: str | None = None
 
 
-@router.post("/install")
+@router.post("/install", dependencies=[Depends(require_local)])
 async def install_update(payload: InstallPayload):
+    # require_local: este endpoint descarga y EJECUTA un binario. Solo se permite
+    # desde el propio equipo (loopback), nunca desde otro dispositivo de la LAN —
+    # sin esto, cualquiera en tu red podría forzar la ejecución de un .exe.
     if not _is_bundled():
         raise HTTPException(503, "Auto-update solo disponible en la app empaquetada (.exe / .app)")
 
@@ -95,14 +125,16 @@ async def install_update(payload: InstallPayload):
     if pk not in ("win", "mac"):
         raise HTTPException(503, f"Plataforma {pk} no soportada para auto-update")
 
-    if not (payload.url.startswith("http://") or payload.url.startswith("https://")):
-        raise HTTPException(400, "URL inválida")
+    if not _is_allowed_update_url(payload.url):
+        raise HTTPException(400, "URL de actualización no permitida (solo releases oficiales por HTTPS)")
 
     target_dir = _data_dir() / "updates"
     target_dir.mkdir(parents=True, exist_ok=True)
 
-    # Resolver el filename del asset
-    name = payload.asset_name or payload.url.rsplit("/", 1)[-1] or "update-installer"
+    # Resolver el filename del asset — solo el basename, sin componentes de ruta,
+    # para que un asset_name tipo "..\\..\\algo.exe" no escriba fuera de updates/.
+    raw_name = payload.asset_name or payload.url.rsplit("/", 1)[-1] or "update-installer"
+    name = os.path.basename(raw_name.replace("\\", "/")) or "update-installer"
     target_path = target_dir / name
 
     # Descargar (streaming, soporta archivos grandes)

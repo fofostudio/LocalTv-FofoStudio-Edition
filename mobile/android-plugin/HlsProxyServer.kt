@@ -192,6 +192,8 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
         var referer = REFERER
         var lastErr: Exception? = null
         for (level in 0 until 3) {
+            // Anti-SSRF: la cadena de iframes la controla el HTML del upstream.
+            if (!isPublicHost(url)) throw IOException("Destino no permitido: $url")
             var html: String? = null
             for (attempt in 0 until 3) {
                 try {
@@ -226,6 +228,10 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
     /** GET con reintentos ante errores transitorios (5xx/timeout/red). 4xx no se reintenta. */
     @Throws(IOException::class)
     private fun getWithRetry(url: String, range: String? = null, tries: Int = 3): okhttp3.Response {
+        // Anti-SSRF también para master/variant (URLs scrapeadas de tvtvhd/Magma),
+        // no solo para el segmento: un upstream comprometido no debe poder
+        // apuntarnos a la red interna.
+        if (!isPublicHost(url)) throw IOException("Destino no permitido")
         var lastResp: okhttp3.Response? = null
         var lastErr: Exception? = null
         for (attempt in 0 until tries) {
@@ -368,6 +374,22 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
     private fun resolveUrl(base: String, ref: String): String =
         try { URL(URL(base), ref).toString() } catch (_: Exception) { ref }
 
+    /**
+     * Anti-SSRF: true solo si el host de la URL resuelve a direcciones públicas.
+     * Bloquea loopback, link-local (169.254/16) y privadas (10/8, 172.16/12,
+     * 192.168/16) para que el proxy no se use contra la red interna.
+     */
+    private fun isPublicHost(url: String): Boolean = try {
+        val host = URL(url).host ?: return false
+        val addrs = java.net.InetAddress.getAllByName(host)
+        addrs.isNotEmpty() && addrs.all { a ->
+            !a.isLoopbackAddress && !a.isAnyLocalAddress &&
+            !a.isLinkLocalAddress && !a.isSiteLocalAddress && !a.isMulticastAddress
+        }
+    } catch (_: Exception) {
+        false
+    }
+
     // ----------------------------------------------------------------------
     // 3. Handlers
     // ----------------------------------------------------------------------
@@ -397,6 +419,11 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
         // el stream NO CARGABA en Android. Este era el bug principal de móvil.
         val target = u
         if (!target.startsWith("http")) return badRequest("Bad URL")
+        // Anti-SSRF: el proxy bindea a 0.0.0.0, así que cualquiera en la Wi-Fi
+        // puede pegarle. Si no validáramos el destino, podrían usar el celular
+        // como relay contra la red interna (router 192.168.x.x, etc.). Solo
+        // permitimos hosts públicos — las CDN de los streams lo son.
+        if (!isPublicHost(target)) return badRequest("Destino no permitido")
 
         // GET con reintentos: un blip transitorio del upstream no debe cortar
         // la reproducción en vivo.

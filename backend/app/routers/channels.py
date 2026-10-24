@@ -4,6 +4,7 @@ from app.database import get_db
 from app.crud import channels as crud_channels
 from app.schemas.channel import ChannelCreate, ChannelRead, ChannelUpdate
 from app.auth import require_api_key
+from app.security import require_local_admin
 
 router = APIRouter(prefix="/api/channels", tags=["channels"])
 
@@ -30,8 +31,9 @@ def read_channel_by_slug(slug: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Channel not found")
     return db_channel
 
-# Admin (requiere API key)
-@router.post("/", response_model=ChannelRead, status_code=status.HTTP_201_CREATED)
+# Admin (requiere API key + petición local — la key por defecto es pública)
+@router.post("/", response_model=ChannelRead, status_code=status.HTTP_201_CREATED,
+             dependencies=[Depends(require_local_admin)])
 def create_channel(
     channel: ChannelCreate,
     db: Session = Depends(get_db),
@@ -39,7 +41,8 @@ def create_channel(
 ):
     return crud_channels.create_channel(db, channel)
 
-@router.put("/{channel_id}", response_model=ChannelRead)
+@router.put("/{channel_id}", response_model=ChannelRead,
+            dependencies=[Depends(require_local_admin)])
 def update_channel(
     channel_id: int,
     channel_update: ChannelUpdate,
@@ -51,7 +54,8 @@ def update_channel(
         raise HTTPException(status_code=404, detail="Channel not found")
     return db_channel
 
-@router.delete("/{channel_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{channel_id}", status_code=status.HTTP_204_NO_CONTENT,
+               dependencies=[Depends(require_local_admin)])
 def delete_channel(
     channel_id: int,
     db: Session = Depends(get_db),

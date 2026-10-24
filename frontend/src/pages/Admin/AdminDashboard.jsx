@@ -191,7 +191,7 @@ export default function AdminDashboard() {
           <h2>Canales <span className={styles.countBadge}>{channels.length}</span></h2>
           <div className={styles.toolbarActions}>
             <button onClick={handleSync} className={styles.buttonSecondary} disabled={syncing}>
-              {syncing ? 'Sincronizando...' : '↻ Sincronizar desde tvtvhd'}
+              {syncing ? 'Sincronizando...' : '↻ Sincronizar canales'}
             </button>
             <button onClick={handleAddChannel} className={styles.button}>
               + Agregar Canal
@@ -303,7 +303,7 @@ export default function AdminDashboard() {
                 {channels.length === 0 ? (
                   <tr>
                     <td colSpan="5" className={styles.noDataCell}>
-                      No hay canales. Crea uno o sincroniza desde tvtvhd.
+                      No hay canales. Crea uno o importa desde Xtream/Magma.
                     </td>
                   </tr>
                 ) : channels.map((channel) => (

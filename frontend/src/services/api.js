@@ -96,16 +96,9 @@ const webApi = {
   getNetworkInfo: () => jsonFetch('/api/network/info'),
 
   getDiaryEvents: async () => {
-    // Timeout para que la agenda no quede colgada si pltvhd está lento/caído.
-    const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), 8000);
-    try {
-      const res = await fetch('https://pltvhd.com/diaries.json', { signal: ctrl.signal });
-      if (!res.ok) throw new Error('Failed to fetch diary events');
-      return await res.json();
-    } finally {
-      clearTimeout(t);
-    }
+    // pltvhd.com fue confiscado junto con tvtvhd (Operation Offsides, julio 2026).
+    // Devolvemos array vacío — la agenda se mostrará vacía en vez de colgar.
+    return [];
   },
 };
 
@@ -188,15 +181,8 @@ const mobileApi = {
   },
 
   async getDiaryEvents() {
-    const cap = window.Capacitor;
-    const { CapacitorHttp } = cap.Plugins;
-    const r = await CapacitorHttp.get({
-      url: 'https://pltvhd.com/diaries.json',
-      connectTimeout: 8000,
-      readTimeout: 8000,
-    });
-    if (r.status !== 200) throw new Error('Failed to fetch diary events');
-    return typeof r.data === 'string' ? JSON.parse(r.data) : r.data;
+    // pltvhd.com confiscado (Operation Offsides, julio 2026).
+    return [];
   },
 };
 

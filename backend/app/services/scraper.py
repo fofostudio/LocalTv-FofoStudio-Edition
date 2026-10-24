@@ -1,27 +1,12 @@
 """
 Scraper de canales de tvtvhd.com en Python puro.
 
-Antes (v1) parseaba el HTML de la home con regex. tvtvhd cambió: ahora la
-home es una shell vacía y el contenido se inyecta vía JS desde
-`https://tvtvhd.com/status.json`. Ese JSON ya contiene la lista oficial de
-canales agrupados por región y el estado actual de cada uno
-("Activo"/"Inactivo"). Mucho más confiable y rápido que hacer probes
-paralelos a 100 streams.
-
-Estructura de status.json:
-{
-  "LATINOAMERICA": [
-    {"Canal": "ESPN", "Estado": "Activo",
-     "Link": "https://tvtvhd.com/vivo/canales.php?stream=espn"},
-    ...
-  ],
-  "ARGENTINA": [...],
-  "MEXICO": [...],
-  ...
-}
-
-Devuelve lista de ScrapedChannel: {name, slug, stream_param, stream_url,
-region, is_live}.
+tvtvhd.com fue confiscado por el DOJ (Operation Offsides, julio 2026).
+Las funciones fetch_channels() y fetch_status() intentan el dominio original
+y devuelven listas vacías si falla — la app NO cuelga. La fuente principal
+de canales vivos es ahora Magma/Xtream (xtream_scraper.py) y las listas
+públicas de iptv-org. Si tvtvhd resurge en otro dominio, basta actualizar
+STATUS_URL.
 """
 from __future__ import annotations
 
@@ -107,17 +92,33 @@ def _normalize_status(payload: dict) -> list[ScrapedChannel]:
 
 
 async def fetch_channels() -> list[ScrapedChannel]:
-    """Descarga status.json y devuelve los canales únicos encontrados."""
-    async with httpx.AsyncClient(
-        headers=HEADERS, timeout=15.0, follow_redirects=True
-    ) as client:
-        r = await client.get(STATUS_URL)
-        r.raise_for_status()
-        return _normalize_status(r.json())
+    """Descarga status.json y devuelve los canales únicos encontrados.
+
+    Devuelve lista vacía si el upstream no responde (tvtvhd confiscado desde
+    julio 2026). Timeout agresivo de 6s para no bloquear el arranque.
+    """
+    if not STATUS_URL:
+        return []
+    try:
+        async with httpx.AsyncClient(
+            headers=HEADERS, timeout=6.0, follow_redirects=True
+        ) as client:
+            r = await client.get(STATUS_URL)
+            if r.status_code != 200:
+                return []
+            data = r.json()
+            if not isinstance(data, dict):
+                return []
+            return _normalize_status(data)
+    except Exception:
+        return []
 
 
 async def fetch_status() -> dict[str, bool]:
-    """Devuelve {slug: is_live} para health-check rápido (un solo fetch)."""
+    """Devuelve {slug: is_live} para health-check rápido (un solo fetch).
+
+    Si tvtvhd no responde, devuelve dict vacío en vez de lanzar excepción.
+    """
     chans = await fetch_channels()
     return {c.slug: c.is_live for c in chans}
 

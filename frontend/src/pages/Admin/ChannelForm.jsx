@@ -117,7 +117,7 @@ export default function ChannelForm({ onClose, onSuccess, channel = null, apiKey
             <label>URL de Stream *</label>
             <input type="url" name="stream_url" value={formData.stream_url}
                    onChange={handleInputChange} className={styles.input}
-                   placeholder="https://tvtvhd.com/vivo/canales.php?stream=..." disabled={loading} />
+                   placeholder="https://ejemplo.com/stream.m3u8" disabled={loading} />
           </div>
 
           <div className={styles.formGroup}>

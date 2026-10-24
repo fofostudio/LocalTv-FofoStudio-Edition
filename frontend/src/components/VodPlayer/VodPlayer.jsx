@@ -100,6 +100,14 @@ export default function VodPlayer({
           src={source.url}
           allow="autoplay; encrypted-media; fullscreen"
           allowFullScreen
+          // SEGURIDAD: estos embeds vienen de sitios de terceros NO confiables
+          // (vidsrc, 2embed, voe…). El sandbox los confina al <iframe>: pueden
+          // reproducir el video pero NO secuestrar la ventana (allow-top-navigation
+          // OFF), abrir pop-ups/descargas de malware (allow-popups OFF), ni
+          // disparar Pointer Lock. Sin esto, una página de embed comprometida
+          // podía redirigir tu app a phishing o forzar exploits del navegador.
+          sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"
+          referrerPolicy="no-referrer"
           style={{ border: 0, width: '100%', height: '100%' }}
         />
       ) : (
