@@ -394,19 +394,16 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
     // 3. Handlers
     // ----------------------------------------------------------------------
     private fun handlePlaylist(slug: String, src: String?, up: String? = null): Response {
-        // Resolución resiliente: reintentos + aplanado master→variante. Si falla,
-        // forzamos re-scrape fresco de tvtvhd y reintentamos una vez (cubre el
-        // token/URL vencidos durante la reproducción en vivo).
         val pair = try {
             resolveMediaPlaylist(slug, false, src, up)
         } catch (e: Exception) {
             resolveCache.remove(slug)
             try {
                 resolveMediaPlaylist(slug, true, src, up)
-            } catch (e2: Exception) {
-                return error502("Canal no disponible: ${e2.message}")
+            } catch (_: Exception) {
+                null
             }
-        }
+        } ?: return error502("Canal no disponible")
         val rewritten = rewriteManifest(pair.first, base = pair.second, slug = slug)
         return manifest(rewritten)
     }
