@@ -380,11 +380,14 @@ class HlsProxyServer(port: Int) : NanoHTTPD("0.0.0.0", port) {
      * 192.168/16) para que el proxy no se use contra la red interna.
      */
     private fun isPublicHost(url: String): Boolean = try {
-        val host = URL(url).host ?: return false
-        val addrs = java.net.InetAddress.getAllByName(host)
-        addrs.isNotEmpty() && addrs.all { a ->
-            !a.isLoopbackAddress && !a.isAnyLocalAddress &&
-            !a.isLinkLocalAddress && !a.isSiteLocalAddress && !a.isMulticastAddress
+        val host = URL(url).host
+        if (host == null) false
+        else {
+            val addrs = java.net.InetAddress.getAllByName(host)
+            addrs.isNotEmpty() && addrs.all { a ->
+                !a.isLoopbackAddress && !a.isAnyLocalAddress &&
+                !a.isLinkLocalAddress && !a.isSiteLocalAddress && !a.isMulticastAddress
+            }
         }
     } catch (_: Exception) {
         false
